@@ -7,6 +7,24 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ---
 
+## 2026-10-17 · documentación
+
+**Resumen:** se documentó el sistema de diseño del producto en `DESIGN.md` y `.impeccable/design.json`.
+
+Tokens extraídos del código real (Tailwind 4 + Instrument Sans + familia `slate`, con `blue-700` como
+azul institucional) y decisiones de voz acordadas: norte creativo «El Orden del Día», elevación «plano con
+sombra funcional», componentes «directos y sin adornos». Queda marcado como pendiente el logotipo del
+ITO: sigue sin haber archivo en el repositorio, así que el header actual conserva el nombre de la
+aplicación.
+
+**Archivos:**
+- Nuevos: `DESIGN.md`, `.impeccable/design.json`
+- Modificados: `docs/bitacora.md`
+
+**Verificación:** sin cambios de código; no aplica `php artisan test` ni `pint --test`.
+
+---
+
 ## 2026-10-17 · sprint
 
 **Resumen:** integración del **Sprint 2 · Catálogos base y semestre**.
