@@ -1,0 +1,49 @@
+@props(['titulo' => null])
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $titulo ? $titulo.' · ' : '' }}{{ config('app.name') }}</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+    <header class="border-b border-slate-200 bg-white">
+        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+            <div class="flex items-center gap-6">
+                <a href="{{ route('panel') }}" class="text-base font-semibold text-blue-700">{{ config('app.name') }}</a>
+                <nav class="flex items-center gap-4 text-sm font-medium text-slate-600">
+                    <a href="{{ route('panel') }}" class="hover:text-blue-700">Panel</a>
+                    @can('viewAny', App\Models\User::class)
+                        <a href="{{ route('usuarios.index') }}" class="hover:text-blue-700">Usuarios</a>
+                    @endcan
+                    @can('roles.ver')
+                        <a href="{{ route('roles.index') }}" class="hover:text-blue-700">Roles y permisos</a>
+                    @endcan
+                </nav>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+                <span class="hidden text-slate-600 sm:inline">{{ auth()->user()->nombre_completo }}</span>
+                <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold capitalize text-blue-800">{{ auth()->user()->getRoleNames()->first() }}</span>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-100">Salir</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-8">
+        @if (session('exito'))
+            <div class="mb-6 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="status">{{ session('exito') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">{{ session('error') }}</div>
+        @endif
+
+        {{ $slot }}
+    </main>
+
+    @stack('scripts')
+</body>
+</html>
