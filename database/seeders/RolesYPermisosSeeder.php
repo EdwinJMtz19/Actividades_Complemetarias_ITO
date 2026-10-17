@@ -8,7 +8,8 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
- * Sprint 1: roles y permisos base. Es idempotente y solo AGREGA permisos,
+ * Roles y permisos (Sprint 1) más los de catálogos y semestres (Sprint 2).
+ * Es idempotente y solo AGREGA permisos,
  * así que se puede volver a ejecutar sin pisar lo configurado en la pantalla de roles.
  * Los sprints siguientes añaden aquí sus propios permisos.
  */
@@ -25,6 +26,23 @@ class RolesYPermisosSeeder extends Seeder
             'usuarios.eliminar',
             'roles.ver',
             'roles.editar',
+            // Sprint 2 · catálogos base y semestres (solo el administrador por ahora).
+            'departamentos.ver',
+            'departamentos.crear',
+            'departamentos.editar',
+            'departamentos.eliminar',
+            'carreras.ver',
+            'carreras.crear',
+            'carreras.editar',
+            'carreras.eliminar',
+            'ubicaciones.ver',
+            'ubicaciones.crear',
+            'ubicaciones.editar',
+            'ubicaciones.eliminar',
+            // Los semestres no se eliminan: no existe el permiso semestres.eliminar.
+            'semestres.ver',
+            'semestres.crear',
+            'semestres.editar',
         ];
 
         foreach ($permisos as $nombre) {

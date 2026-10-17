@@ -1,4 +1,4 @@
-@props(['name', 'label', 'opciones' => [], 'value' => null, 'required' => false, 'vacio' => 'Selecciona una opción', 'id' => null])
+@props(['name', 'label', 'opciones' => [], 'value' => null, 'required' => false, 'vacio' => 'Selecciona una opción', 'id' => null, 'ayuda' => null])
 @php $id ??= $name; @endphp
 <div>
     <label for="{{ $id }}" class="block text-sm font-medium text-slate-700">
@@ -11,5 +11,6 @@
             <option value="{{ $clave }}" @selected((string) old($name, $value) === (string) $clave)>{{ $texto }}</option>
         @endforeach
     </select>
+    @if ($ayuda)<p class="mt-1 text-xs text-slate-500">{{ $ayuda }}</p>@endif
     @error($name)<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
 </div>

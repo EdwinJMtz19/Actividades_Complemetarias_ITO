@@ -21,8 +21,6 @@
 /storage/*.key
 /storage/pail
 /vendor
-/AGENTS.md
-/CLAUDE.md
 /.agents
 _ide_helper.php
 Homestead.json

@@ -19,13 +19,16 @@ it('crea los cuatro roles del cronograma', function () {
         ->toBe(['administrador', 'coordinador', 'instructor', 'alumno']);
 });
 
+// 6 del Sprint 1 (usuarios, roles) + 15 del Sprint 2 (departamentos, carreras, ubicaciones y semestres).
+const TOTAL_PERMISOS = 21;
+
 it('es idempotente y no pisa permisos agregados desde la pantalla de roles', function () {
     Role::findByName('instructor')->givePermissionTo('usuarios.ver');
 
     Escenarios::base();
 
     expect(Role::findByName('instructor')->hasPermissionTo('usuarios.ver'))->toBeTrue()
-        ->and(Permission::count())->toBe(6);
+        ->and(Permission::count())->toBe(TOTAL_PERMISOS);
 });
 
 it('mantiene tipo_usuario alineado con el rol', function () {
@@ -57,7 +60,7 @@ it('no deja modificar los permisos del administrador', function () {
 
     $this->actingAs($this->admin)->put("/roles/{$rolAdmin->id}", ['permisos' => []])->assertForbidden();
 
-    expect($rolAdmin->fresh()->permissions)->toHaveCount(6);
+    expect($rolAdmin->fresh()->permissions)->toHaveCount(TOTAL_PERMISOS);
 });
 
 it('rechaza permisos que no existen', function () {

@@ -7,10 +7,11 @@ use App\Models\Carrera;
 use App\Models\CoordinadorDepartamento;
 use App\Models\Departamento;
 use App\Models\Instructor;
+use App\Models\Semestre;
 use App\Models\User;
 use Database\Seeders\RolesYPermisosSeeder;
 
-/** Datos de apoyo para las pruebas del Sprint 1. */
+/** Datos de apoyo para las pruebas (Sprints 1 y 2). */
 class Escenarios
 {
     public const CONTRASENA = 'Actividades2026';
@@ -28,6 +29,22 @@ class Escenarios
     public static function carrera(string $nombre = 'Ingeniería en Sistemas Computacionales'): Carrera
     {
         return Carrera::firstOrCreate(['nombre' => $nombre]);
+    }
+
+    /** Semestre válido (agosto–diciembre 2026, inactivo) con los datos que se quieran cambiar. */
+    public static function semestre(array $atributos = []): Semestre
+    {
+        return Semestre::create($atributos + [
+            'año' => 2026,
+            'periodo' => 2,
+            'fecha_inicio' => '2026-08-24',
+            'fecha_fin' => '2026-12-11',
+            'fecha_inicio_inscripciones' => '2026-08-24',
+            'hora_inicio_inscripciones' => '08:00',
+            'fecha_fin_inscripciones' => '2026-08-31',
+            'hora_fin_inscripciones' => '20:00',
+            'status' => Semestre::INACTIVO,
+        ]);
     }
 
     /** Crea un usuario con su rol y el perfil que le corresponde. */

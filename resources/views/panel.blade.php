@@ -39,6 +39,18 @@
                 @can('roles.ver')
                     <li><a href="{{ route('roles.index') }}" class="font-medium text-blue-700 hover:underline">Roles y permisos</a></li>
                 @endcan
+                @can('semestres.ver')
+                    <li><a href="{{ route('semestres.index') }}" class="font-medium text-blue-700 hover:underline">Semestres</a></li>
+                @endcan
+                @can('departamentos.ver')
+                    <li><a href="{{ route('departamentos.index') }}" class="font-medium text-blue-700 hover:underline">Departamentos</a></li>
+                @endcan
+                @can('carreras.ver')
+                    <li><a href="{{ route('carreras.index') }}" class="font-medium text-blue-700 hover:underline">Carreras</a></li>
+                @endcan
+                @can('ubicaciones.ver')
+                    <li><a href="{{ route('ubicaciones.index') }}" class="font-medium text-blue-700 hover:underline">Ubicaciones</a></li>
+                @endcan
                 @cannot('viewAny', App\Models\User::class)
                     <li class="text-slate-500">Los demás módulos se habilitan en los siguientes sprints.</li>
                 @endcannot

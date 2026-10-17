@@ -12,13 +12,25 @@
         <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
             <div class="flex items-center gap-6">
                 <a href="{{ route('panel') }}" class="text-base font-semibold text-blue-700">{{ config('app.name') }}</a>
-                <nav class="flex items-center gap-4 text-sm font-medium text-slate-600">
+                <nav class="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600">
                     <a href="{{ route('panel') }}" class="hover:text-blue-700">Panel</a>
                     @can('viewAny', App\Models\User::class)
                         <a href="{{ route('usuarios.index') }}" class="hover:text-blue-700">Usuarios</a>
                     @endcan
                     @can('roles.ver')
                         <a href="{{ route('roles.index') }}" class="hover:text-blue-700">Roles y permisos</a>
+                    @endcan
+                    @can('semestres.ver')
+                        <a href="{{ route('semestres.index') }}" class="hover:text-blue-700">Semestres</a>
+                    @endcan
+                    @can('departamentos.ver')
+                        <a href="{{ route('departamentos.index') }}" class="hover:text-blue-700">Departamentos</a>
+                    @endcan
+                    @can('carreras.ver')
+                        <a href="{{ route('carreras.index') }}" class="hover:text-blue-700">Carreras</a>
+                    @endcan
+                    @can('ubicaciones.ver')
+                        <a href="{{ route('ubicaciones.index') }}" class="hover:text-blue-700">Ubicaciones</a>
                     @endcan
                 </nav>
             </div>
