@@ -8,9 +8,17 @@ el equipo: es lo que leen las otras IAs (y el residente) para entender qué se e
 | Documento | Para qué sirve |
 |---|---|
 | [`contexto.md`](contexto.md) | Qué es el sistema, cronograma de sprints, modelo de datos, reglas de negocio y decisiones técnicas. **Léelo primero.** |
+| [`requisitos.md`](requisitos.md) | Los 15 requisitos funcionales y los 6 no funcionales, con su estado real y la evidencia en el código. |
 | [`convenciones.md`](convenciones.md) | Cómo se trabaja en este repo: comandos, estilo, pruebas y reglas obligatorias. |
 | [`bitacora.md`](bitacora.md) | Registro cronológico de cada sprint y cambio (solo se agrega, nunca se reescribe). |
 | [`sprints/`](sprints/) | Un documento por sprint con el detalle de lo entregado. |
+
+### Documentos por sprint
+
+| Sprint | Documentos |
+|---|---|
+| [1 · Usuarios y roles](sprints/sprint-01-usuarios-y-roles.md) | [Técnico](sprints/sprint-01-usuarios-y-roles.md) |
+| [2 · Catálogos base y semestres](sprints/sprint-02-catalogos-y-semestres.md) | [Técnico](sprints/sprint-02-catalogos-y-semestres.md) · [Historias de usuario y tarjetas CRC](sprints/sprint-02-historias-de-usuario-y-crc.md) |
 
 ## Estado actual
 
@@ -43,7 +51,7 @@ php artisan migrate:fresh --seed
 # Servidor local -> http://localhost:8000
 php artisan serve
 
-# Pruebas (deben pasar 122: 51 del Sprint 1 + 71 del Sprint 2)
+# Pruebas (deben pasar 139: 51 del Sprint 1 + 71 del Sprint 2 + 10 de las pantallas de acceso + 7 de movimiento)
 php artisan test
 
 # Cierre automático de semestres vencidos (manual) y programador en local

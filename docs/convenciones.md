@@ -20,7 +20,7 @@
 
 ```sh
 php artisan migrate:fresh --seed   # rehacer la base de datos con datos iniciales
-php artisan test                   # 122 pruebas (51 del Sprint 1 + 71 del Sprint 2)
+php artisan test                   # 139 pruebas (51 del Sprint 1 + 88 posteriores)
 vendor\bin\pint                    # formatear    |    vendor\bin\pint --test  # revisar
 npm run build                      # compilar Tailwind y JS
 php artisan serve                  # http://localhost:8000

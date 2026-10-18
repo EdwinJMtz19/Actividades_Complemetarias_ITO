@@ -17,7 +17,7 @@ calificaciones. Sprint actual: **1 · Usuarios y Roles (entregado)**.
 ## Reglas que no se rompen
 
 1. **Nada sin pruebas.** Todo cambio va con su prueba Pest en `tests/Feature/`. Debe quedar:
-   `php artisan test` en verde (hoy son 51) y `vendor\bin\pint --test` sin observaciones.
+   `php artisan test` en verde (hoy son 139) y `vendor\bin\pint --test` sin observaciones.
 2. **No edites migraciones ya aplicadas.** Crea una nueva `YYYY_MM_DD_HHMMSS_*.php`.
 3. **El acceso se controla con permisos y políticas**, no con condicionales en las vistas:
    `permission:...` en rutas, `UserPolicy` para reglas sobre modelos, middleware propio para
@@ -40,7 +40,7 @@ calificaciones. Sprint actual: **1 · Usuarios y Roles (entregado)**.
 
 ```sh
 php artisan migrate:fresh --seed   # rehacer la BD con datos iniciales
-php artisan test                   # 51 pruebas
+php artisan test                   # 139 pruebas
 vendor\bin\pint                    # formatear
 npm run build                      # compilar assets
 php artisan serve                  # http://localhost:8000

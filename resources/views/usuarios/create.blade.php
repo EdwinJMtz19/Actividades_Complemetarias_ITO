@@ -5,8 +5,8 @@
         @csrf
         @include('usuarios._form')
         <div class="flex justify-end gap-3">
-            <a href="{{ route('usuarios.index') }}" class="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100">Cancelar</a>
-            <button class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Guardar</button>
+            <x-boton :href="route('usuarios.index')" variante="secundario" icono="volver" gesto="izquierda">Cancelar</x-boton>
+            <x-boton data-enviar class="mov-enviar">Guardar</x-boton>
         </div>
     </form>
 </x-layouts.app>

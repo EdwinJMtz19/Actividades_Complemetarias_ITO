@@ -43,20 +43,35 @@ it('rechaza una contraseña incorrecta', function () {
 
     $this->from('/login')->post('/login', ['email' => 'ana@example.com', 'contrasena' => 'incorrecta'])
         ->assertRedirect('/login')
-        ->assertSessionHasErrors('email');
+        ->assertSessionHasErrors('credenciales')
+        ->assertSessionDoesntHaveErrors('email');
 
     $this->assertGuest();
+});
+
+it('muestra el fallo de autenticación en la banda de mensajes y no bajo el campo de correo', function () {
+    Escenarios::usuario('alumno', null, ['email' => 'ana@example.com']);
+
+    $respuesta = $this->from('/login')->post('/login', ['email' => 'ana@example.com', 'contrasena' => 'incorrecta']);
+
+    $respuesta->assertRedirect('/login');
+
+    $this->from('/login')->followingRedirects()->post('/login', ['email' => 'ana@example.com', 'contrasena' => 'incorrecta'])
+        ->assertOk()
+        ->assertSee(trans('auth.failed'))
+        ->assertSee('role="alert"', escape: false)
+        ->assertDontSee('id="email-error"', escape: false);
 });
 
 it('no deja entrar a una cuenta desactivada y avisa solo con la contraseña correcta', function () {
     Escenarios::usuario('alumno', null, ['email' => 'baja@example.com', 'activo' => false]);
 
     $this->post('/login', ['email' => 'baja@example.com', 'contrasena' => Escenarios::CONTRASENA])
-        ->assertSessionHasErrors(['email' => 'Tu cuenta está desactivada. Contacta al administrador.']);
+        ->assertSessionHasErrors(['credenciales' => 'Tu cuenta está desactivada. Contacta al administrador.']);
     $this->assertGuest();
 
     $this->post('/login', ['email' => 'baja@example.com', 'contrasena' => 'otra-cosa'])
-        ->assertSessionHasErrors(['email' => trans('auth.failed')]);
+        ->assertSessionHasErrors(['credenciales' => trans('auth.failed')]);
 });
 
 it('bloquea el acceso tras 5 intentos fallidos', function () {
@@ -68,8 +83,96 @@ it('bloquea el acceso tras 5 intentos fallidos', function () {
 
     // Aun con la contraseña correcta, queda bloqueado un rato.
     $this->post('/login', ['email' => 'ana@example.com', 'contrasena' => Escenarios::CONTRASENA])
-        ->assertSessionHasErrors('email');
+        ->assertSessionHasErrors('credenciales');
     $this->assertGuest();
+});
+
+it('avisa del bloqueo en la banda de mensajes, no bajo el campo de correo', function () {
+    Escenarios::usuario('alumno', null, ['email' => 'ana@example.com']);
+
+    foreach (range(1, 5) as $_) {
+        $this->post('/login', ['email' => 'ana@example.com', 'contrasena' => 'mala']);
+    }
+
+    $this->from('/login')->followingRedirects()->post('/login', ['email' => 'ana@example.com', 'contrasena' => 'mala'])
+        ->assertOk()
+        ->assertSee('Demasiados intentos de acceso');
+});
+
+it('deja sin errores de campo los fallos de autenticación y conserva el correo escrito', function () {
+    Escenarios::usuario('alumno', null, ['email' => 'ana@example.com']);
+
+    $this->from('/login')->followingRedirects()->post('/login', ['email' => 'ana@example.com', 'contrasena' => 'mala'])
+        ->assertOk()
+        ->assertSee('value="ana@example.com"', escape: false)
+        ->assertDontSee('id="email-error"', escape: false);
+});
+
+it('ofrece una salida al que no puede entrar, con el correo de soporte cuando está configurado', function () {
+    config(['contacto.soporte_email' => 'soporte@ito.mx']);
+
+    $this->get('/login')
+        ->assertOk()
+        ->assertSee('¿No puedo entrar?')
+        ->assertSee('mailto:soporte@ito.mx', escape: false);
+
+    config(['contacto.soporte_email' => null]);
+
+    $this->get('/login')
+        ->assertOk()
+        ->assertSee('¿No puedo entrar?')
+        ->assertSee('administrador del sistema')
+        ->assertDontSee('mailto:', escape: false);
+});
+
+it('desactiva la validación nativa del navegador para que los errores sean los del servidor', function () {
+    $this->get('/login')->assertOk()->assertSee('novalidate', escape: false);
+    $this->get('/registro')->assertOk()->assertSee('novalidate', escape: false);
+});
+
+it('ofrece mostrar contraseña y aviso de Bloq Mayús en las pantallas de acceso', function () {
+    $this->get('/login')
+        ->assertOk()
+        ->assertSee('data-ver-contrasena="contrasena"', escape: false)
+        ->assertSee('aria-pressed="false"', escape: false)
+        ->assertSee('id="contrasena-bloq-mayus"', escape: false)
+        ->assertSee('El Bloq Mayús está activado.');
+
+    $this->get('/registro')
+        ->assertOk()
+        ->assertSee('data-ver-contrasena="contrasena"', escape: false)
+        ->assertSee('id="contrasena-bloq-mayus"', escape: false);
+});
+
+it('deja el campo de contraseña oculto por defecto y separado del botón Entrar', function () {
+    $this->get('/login')
+        ->assertOk()
+        ->assertSee('type="password"', escape: false)
+        ->assertSee('name="remember"', escape: false)
+        ->assertSee('mt-6 flex items-center gap-2', escape: false);
+});
+
+it('conecta el error del campo con su etiqueta y marca el campo como inválido', function () {
+    $this->from('/registro')->followingRedirects()->post('/registro', ['nombre' => 'X', 'apellido_paterno' => 'Y'])
+        ->assertOk()
+        ->assertSee('for="email"', escape: false)
+        ->assertSee('aria-invalid="true"', escape: false)
+        ->assertSee('aria-describedby="email-error"', escape: false)
+        ->assertSee('id="email-error"', escape: false)
+        ->assertSee('aria-describedby="num_control-ayuda num_control-error"', escape: false);
+});
+
+it('conecta también el error de la selección de carrera con su etiqueta', function () {
+    $this->from('/registro')->followingRedirects()->post('/registro', ['nombre' => 'X', 'apellido_paterno' => 'Y'])
+        ->assertOk()
+        ->assertSee('for="id_carrera"', escape: false)
+        ->assertSee('aria-describedby="id_carrera-error"', escape: false);
+});
+
+it('muestra un aviso de revisión en el registro cuando hay errores de campo', function () {
+    $this->from('/registro')->followingRedirects()->post('/registro', ['nombre' => 'X'])
+        ->assertOk()
+        ->assertSee('Revisa los campos marcados');
 });
 
 it('cierra la sesión', function () {

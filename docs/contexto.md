@@ -133,6 +133,12 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
   de usuarios.
 - **SQLite en desarrollo:** el proyecto migra a MySQL/SQL Server más adelante. Evita funciones
   específicas de MySQL mientras tanto (columnas generadas, por ejemplo).
+- **Los fallos de autenticación no son errores de campo.** `LoginRequest::ERROR_CREDENCIALES`
+  (`credenciales`) es una clave de error que no corresponde a ningún input: la usan las credenciales
+  incorrectas, la cuenta desactivada y el bloqueo por límite de intentos, y la vista la pinta en la
+  banda de `x-mensaje`, no bajo «Correo electrónico». Los errores de campo (`required`, `email`) sí
+  van en su campo y se muestran debajo. Ambos formatos (`novalidate` + `lang/es`) los escribe solo el
+  servidor.
 
 ## 7. Cuentas de prueba
 

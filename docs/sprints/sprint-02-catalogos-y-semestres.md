@@ -4,6 +4,12 @@
 ubicaciones; control de semestres con apertura y cierre automático; validación de la duración del
 semestre (3 a 5 meses) y de la ventana de inscripción (5 a 10 días).
 
+> **Ver también:** las historias de usuario y las tarjetas CRC del sprint, en el formato del
+> documento oficial de requerimientos, están en
+> [`sprint-02-historias-de-usuario-y-crc.md`](sprint-02-historias-de-usuario-y-crc.md). Este
+> documento es la documentación técnica: archivos, rutas, migraciones y deuda técnica.
+> La trazabilidad contra los requisitos (RF-05 y RF-06) está en [`../requisitos.md`](../requisitos.md).
+
 ## Qué se entregó
 
 ### 1. Catálogos: departamentos, carreras y ubicaciones

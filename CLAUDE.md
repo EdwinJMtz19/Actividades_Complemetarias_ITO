@@ -40,7 +40,7 @@ calificaciones. Sprint actual: **1 · Usuarios y Roles (entregado)**.
 
 ```sh
 php artisan migrate:fresh --seed   # rehacer la BD con datos iniciales
-php artisan test                   # 51 pruebas
+php artisan test                   # 139 pruebas
 vendor\bin\pint                    # formatear
 npm run build                      # compilar assets
 php artisan serve                  # http://localhost:8000

@@ -121,11 +121,13 @@ propósito —las tablas llevan sus filas a `0.75rem` de padding vertical y el c
 `0.875rem`— porque quien usa esto revisa catálogos durante la jornada, no lee reportes.
 La interacción se anuncia en lugar de decorarse: un estado activo es verde sobre verde claro y en
 versalitas, un estado inactivo es gris, y no hay ambigüedad entre ambos. No hay gradientes,
-no hay sombras como ornamento, no hay microinteracciones: hay bordes de 1 píxel, fondos que se separan
-por tono y color reservado exclusivamente para acción y estado.
+no hay sombras como ornamento, no hay microinteracciones de adorno: hay bordes de 1 píxel, fondos que se separan
+por tono y color reservado exclusivamente para acción y estado. El movimiento, donde existe, solo señala
+estado y acuse de recibo, y está descrito en **Motion**.
 
-El logotipo del ITO es obligatorio en la interfaz, pero **aún no hay archivo en el repositorio**: el
-header actual usa el nombre de la aplicación en `azul-ito`. Cuando llegue el logo, reemplaza ese texto en
+El logotipo del ITO es obligatorio en la interfaz y ya está en el repositorio (`resources/logos/`). Por ahora
+vive como **marca de agua** de las pantallas de acceso (ver **Motion** y `.fondo-logo` en `app.css`); el header
+de la aplicación sigue usando el nombre en `azul-ito`. Si se pasa el logo al header, se reemplaza ese texto en
 el mismo tamaño óptico y con la misma altura de línea; no se rediseña el header.
 
 **Key Characteristics:**
@@ -276,9 +278,12 @@ Directos y sin adornos: cada control dice qué hace y en qué estado está, sin 
   en `azul-ito` con `hover:underline`, y las destructivas en `estado-peligro`.
 - **Secondary:** fondo blanco, texto `texto-medio`, borde de 1 píxel `borde-fuerte`; hover a `lienzo`.
   Es el «Cancelar» y el «Volver al listado».
-- **Icon:** `inline-flex` con un SVG de 1rem (`x-icono`, trazo 1.8, `currentColor`). En tablas de historial
-  son cuadrados de `2rem` (`h-8 w-8`) con icono: `azul-consulta` para ver, `ámbar-editar` para editar. El
-  candado de solo lectura no es botón: es el mismo SVG en `slate-400`, sin fondo.
+- **Icon:** `inline-flex` con un SVG de 1rem (`x-icono`, trazo 1.8, `currentColor`). En tablas son cuadrados de
+  `2rem` (`h-8 w-8`, `x-accion`): `azul-consulta` para ver, **secundario de borde** para editar, rojo de peligro
+  (borde y texto `red-600`, relleno al pasar el cursor) para eliminar y `ámbar-editar` solo para editar o reactivar
+  un periodo. El candado de solo lectura no es botón: es el mismo SVG en `slate-400`, sin fondo.
+- **Componentes:** `x-boton` (primario, secundario, consulta, periodo, sobre-azul; con `icono` y `gesto`) y
+  `x-accion` (icono de fila) centralizan color y movimiento; no se escriben botones a mano.
 
 ### Chips (Insignias de estado)
 - **Style:** `rounded-full`, `0.125rem 0.5rem` de padding, `0.75rem` en peso 600. Fondo `green-100` con
@@ -308,6 +313,15 @@ Directos y sin adornos: cada control dice qué hace y en qué estado está, sin 
   cambia de color. La ayuda opcional va debajo en `0.75rem` `slate-500`. El asterisco de obligatorio es un
   `span` `red-600` junto a la etiqueta, nunca un placeholder. Los checkboxes de permisos usan
   `rounded` con el mismo borde `borde-fuerte` y se deshabilitan en grey cuando el rol está bloqueado.
+  El mensaje lleva `id="{campo}-error"` y el control recibe `aria-invalid="true"` y
+  `aria-describedby` con el error y la ayuda: un lector de pantalla tiene que oír el fallo, no solo verlo.
+  `x-campo` y `x-seleccion` se comportan igual en esto.
+- **Con adorno (`x-campo-contrasena`):** el input cede `2.5rem` de padding a la derecha y recibe un
+  `<button>` de ojo en línea (`aria-pressed`, `aria-controls`, icono `ojo` / `ojo-tachado` de `x-icono`,
+  `1.6rem`, `slate-500` que pasa a `azul-ito` en hover). Debajo, el aviso de Bloq Mayús en `0.75rem`
+  `estado-aviso`, oculto por defecto y escrito por `getModifierState('CapsLock')` en `resources/js/app.js`.
+  Escribir a ciegas es el fallo de tecleo más común en el móvil, y el móvil es donde entra el alumno.
+  Sin JavaScript el formulario sigue funcionando: el botón solo mejora, no habilita nada.
 
 ### Navigation
 - **Style:** cabecera blanca con `border-b` `borde-sutil`, altura de contenido `0.75rem` vertical. A la
@@ -332,11 +346,120 @@ Directos y sin adornos: cada control dice qué hace y en qué estado está, sin 
   mostrar.»
 
 ### Alerts (Mensajes de sesión)
-- **Style:** banda con borde de 1 píxel, `1rem 0.75rem`, `0.875rem`, radio `0.375rem`, `mb-6`.
+- **Component:** `x-mensaje` (`tipo`: `exito`, `error`, `advertencia`, `info`). No renderiza nada si su contenido
+  está vacío, así que la región de avisos se escribe siempre igual en los dos layouts.
+- **Style:** banda con borde de 1 píxel, `1rem 0.75rem`, `0.875rem`, radio `0.375rem`, `mb-4`. Se compone con
+  `x-mensaje` (`tipo`: `exito`, `error`, `advertencia`, `info`); el componente no renderiza nada si su contenido
+  está vacío. `app` y `guest` lo usan como única región de avisos: ninguna pantalla escribe la banda a mano.
 - **Variantes:** éxito = `green-200`/`green-50`/`green-800` con `role="status"`; error =
   `red-200`/`red-50`/`red-800` con `role="alert"`; advertencia (coordinador sin departamento) =
-  `amber-200`/`amber-50`/`amber-800`. El aviso de advertencia es el mismo lenguaje que el ámbar de la
-  acción de periodo.
+  `amber-200`/`amber-50`/`amber-800`; info = `slate-200`/`slate-50`/`slate-700`, para recordatorios que no son
+  un fallo. El aviso de advertencia es el mismo lenguaje que el ámbar de la acción de periodo.
+- **Named Rule:** **The Error Lives Where It Belongs.** Un error de campo se pinta debajo de ese campo; un
+  fallo de la operación completa —credenciales incorrectas, cuenta desactivada, bloqueo por intentos— se
+  pinta en la banda, nunca bajo un campo. Por eso `LoginRequest` lanza esos tres fallos en la clave
+  `credenciales` y no en `email`: el mensaje de bloqueo colgado del correo dirige a revisar lo que ya está bien.
+- **Named Rule:** **The Server Speaks Spanish.** Login y registro llevan `novalidate`: el navegador no lanza su
+  burbuja en el idioma del navegador. Todo el texto de error sale de `lang/es`, que ya está traducido.
+
+### Layout de invitado
+- Contenedor `max-w-md` (`28rem`) centrado vertical y horizontalmente, dentro de un landmark `<main>`: es un
+  login, no una página.
+- El nombre de la aplicación es `text-xl` (`1.25rem`) y el subtítulo del instituto `text-sm slate-500`: el
+  nombre de la aplicación nunca es el texto más grande del producto, y la tarea (el `h2`, `text-lg`) manda.
+  `1rem` es el valor documentado en Typography; `text-xl` es el máximo real mientras el logotipo del ITO no
+  llegue a sustituirlo.
+- Antes de la tarjeta va la región de `x-mensaje` (`exito`, `error`, `aviso`, `credenciales`); después del
+  formulario, el enlace «¿No puedo entrar?» como `<details>` nativo —sin JavaScript y accesible con teclado—,
+  que dice a quién acudir. El correo de soporte sale de `config('contacto.soporte_email')`; vacío, la pantalla
+  **no inventa** una dirección.
+
+## Motion
+
+Solo donde el movimiento explica algo: **acusa recibo, hace legible un cambio de estado o conserva la
+continuidad.** El resto del producto es plano y quieto, y esa quietud es la decisión, no una carencia.
+
+Esta sección amplía —no contradice— la regla de Overview: no hay microinteracciones *de adorno*, y sigue
+sin haberlas en ninguna pantalla salvo la que aquí se nombra.
+
+### Tokens
+
+Los tiempos viven en el bloque `@theme` de `resources/css/app.css` y son la única fuente:
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--dur-feedback` | `120ms` | Acuse inmediato: foco, icono, error de campo |
+| `--dur-estado` | `200ms` | Cambio de estado: banda que se abre, desglose |
+| `--dur-llegada` | `360ms` | Llegada con autoría: la tarjeta de acceso |
+| `--ease-llegada` | `cubic-bezier(0.16, 1, 0.3, 1)` | Llegadas y cambios de estado |
+| `--ease-retirada` | `cubic-bezier(0.4, 0, 1, 1)` | Salidas y pérdida de opacidad |
+
+Prohibido el rebote y la elasticidad: nada rebota en un sistema administrativo.
+
+### Named Rules
+**The Motion Explains Rule.** Si quitar una animación no pierde un significado ni un carácter, no se
+añade. No hay desvanecidos genéricos, no hay elevación en hover, no hay Parallax, no hay revelado por scroll,
+y no se coreografía el formulario campo por campo.
+
+**The Visible Default Rule.** Ningún elemento espera a un script para existir: el estado por defecto es el
+estado final y la animación se monta desde atrás (`animation-fill-mode: backwards`). Si el CSS o el JS
+fallan, la pantalla se lee igual.
+
+**The Reduced Path Rule.** Todo movimiento tiene su ruta en `prefers-reduced-motion: reduce` en
+`resources/css/app.css`: se retira el desplazamiento y el barrido, y se conservan los estados que
+significan algo (error visible, botón ocupado, icono cambiado). Movimiento reducido es menos movimiento,
+no cero información.
+
+### Alcance ampliado: botones, enlaces y marca de agua
+
+A petición del equipo (2026-10-18) el movimiento de **controles** se extiende a todo el producto. Sigue siendo
+acuse de la mano, no adorno, y es **opt-in por clase** (`mov-*`), así que lo que no se marca sigue quieto:
+
+- **`mov-boton`** (`x-boton`, `x-accion`, «Salir», «Buscar»): color en `120ms`, hundimiento de `scale(0.97)` solo
+  mientras se pulsa (`:active`, nunca en un botón deshabilitado) y anillo de foco visible de 2 px.
+- **Gesto del icono** (`data-gesto` en `x-icono`, solo al pasar el cursor, `200ms`): `giro` (el «+» de «Nuevo…»
+  gira 90°), `izquierda` (la flecha de «Volver/Cancelar» se adelanta 3 px), `inclinar` (lápiz y papelera se
+  ladean 12°) y `ampliar` (ojo y lupa crecen 15 %). El icono anticipa lo que hará el botón.
+- **Envío en curso** (`data-enviar` + `mov-enviar`): todos los «Guardar/Actualizar/Guardar permisos» usan la misma
+  barra de espera y el mismo bloqueo de doble envío que el login.
+- **`mov-enlace` / `mov-nav`**: el subrayado de los enlaces de la barra y de las acciones de texto de una tabla se
+  dibuja de izquierda a derecha en `200ms`.
+- **`mov-campo`**: el buscador y el filtro de los listados dibujan su foco en `120ms`, igual que `x-campo`.
+- **`mov-banda`** también en el layout `app`: el aviso de «guardado» o de error se abre desde su borde superior.
+- Sigue **prohibido**: elevación o sombra en hover, rebote, escalonado de filas y revelado por scroll.
+  Las filas de tabla solo suavizan el cambio de fondo (`transition-colors`).
+
+Todo tiene su ruta en `prefers-reduced-motion`: sin hundimiento, sin gestos de icono y sin subrayado animado; el
+color cambia igual y el acuse de envío se conserva.
+
+**Marca de agua del ITO (`.fondo-logo`).** En el layout de invitado (login y registro) el logo se coloca como
+fondo fijo, centrado, de `min(110vmin, 56rem)`, con `opacity: 0.08` y `mix-blend-mode: multiply` para que el
+blanco del archivo desaparezca. Es decorativo (`aria-hidden`), no recibe clics y queda por debajo de la tarjeta de
+acceso, que sigue siendo blanca y plana. Vite procesa la ruta desde `resources/css/app.css`, así que no se copia
+nada a `public/`.
+
+### Alcance original: pantallas de acceso
+
+Único momento con autoría del producto. Cuando la pantalla trae una banda de aviso, esta se barreja desde su
+borde superior (`clip-path`) y la tarjeta se asienta encima bajando `0.5rem` mientras su sombra se cierra.
+En un rebote por credenciales esa secuencia cuenta lo que pasó: «esto pasó, aquí está el formulario otra
+vez». Sin banda, la tarjeta se asienta sola.
+
+Estados que lo sostienen:
+
+- **Envío en curso:** el botón de la acción principal recibe `aria-busy="true"`, se deshabilita (evita el
+  doble envío) y su borde inferior se ilumina con una barra indeterminada. El texto no cambia; cambia su
+  estado. En movimiento reducido la barra se queda estática y atenuada: el acuse sigue siendo legible.
+- **Foco del campo:** el anillo de 1 píxel y el borde se dibujan en `120ms` en lugar de aparecer de golpe.
+- **Icono de la contraseña:** los dos iconos se apilan en la misma celda y se cruzan por opacidad; el botón
+  no cambia de ancho y el estado se lee en `aria-pressed`.
+- **Error de campo y Bloq Mayús:** la línea se revela en `120ms` sobre un desplazamiento de `2px`, para que
+  el motivo del rebote sea localizable con la vista.
+- **Desglose de soporte:** `<details>` nativo con `@starting-style`; sin JavaScript y con teclado.
+
+El gancho de alcance es `data-acceso` en el `<main>` del layout de invitado: el movimiento propio de las pantallas
+de acceso (llegada de la tarjeta, foco de campo, error de campo, Bloq Mayús) no puede filtrarse a las pantallas de
+administración, donde la quietud manda. Los controles de arriba son la excepción y se activan por clase `mov-*`.
 
 ## Do's and Don'ts
 
@@ -354,6 +477,8 @@ Directos y sin adornos: cada control dice qué hace y en qué estado está, sin 
   foco, radio, error y la fila «Cancelar / Guardar» sin reescribirlos.
 - **Do** mantener todo el texto de la interfaz en español y en el vocabulario del ITO («Periodo»,
   «Inscripciones», «Historial de Periodos Pasados»).
+- **Do** declarar el movimiento en los tokens de `@theme` y darle su ruta en `prefers-reduced-motion`; quien
+  agregue una animación nueva deja el estado final visible por defecto.
 
 ### Don't:
 - **Don't** añadir sombras a botones, tarjetas o tablas para hacerlas «resaltar»; la sombra es solo para
@@ -367,3 +492,5 @@ Directos y sin adornos: cada control dice qué hace y en qué estado está, sin 
 - **Don't** subir pesos tipográficos ni añadir una familia display: la escala va de `0.75rem` a `1rem`.
 - **Don't** iniciar ninguna transacción destructiva sin confirmación explícita (`onsubmit` con
   `confirm`) ni quitar la palabra «Eliminar»/«Desactivar» de las acciones de tabla.
+- **Don't** animar por animar: sin desvanecido genérico al cargar, sin elevación en hover, sin revelado por
+  scroll, sin rebote, y sin coreografía campo por campo en un formulario.

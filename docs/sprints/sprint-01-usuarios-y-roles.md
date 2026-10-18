@@ -3,6 +3,11 @@
 **Estado:** entregado · **Fecha:** 2026-10-17 · **Alcance:** autenticación, CRUD de usuarios,
 roles y permisos con Spatie, y control de acceso por rol y por departamento asignado.
 
+> **Ver también:** la trazabilidad de este sprint contra los requisitos del sistema está en
+> [`../requisitos.md`](../requisitos.md). Ahí se registra que **RF-04 («permitir a cada usuario
+> actualizar su perfil») sigue sin implementarse**, aunque el documento oficial de requerimientos
+> lo declara como parte de este sprint.
+
 ## Qué se entregó
 
 ### 1. Autenticación

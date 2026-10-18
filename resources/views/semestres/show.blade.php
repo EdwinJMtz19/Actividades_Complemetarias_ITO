@@ -8,9 +8,7 @@
         @endif
     </div>
 
-    <a href="{{ route('semestres.index') }}" class="mb-4 inline-flex items-center gap-1 rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100">
-        <x-icono nombre="volver" /> Volver al listado
-    </a>
+    <x-boton :href="route('semestres.index')" variante="secundario" icono="volver" gesto="izquierda" class="mb-4">Volver al listado</x-boton>
 
     <section class="rounded-lg border border-slate-200 bg-white">
         <div class="border-b border-slate-200 px-4 py-3">

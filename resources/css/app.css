@@ -6,4 +6,274 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /*
+     | Movimiento. Los tiempos viven aquí para que la pantalla y la hoja de estilo
+     | hablen el mismo idioma; ver la sección «Motion» de DESIGN.md.
+     */
+    --ease-llegada: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-retirada: cubic-bezier(0.4, 0, 1, 1);
+    --dur-feedback: 120ms;
+    --dur-estado: 200ms;
+    --dur-llegada: 360ms;
+}
+
+/*
+ | Motion: feedback, estado y continuidad, nada más.
+ |
+ | El único momento con autoría es la llegada de la tarjeta de acceso: cuando la
+ | pantalla trae una banda de aviso, esta se barreja desde su borde superior y la
+ | tarjeta se asienta encima. En un rebote por credenciales esa secuencia cuenta lo
+ | que pasó. El resto son estados discretos: foco, envío en curso, error de campo,
+ | Bloq Mayús y el icono de la contraseña.
+ |
+ | Todo se apoya en el estado visible por defecto (ningún elemento espera a un
+ | script) y todo tiene su ruta en `prefers-reduced-motion` más abajo.
+ */
+@layer components {
+    @keyframes ito-asentar {
+        from {
+            opacity: 0;
+            transform: translateY(-0.5rem);
+            box-shadow: 0 1.5rem 2.5rem -1.5rem oklch(27.9% 0.041 260.031 / 0.35);
+        }
+    }
+
+    @keyframes ito-banda {
+        from {
+            opacity: 0;
+            clip-path: inset(0 0 100% 0);
+        }
+        to {
+            opacity: 1;
+            clip-path: inset(0);
+        }
+    }
+
+    @keyframes ito-revelar {
+        from {
+            opacity: 0;
+            transform: translateY(-2px);
+        }
+    }
+
+    @keyframes ito-carga {
+        from {
+            transform: scaleX(0);
+        }
+        to {
+            transform: scaleX(1);
+        }
+    }
+
+    /* La banda de aviso baja desde su borde superior, como una hoja que se despega. */
+    .mov-banda {
+        animation: ito-banda var(--dur-estado) var(--ease-llegada) backwards;
+    }
+
+    /* La tarjeta se asienta en el lienzo: baja media rem y su sombra se cierra. */
+    .mov-tarjeta {
+        animation: ito-asentar var(--dur-llegada) var(--ease-llegada) 60ms backwards;
+    }
+
+    /* Acción principal acknowledging: el borde inferior se ilumina mientras espera. */
+    .mov-enviar {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .mov-enviar::after {
+        content: '';
+        position: absolute;
+        inset: auto 0 0;
+        height: 2px;
+        background-color: oklch(100% 0 0 / 0.55);
+        transform: scaleX(0);
+        transform-origin: left;
+    }
+
+    .mov-enviar[aria-busy='true'] {
+        opacity: 0.75;
+        cursor: progress;
+    }
+
+    .mov-enviar[aria-busy='true']::after {
+        animation: ito-carga 1.1s var(--ease-llegada) infinite;
+    }
+
+    /*
+     | Botones y controles: acuse de la mano.
+     |
+     | Color en 120 ms, un hundimiento de 2 % al pulsar y un gesto corto del icono
+     | (el icono dice qué va a pasar: "+" gira, la flecha de volver se adelanta, el
+     | lápiz se inclina, la papelera se ladea). Sin elevación ni sombra en hover.
+     */
+    .mov-boton {
+        transition:
+            background-color var(--dur-feedback) var(--ease-llegada),
+            border-color var(--dur-feedback) var(--ease-llegada),
+            color var(--dur-feedback) var(--ease-llegada),
+            opacity var(--dur-feedback) var(--ease-retirada),
+            transform 90ms var(--ease-llegada);
+    }
+
+    .mov-boton:active:not(:disabled) {
+        transform: scale(0.97);
+    }
+
+    .mov-boton:focus-visible {
+        outline: 2px solid oklch(62.3% 0.214 259.815);
+        outline-offset: 2px;
+    }
+
+    .mov-icono {
+        transition: transform var(--dur-estado) var(--ease-llegada);
+    }
+
+    .mov-boton:hover .mov-icono[data-gesto='giro'] {
+        transform: rotate(90deg);
+    }
+
+    .mov-boton:hover .mov-icono[data-gesto='izquierda'] {
+        transform: translateX(-3px);
+    }
+
+    .mov-boton:hover .mov-icono[data-gesto='inclinar'] {
+        transform: rotate(-12deg);
+    }
+
+    .mov-boton:hover .mov-icono[data-gesto='ampliar'] {
+        transform: scale(1.15);
+    }
+
+    /* Enlaces de navegación y de tabla: el subrayado se dibuja de izquierda a derecha. */
+    .mov-nav > a,
+    .mov-enlace {
+        background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+        padding-bottom: 2px;
+        transition:
+            background-size var(--dur-estado) var(--ease-llegada),
+            color var(--dur-feedback) var(--ease-llegada);
+    }
+
+    .mov-nav > a:hover,
+    .mov-nav > a:focus-visible,
+    .mov-enlace:hover,
+    .mov-enlace:focus-visible {
+        background-size: 100% 1px;
+    }
+
+    /* Campo de búsqueda del listado: mismo foco de 120 ms que los formularios. */
+    .mov-campo {
+        transition:
+            border-color var(--dur-feedback) var(--ease-llegada),
+            box-shadow var(--dur-feedback) var(--ease-llegada);
+    }
+
+    /* Desglose nativo de soporte: sin JavaScript, con teclado y con summoned marker. */
+    .mov-desglose > summary {
+        transition: color var(--dur-feedback) var(--ease-llegada);
+    }
+
+    .mov-desglose > summary::marker {
+        color: oklch(44.6% 0.043 257.281);
+    }
+
+    .mov-desglose[open] > div {
+        animation: ito-revelar var(--dur-estado) var(--ease-llegada) backwards;
+    }
+
+    /* El foco del campo se dibuja en 120 ms en lugar de aparecer de golpe. */
+    [data-acceso] :is(input:not([type='checkbox']), select, textarea) {
+        transition:
+            border-color var(--dur-feedback) var(--ease-llegada),
+            box-shadow var(--dur-feedback) var(--ease-llegada);
+    }
+
+    /* Superficies del navegador: belong to the design, no to the OS. */
+    [data-acceso] :is(input, select, textarea) {
+        caret-color: oklch(48.8% 0.243 264.376);
+    }
+
+    [data-acceso] input[type='checkbox'] {
+        accent-color: oklch(48.8% 0.243 264.376);
+    }
+
+    [data-acceso] ::selection {
+        background-color: oklch(93.2% 0.032 255.585);
+    }
+
+    /* Motivos que aparecen por debajo de su campo y el aviso de Bloq Mayús. */
+    [data-acceso] [data-error-de-campo],
+    [data-acceso] [data-bloq-mayus]:not([hidden]) {
+        animation: ito-revelar var(--dur-feedback) var(--ease-llegada) backwards;
+    }
+
+    /* El ojo se troca por opacidad, no por `hidden`: los dos iconos se apilan. */
+    [data-acceso] [data-ver-icono] {
+        transition: opacity var(--dur-feedback) var(--ease-llegada);
+    }
+}
+
+/* El desglose solo aparece en navegadores que saben animar la entrada de contenido. */
+@starting-style {
+    [data-acceso] .mov-desglose[open] > div {
+        opacity: 0;
+        transform: translateY(-2px);
+    }
+}
+
+/*
+ | Marca de agua del ITO en las pantallas de acceso. El archivo trae fondo blanco opaco:
+ | `multiply` lo funde con el lienzo y deja solo el dibujo, a muy baja opacidad.
+ | Vite procesa la ruta y le pone huella; no hace falta copiar el archivo a `public/`.
+ */
+.fondo-logo {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: url('../logos/instituto-tecnologico-de-oaxaca-ito-logo-png_seeklogo-500948.png') center / min(110vmin, 56rem)
+        no-repeat;
+    mix-blend-mode: multiply;
+    opacity: 0.08;
+}
+
+/*
+ | Movimiento reducido: se retira el desplazamiento y el barrido, y se conservan
+ | los estados que significan algo (error visible, envío en curso, icono cambiado).
+ */
+@media (prefers-reduced-motion: reduce) {
+    .mov-boton:active:not(:disabled) {
+        transform: none;
+    }
+
+    .mov-boton:hover .mov-icono[data-gesto] {
+        transform: none;
+    }
+
+    .mov-icono,
+    .mov-nav > a,
+    .mov-enlace {
+        transition: none;
+    }
+
+    .mov-tarjeta,
+    .mov-banda,
+    .mov-desglose[open] > div,
+    [data-acceso] [data-error-de-campo],
+    [data-acceso] [data-bloq-mayus]:not([hidden]) {
+        animation: none;
+    }
+
+    [data-acceso] .mov-desglose[open] > div {
+        opacity: 1;
+        transform: none;
+    }
+
+    .mov-enviar[aria-busy='true']::after {
+        animation: none;
+        opacity: 0.6;
+        transform: scaleX(1);
+    }
 }

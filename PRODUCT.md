@@ -108,8 +108,8 @@ Abierto / sin decidir:
 
 Ausencias que no se deben inventar:
 
-- **No hay archivo de logotipo en el repositorio** (`public/` solo tiene `favicon.ico`). Hay que
-  pedirlo antes de tratar la identidad como algo verificable.
+- El logotipo del ITO está en `resources/logos/` (PNG de 600×600 con fondo blanco). Se usa como marca de agua
+  del login y del registro; todavía no se usa en el header de la aplicación.
 - No existen testimonios, cifras de uso, estudios de caso, precios ni logos de terceros.
 - No hay material del sistema anterior en este repo; solo se conoce por descripción.
 

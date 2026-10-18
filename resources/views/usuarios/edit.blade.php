@@ -5,8 +5,8 @@
         @csrf @method('PUT')
         @include('usuarios._form')
         <div class="flex justify-end gap-3">
-            <a href="{{ route('usuarios.show', $usuario) }}" class="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100">Cancelar</a>
-            <button class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Guardar cambios</button>
+            <x-boton :href="route('usuarios.show', $usuario)" variante="secundario" icono="volver" gesto="izquierda">Cancelar</x-boton>
+            <x-boton data-enviar class="mov-enviar">Guardar cambios</x-boton>
         </div>
     </form>
 </x-layouts.app>

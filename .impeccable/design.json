@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-17T00:00:00Z",
+  "generatedAt": "2026-10-17T23:55:00Z",
   "title": "Design System: Actividades Complementarias ITO",
   "extensions": {
     "colorMeta": {
@@ -264,7 +264,7 @@
       },
       "body-lg": {
         "displayName": "Cuerpo grande",
-        "purpose": "Solo el nombre de la aplicación en el header del layout de invitado (1rem)."
+        "purpose": "Nombre de la aplicación: 1rem en la barra superior autenticada, 1.25rem (text-xl) como máximo en el layout de invitado. Nunca es el texto más grande de la pantalla; la tarea manda."
       }
     },
     "shadows": [
@@ -323,7 +323,7 @@
       "name": "Campo de texto",
       "kind": "input",
       "refersTo": "input",
-      "description": "Etiqueta encima, campo de ancho completo, ayuda y error debajo. El error no cambia el color del campo.",
+      "description": "Etiqueta encima, campo de ancho completo, ayuda y error debajo. El error no cambia el color del campo; el mensaje lleva id y el campo recibe aria-invalid y aria-describedby.",
       "html": "<div class=\"ds-field\"><label class=\"ds-field__label\" for=\"ds-correo\">Correo electrónico <span class=\"ds-field__req\">*</span></label><input class=\"ds-field__input\" id=\"ds-correo\" type=\"email\" placeholder=\"\"><p class=\"ds-field__help\">La usarás para iniciar sesión.</p></div>",
       "css": ".ds-field { display: block; } .ds-field__label { display: block; font-size: 0.875rem; font-weight: 500; color: oklch(37.2% 0.044 257.287); margin-bottom: 0.25rem; } .ds-field__req { color: oklch(57.7% 0.245 27.325); } .ds-field__input { display: block; width: 100%; background: #fff; color: oklch(27.9% 0.041 260.031); border: 1px solid oklch(86.9% 0.022 252.894); border-radius: 0.375rem; padding: 0.5rem 0.75rem; font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; line-height: 1.25rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1); } .ds-field__input:focus { outline: none; border-color: oklch(62.3% 0.214 259.815); box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1), 0 0 0 1px oklch(62.3% 0.214 259.815); } .ds-field__help { margin-top: 0.25rem; font-size: 0.75rem; color: oklch(55.4% 0.046 257.417); } .ds-field__error { margin-top: 0.25rem; font-size: 0.875rem; color: oklch(57.7% 0.245 27.325); }"
     },
@@ -361,14 +361,22 @@
     {
       "name": "Banda de mensaje de sesión",
       "kind": "custom",
-      "description": "Aviso de éxito, error o advertencia con borde de 1 píxel. El verde aquí confirma la acción, no un estado del dominio.",
-      "html": "<div class=\"ds-alert ds-alert--exito\" role=\"status\">El periodo se guardó correctamente.</div><div class=\"ds-alert ds-alert--aviso\" role=\"alert\">Aún no tienes un departamento asignado.</div>",
-      "css": ".ds-alert { margin-bottom: 1.5rem; border: 1px solid; border-radius: 0.375rem; padding: 0.75rem 1rem; font-size: 0.875rem; line-height: 1.25rem; } .ds-alert--exito { background: oklch(96.2% 0.044 156.743); border-color: oklch(87.1% 0.15 154.449); color: oklch(44.8% 0.119 151.328); } .ds-alert--aviso { background: oklch(98.7% 0.022 95.277); border-color: oklch(92.4% 0.12 95.746); color: oklch(47.3% 0.137 46.201); } .ds-alert--error { background: oklch(97.1% 0.013 17.38); border-color: oklch(88.5% 0.062 18.334); color: oklch(44.4% 0.177 26.899); }"
+      "refersTo": "alert",
+      "description": "`x-mensaje`: la única banda del sistema (exito, error, advertencia, info). Es la región de avisos de los layouts `app` y `guest`; no renderiza nada si su contenido está vacío.",
+      "html": "<div class=\"ds-alert ds-alert--exito\" role=\"status\">El periodo se guardó correctamente.</div><div class=\"ds-alert ds-alert--error\" role=\"alert\">Demasiados intentos de acceso. Inténtalo de nuevo en 60 segundos.</div><div class=\"ds-alert ds-alert--info\" role=\"alert\">Revisa los campos marcados con <span class=\"ds-alert__req\">*</span>.</div>",
+      "css": ".ds-alert { margin-bottom: 1rem; border: 1px solid; border-radius: 0.375rem; padding: 0.75rem 1rem; font-size: 0.875rem; line-height: 1.25rem; } .ds-alert--exito { background: oklch(96.2% 0.044 156.743); border-color: oklch(87.1% 0.15 154.449); color: oklch(44.8% 0.119 151.328); } .ds-alert--aviso { background: oklch(98.7% 0.022 95.277); border-color: oklch(92.4% 0.12 95.746); color: oklch(47.3% 0.137 46.201); } .ds-alert--error { background: oklch(97.1% 0.013 17.38); border-color: oklch(88.5% 0.062 18.334); color: oklch(44.4% 0.177 26.899); } .ds-alert--info { background: #fff; border-color: oklch(92.9% 0.013 255.508); color: oklch(37.2% 0.044 257.287); } .ds-alert__req { color: oklch(57.7% 0.245 27.325); }"
+    },
+    {
+      "name": "Campo de contraseña",
+      "kind": "custom",
+      "description": "`x-campo-contrasena`: el campo de texto con adorno —botón de ojo dentro del campo— y aviso de Bloq Mayús debajo. El error de autenticación no va aquí: viaja en la banda.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field__label\" for=\"ds-pass\">Contraseña <span class=\"ds-field__req\">*</span></label><div class=\"ds-field__wrap\"><input class=\"ds-field__input ds-field__input--adorno\" id=\"ds-pass\" type=\"password\"><button class=\"ds-eye\" type=\"button\" aria-pressed=\"false\" aria-controls=\"ds-pass\"><span class=\"ds-sr\">Ocultar contraseña</span><svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke-width=\"1.8\" stroke=\"currentColor\" width=\"16\" height=\"16\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178zM15 12a3 3 0 11-6 0 3 3 0 016 0z\"/></svg></button></div><p class=\"ds-field__help\">Mínimo 8 caracteres.</p><p class=\"ds-field__caps\" hidden>El Bloq Mayús está activado.</p></div>",
+      "css": ".ds-field__wrap { position: relative; } .ds-field__input--adorno { padding-right: 2.5rem; } .ds-eye { position: absolute; inset: 0 0 0 auto; display: flex; align-items: center; padding-right: 0.5rem; background: none; border: none; padding-top: 0; padding-bottom: 0; color: oklch(55.4% 0.046 257.417); cursor: pointer; } .ds-eye:hover { color: oklch(48.8% 0.243 264.376); } .ds-eye:focus-visible { outline: 1px solid oklch(62.3% 0.214 259.815); outline-offset: 1px; border-radius: 0.25rem; } .ds-field__caps { margin-top: 0.25rem; font-size: 0.75rem; color: oklch(47.3% 0.137 46.201); } .ds-field__caps[hidden] { display: none; }"
     }
   ],
   "narrative": {
     "northStar": "El Orden del Día",
-    "overview": "Este sistema se lee como el orden del día de un periodo académico, no como un tablero de software. El semestre activo manda: cuando hay un periodo en curso, su banda de azul ocupa el primer plano de la pantalla de semestres y todo lo demás se ordena por debajo. Esa jerarquía —primero el periodo, luego su historial, luego el detalle— es la misma que gobierna el resto del producto.\n\nLa personalidad es administrativa y sobria, en el sentido bueno de la palabra: el pulso lo da el azul oficial del ITO y una escala de grises fría, y todo lo demás es estructura. La densidad es alta a propósito porque quien usa esto revisa catálogos durante la jornada, no lee reportes. La interacción se anuncia en lugar de decorarse: un estado activo es verde sobre verde claro y en versalitas, un estado inactivo es gris. No hay gradientes, ni sombras como ornamento, ni microinteracciones: hay bordes de 1 píxel, fondos que se separan por tono y color reservado exclusivamente para acción y estado.\n\nEl logotipo del ITO es obligatorio en la interfaz, pero aún no hay archivo en el repositorio: el header actual usa el nombre de la aplicación en Azul ITO. Cuando llegue el logo, reemplaza ese texto en el mismo tamaño optical y con la misma altura de línea; no se rediseña el header.",
+    "overview": "Este sistema se lee como el orden del día de un periodo académico, no como un tablero de software. El semestre activo manda: cuando hay un periodo en curso, su banda de azul ocupa el primer plano de la pantalla de semestres y todo lo demás se ordena por debajo. Esa jerarquía —primero el periodo, luego su historial, luego el detalle— es la misma que gobierna el resto del producto.\n\nLa personalidad es administrativa y sobria, en el sentido bueno de la palabra: el pulso lo da el azul oficial del ITO y una escala de grises fría, y todo lo demás es estructura. La densidad es alta a propósito porque quien usa esto revisa catálogos durante la jornada, no lee reportes. La interacción se anuncia en lugar de decorarse: un estado activo es verde sobre verde claro y en versalitas, un estado inactivo es gris. No hay gradientes, ni sombras como ornamento, ni microinteracciones: hay bordes de 1 píxel, fondos que se separan por tono y color reservado exclusivamente para acción y estado.\n\nEl logotipo del ITO es obligatorio en la interfaz, pero aún no hay archivo en el repositorio: el header actual usa el nombre de la aplicación en Azul ITO. Cuando llegue el logo, reemplaza ese texto en el mismo tamaño óptico y con la misma altura de línea; no se rediseña el header.\n\nLas pantallas de acceso (login y registro) no hacen ruido: son la única superficie donde la banda de mensajes comparte pantalla con el formulario, y por eso el error de una operación —credenciales incorrectas, cuenta desactivada, bloqueo por intentos— vive en la banda y nunca bajo un campo. Todo el texto de error lo escribe el servidor, siempre en español: el navegador no habla.",
     "keyCharacteristics": [
       "El azul del ITO significa acción o estado activo; nunca decoración.",
       "El gris slate es el sistema: fondo de página, tarjetas blancas, bordes que separan.",
@@ -401,6 +409,16 @@
         "name": "The Flat-By-Default Rule",
         "body": "Las superficies están planas en reposo. Si añades sombra a algo, es porque ese algo flota dentro de una tarjeta; no porque «resalte».",
         "section": "elevation"
+      },
+      {
+        "name": "The Error Lives Where It Belongs",
+        "body": "Un error de campo se pinta debajo de ese campo; un fallo de la operación completa —credenciales incorrectas, cuenta desactivada, bloqueo por intentos— se pinta en la banda, nunca bajo un campo. Por eso LoginRequest lanza esos tres fallos en la clave `credenciales` y no en `email`.",
+        "section": "components"
+      },
+      {
+        "name": "The Server Speaks Spanish",
+        "body": "Login y registro llevan `novalidate`: el navegador no lanza su burbuja en el idioma del navegador. Todo el texto de error sale de `lang/es`, que ya está traducido.",
+        "section": "components"
       }
     ],
     "dos": [
@@ -409,16 +427,18 @@
       "Do declarar el estado con una insignia y con su palabra, no solo con color.",
       "Do envolver las tablas en overflow-x-auto y dejar que se desplacen en móvil en vez de reordenarlas.",
       "Do resolver la visibilidad con @can y con la política del modelo; la interfaz no reimplementa el alcance por rol.",
-      "Do componer los formularios con x-campo, x-seleccion y x-tarjeta-formulario.",
-      "Do mantener todo el texto de la interfaz en español y en el vocabulario del ITO."
+      "Do componer los formularios con x-campo, x-seleccion y x-tarjeta-formulario para que hereden foco, radio, error y la fila «Cancelar / Guardar» sin reescribirlos.",
+      "Do componer las bandas con x-mensaje y no escribirlas a mano; app y guest la usan como única región de avisos.",
+      "Do mantener todo el texto de la interfaz en español y en el vocabulario del ITO («Periodo», «Inscripciones», «Historial de Periodos Pasados»)."
     ],
     "donts": [
       "Don't añadir sombras a botones, tarjetas o tablas para hacerlas «resaltar»; la sombra es solo para controles dentro de una tarjeta.",
-      "Don't inventar un segundo azul para una acción secundaria: Azul Consulta es para leer y Ámbar Editar es para cambiar el estado de un periodo.",
-      "Don't usar verde como confirmación de una acción guardada: el verde del sistema es exclusivamente «en vigor ahora».",
+      "Don't inventar un segundo azul para una acción secundaria: azul-consulta es para leer y ámbar-editar es para cambiar el estado de un periodo. Cualquier otra acción usa el secundario de borde.",
+      "Don't usar verde como confirmación de una acción guardada (por ejemplo, tras enviar un formulario): el verde del sistema es exclusivamente «en vigor ahora».",
       "Don't apilar las tablas en tarjetas ni ocultar columnas por breakpoint; se desplazan.",
       "Don't subir pesos tipográficos ni añadir una familia display: la escala va de 0.75rem a 1rem.",
-      "Don't iniciar ninguna transacción destructiva sin confirmación explícita."
+      "Don't colgar un fallo de la operación completa de un campo: el bloqueo y la cuenta desactivada van a la banda, no bajo «Correo electrónico».",
+      "Don't iniciar ninguna transacción destructiva sin confirmación explícita (`onsubmit` con `confirm`) ni quitar la palabra «Eliminar»/«Desactivar» de las acciones de tabla."
     ]
   }
 }

@@ -36,7 +36,7 @@
 
                 @unless ($bloqueado)
                     <div class="mt-4 flex justify-end">
-                        <button class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Guardar permisos</button>
+                        <x-boton data-enviar class="mov-enviar">Guardar permisos</x-boton>
                     </div>
                 @endunless
             </form>
