@@ -1,0 +1,19 @@
+# Configuracion de Caddy para FrankenPHP.
+#
+# auto_https off es indispensable. En local (puerto 8080) y en Railway, el
+# contenedor habla HTTP plano porque es un proxy externo quien termina el TLS.
+# Sin esta opcion, Caddy responde 308 y manda todo el trafico a un HTTPS que
+# el contenedor no tiene.
+#
+# root public/ es lo que mantiene fuera del alcance de la web todo lo demas:
+# .env, codigo de la aplicacion y dependencias de Composer nunca se sirven.
+
+{
+	auto_https off
+}
+
+:80 {
+	root * /app/public
+	encode zstd br
+	php_server
+}

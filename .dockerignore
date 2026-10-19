@@ -1,0 +1,43 @@
+# Secretos: el archivo .env nunca debe quedar dentro de la imagen.
+.env
+.env.*
+!.env.example
+
+# Las dependencias se instalan dentro de la propia imagen.
+/node_modules
+/vendor
+composer.phar
+
+# Los assets los compila la etapa de Node de la imagen.
+/public/build
+/public/hot
+/public/storage
+
+# Cachés generadas. Si se copiaran, los manifiestos de esta maquina
+# seguirian_REGISTERANDO paquetes de desarrollo (por ejemplo Laravel Boost,
+# que no existe en una instalacion sin dependencias de desarrollo) y la
+# aplicacion no arrancaria.
+/bootstrap/cache/*.php
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+
+# Las pruebas usan SQLite en memoria y no aportan a la imagen de produccion.
+/tests
+
+# Documentacion interna y archivos de herramientas de IA.
+/docs
+/.impeccable
+/.opencode
+/.agents
+/.ai
+AGENTS.md
+CLAUDE.md
+DESIGN.md
+PRODUCT.md
+README.md
+
+# Git
+.git
+.gitignore

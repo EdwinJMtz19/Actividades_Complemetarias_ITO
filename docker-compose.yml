@@ -1,0 +1,58 @@
+# Proyecto completo: el contenedor de la aplicacion y su base de datos.
+#
+#   docker compose up -d --build
+#   docker compose exec app php artisan migrate --seed
+#   http://localhost:8080
+#
+# La aplicacion alcanza la base de datos por el nombre del servicio "db", que es
+# como los contenedores se ven entre si en la red de Compose. Nunca por
+# 127.0.0.1, que dentro del contenedor seria el propio contenedor app.
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    # utf8mb4 es obligatorio: la columna del anio de los ciclos academicos
+    # necesita poder guardar la enie.
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: actividades_ito
+      MYSQL_USER: actividades
+      MYSQL_PASSWORD: actividades
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    volumes:
+      - dbdata:/var/lib/mysql
+    # La aplicacion no arranca hasta que la base responde.
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    # Puerto 3307 en el equipo para revisar la base con un cliente MySQL
+    # sin chocar con el MySQL instalado en Windows.
+    ports:
+      - "3307:3306"
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # Hereda el resto de variables del .env local y sobreescribe las que
+    # apuntan a la base de datos de MySQL en Windows.
+    env_file: .env
+    environment:
+      APP_URL: http://localhost:8080
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: actividades_ito
+      DB_USERNAME: actividades
+      DB_PASSWORD: actividades
+    ports:
+      - "8080:80"
+
+volumes:
+  dbdata:
