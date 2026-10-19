@@ -25,8 +25,5 @@
             {{ $slot }}
         </div>
     </main>
-<!-- impeccable-live-start -->
-<script src="http://localhost:8400/live.js?token=c98c4f6a-eb6d-4dc4-bc14-2df95ac644a9"></script>
-<!-- impeccable-live-end -->
 </body>
 </html>
