@@ -13,6 +13,12 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
+    /**
+     * Clave del error de autenticación. No es un campo del formulario: existe para
+     * que la vista muestre el fallo en la banda de mensajes y no bajo «Correo electrónico».
+     */
+    public const ERROR_CREDENCIALES = 'credenciales';
+
     public function authorize(): bool
     {
         return true;
@@ -43,13 +49,13 @@ class LoginRequest extends FormRequest
 
             if ($usuario && ! $usuario->activo && Hash::check($this->input('contrasena'), $usuario->contrasena)) {
                 throw ValidationException::withMessages([
-                    'email' => 'Tu cuenta está desactivada. Contacta al administrador.',
+                    self::ERROR_CREDENCIALES => 'Tu cuenta está desactivada. Contacta al administrador.',
                 ]);
             }
 
             RateLimiter::hit($this->claveDeBloqueo());
 
-            throw ValidationException::withMessages(['email' => trans('auth.failed')]);
+            throw ValidationException::withMessages([self::ERROR_CREDENCIALES => trans('auth.failed')]);
         }
 
         RateLimiter::clear($this->claveDeBloqueo());
@@ -65,8 +71,10 @@ class LoginRequest extends FormRequest
 
         $segundos = RateLimiter::availableIn($this->claveDeBloqueo());
 
+        // El bloqueo no es un error del campo de correo: viaja en su propia clave
+        // para que la vista lo muestre en la banda de mensajes y no bajo el campo.
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', ['seconds' => $segundos, 'minutes' => ceil($segundos / 60)]),
+            self::ERROR_CREDENCIALES => trans('auth.throttle', ['seconds' => $segundos, 'minutes' => ceil($segundos / 60)]),
         ]);
     }
 

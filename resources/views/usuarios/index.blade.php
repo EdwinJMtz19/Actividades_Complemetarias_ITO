@@ -7,22 +7,22 @@
             @endunless
         </div>
         @can('create', App\Models\User::class)
-            <a href="{{ route('usuarios.create') }}" class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">Nuevo usuario</a>
+            <x-boton :href="route('usuarios.create')" icono="mas" gesto="giro">Nuevo usuario</x-boton>
         @endcan
     </div>
 
     <form method="GET" class="mb-4 flex flex-wrap gap-3">
         <input type="search" name="buscar" value="{{ request('buscar') }}" placeholder="Buscar por nombre o correo"
-               class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm sm:w-72">
+               class="mov-campo w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-72">
         @if (auth()->user()->esAdministrador())
-            <select name="rol" class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm">
+            <select name="rol" class="mov-campo rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                 <option value="">Todos los roles</option>
                 @foreach ($roles as $r)
                     <option value="{{ $r }}" @selected(request('rol') === $r)>{{ ucfirst($r) }}</option>
                 @endforeach
             </select>
         @endif
-        <button class="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100">Filtrar</button>
+        <x-boton variante="secundario" icono="buscar" gesto="ampliar">Filtrar</x-boton>
     </form>
 
     <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
@@ -39,7 +39,7 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse ($usuarios as $u)
-                    <tr>
+                    <tr class="transition-colors hover:bg-blue-50">
                         <td class="px-4 py-3 font-medium">{{ $u->nombre_completo }}</td>
                         <td class="px-4 py-3 text-slate-600">{{ $u->email }}</td>
                         <td class="px-4 py-3 capitalize">{{ $u->roles->first()?->name }}</td>
@@ -55,18 +55,18 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center justify-end gap-3">
-                                @can('view', $u)<a href="{{ route('usuarios.show', $u) }}" class="text-blue-700 hover:underline">Ver</a>@endcan
-                                @can('update', $u)<a href="{{ route('usuarios.edit', $u) }}" class="text-blue-700 hover:underline">Editar</a>@endcan
+                                @can('view', $u)<a href="{{ route('usuarios.show', $u) }}" class="mov-enlace text-blue-700">Ver</a>@endcan
+                                @can('update', $u)<a href="{{ route('usuarios.edit', $u) }}" class="mov-enlace text-blue-700">Editar</a>@endcan
                                 @can('toggle', $u)
                                     <form method="POST" action="{{ route('usuarios.toggle', $u) }}">
                                         @csrf @method('PATCH')
-                                        <button class="text-amber-700 hover:underline">{{ $u->activo ? 'Desactivar' : 'Activar' }}</button>
+                                        <button class="mov-enlace text-amber-700">{{ $u->activo ? 'Desactivar' : 'Activar' }}</button>
                                     </form>
                                 @endcan
                                 @can('delete', $u)
                                     <form method="POST" action="{{ route('usuarios.destroy', $u) }}" onsubmit="return confirm('¿Eliminar a {{ e($u->nombre_completo) }}? Esta acción no se puede deshacer.')">
                                         @csrf @method('DELETE')
-                                        <button class="text-red-700 hover:underline">Eliminar</button>
+                                        <button class="mov-enlace text-red-700">Eliminar</button>
                                     </form>
                                 @endcan
                             </div>

@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // El servidor (Railway, proxy inverso) termina el TLS y reenvía la petición por HTTP.
+        // Sin esto, Laravel creería que la petición es http:// y generaría URLs http://,
+        // que el navegador bloquea como contenido mixto (la página se vería sin estilos).
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             // Spatie Permission
             'role' => RoleMiddleware::class,

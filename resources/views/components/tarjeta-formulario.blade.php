@@ -12,10 +12,9 @@
         {{ $slot }}
 
         <div class="flex items-center justify-between pt-2">
-            <a href="{{ $volver }}" class="inline-flex items-center gap-1 rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100">
-                <x-icono nombre="volver" /> Cancelar
-            </a>
-            <button class="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">{{ $boton }}</button>
+            <x-boton variante="secundario" :href="$volver" icono="volver" gesto="izquierda">Cancelar</x-boton>
+            {{-- `data-enviar`: al enviar, el botón acusa recibo y no admite un segundo clic (resources/js/app.js). --}}
+            <x-boton data-enviar class="mov-enviar">{{ $boton }}</x-boton>
         </div>
     </form>
 </div>

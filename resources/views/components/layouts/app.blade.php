@@ -12,7 +12,7 @@
         <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
             <div class="flex items-center gap-6">
                 <a href="{{ route('panel') }}" class="text-base font-semibold text-blue-700">{{ config('app.name') }}</a>
-                <nav class="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600">
+                <nav class="mov-nav flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600">
                     <a href="{{ route('panel') }}" class="hover:text-blue-700">Panel</a>
                     @can('viewAny', App\Models\User::class)
                         <a href="{{ route('usuarios.index') }}" class="hover:text-blue-700">Usuarios</a>
@@ -39,7 +39,7 @@
                 <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold capitalize text-blue-800">{{ auth()->user()->getRoleNames()->first() }}</span>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-100">Salir</button>
+                    <button type="submit" class="mov-boton rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-100">Salir</button>
                 </form>
             </div>
         </div>
@@ -47,10 +47,10 @@
 
     <main class="mx-auto max-w-6xl px-4 py-8">
         @if (session('exito'))
-            <div class="mb-6 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="status">{{ session('exito') }}</div>
+            <x-mensaje tipo="exito" class="mov-banda">{{ session('exito') }}</x-mensaje>
         @endif
         @if (session('error'))
-            <div class="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">{{ session('error') }}</div>
+            <x-mensaje tipo="error" class="mov-banda">{{ session('error') }}</x-mensaje>
         @endif
 
         {{ $slot }}
