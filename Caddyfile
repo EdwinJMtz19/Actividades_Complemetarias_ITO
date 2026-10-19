@@ -12,7 +12,11 @@
 	auto_https off
 }
 
-:80 {
+# El puerto se toma de la variable PORT si existe, y si no se usa el 80.
+# En local no hay PORT y el mapeo de docker-compose apunta a 80; en Railway la
+# plataforma inyecta PORT y el contenedor debe escucharlo, si no el trafico
+# no llega.
+:{$PORT:80} {
 	root * /app/public
 	encode zstd br
 	php_server
