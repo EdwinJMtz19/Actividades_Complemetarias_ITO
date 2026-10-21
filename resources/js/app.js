@@ -3,7 +3,10 @@
 //  - Mostrar / ocultar contraseña.
 //  - Avisar cuando el Bloq Mayús está activado.
 //  - Acusar recibo del envío y evitar el doble envío.
+//  - Formulario de grupos (horarios en vivo): ver grupo-horarios.js.
 //
+
+import './grupo-horarios';
 
 document.addEventListener('click', (evento) => {
     const boton = evento.target.closest('[data-ver-contrasena]');

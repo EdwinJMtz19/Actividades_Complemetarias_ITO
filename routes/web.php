@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\ActividadController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegistroController;
 use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\DepartamentoController;
+use App\Http\Controllers\GrupoController;
+use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\PanelController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SemestreController;
@@ -65,5 +68,25 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->middlewareFor(['index', 'show'], 'permission:semestres.ver')
             ->middlewareFor(['create', 'store'], 'permission:semestres.crear')
             ->middlewareFor(['edit', 'update'], 'permission:semestres.editar');
+
+        // Sprint 3 · Actividades y grupos. El alcance por departamento (o por instructor) lo aplican
+        // ActividadPolicy y GrupoPolicy; aquí solo se pide el permiso de la acción.
+        Route::resource('actividades', ActividadController::class)
+            ->except('show')->parameters(['actividades' => 'actividad'])
+            ->middlewareFor('index', 'permission:actividades.ver')
+            ->middlewareFor(['create', 'store'], 'permission:actividades.crear')
+            ->middlewareFor(['edit', 'update'], 'permission:actividades.editar')
+            ->middlewareFor('destroy', 'permission:actividades.eliminar');
+
+        // Aviso de conflictos en vivo (JSON). Va antes del recurso para que "conflictos" no se lea como {grupo}.
+        Route::post('grupos/conflictos', [HorarioController::class, 'verificar'])
+            ->middleware('permission:grupos.crear|grupos.editar')->name('grupos.conflictos');
+
+        Route::resource('grupos', GrupoController::class)
+            ->parameters(['grupos' => 'grupo'])
+            ->middlewareFor(['index', 'show'], 'permission:grupos.ver')
+            ->middlewareFor(['create', 'store'], 'permission:grupos.crear')
+            ->middlewareFor(['edit', 'update'], 'permission:grupos.editar')
+            ->middlewareFor('destroy', 'permission:grupos.eliminar');
     });
 });
