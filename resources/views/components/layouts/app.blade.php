@@ -32,6 +32,12 @@
                     @can('ubicaciones.ver')
                         <a href="{{ route('ubicaciones.index') }}" class="hover:text-blue-700">Ubicaciones</a>
                     @endcan
+                    @can('actividades.ver')
+                        <a href="{{ route('actividades.index') }}" class="hover:text-blue-700">Actividades</a>
+                    @endcan
+                    @can('grupos.ver')
+                        <a href="{{ route('grupos.index') }}" class="hover:text-blue-700">Grupos</a>
+                    @endcan
                 </nav>
             </div>
             <div class="flex items-center gap-3 text-sm">
