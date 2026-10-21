@@ -2,16 +2,19 @@
 
 namespace Tests\Support;
 
+use App\Models\Actividad;
 use App\Models\Alumno;
 use App\Models\Carrera;
 use App\Models\CoordinadorDepartamento;
 use App\Models\Departamento;
+use App\Models\Grupo;
 use App\Models\Instructor;
 use App\Models\Semestre;
 use App\Models\User;
+use Database\Seeders\DiasSemanaSeeder;
 use Database\Seeders\RolesYPermisosSeeder;
 
-/** Datos de apoyo para las pruebas (Sprints 1 y 2). */
+/** Datos de apoyo para las pruebas (Sprints 1 a 3). */
 class Escenarios
 {
     public const CONTRASENA = 'Actividades2026';
@@ -45,6 +48,53 @@ class Escenarios
             'hora_fin_inscripciones' => '20:00',
             'status' => Semestre::INACTIVO,
         ]);
+    }
+
+    /** Los seis días de la semana (1 = lunes … 6 = sábado), igual que en producción. */
+    public static function dias(): void
+    {
+        (new DiasSemanaSeeder)->run();
+    }
+
+    /** Actividad del departamento de Sistemas, dirigida a una carrera, con los datos que se quieran cambiar. */
+    public static function actividad(array $atributos = []): Actividad
+    {
+        $actividad = Actividad::create($atributos + [
+            'nombre' => 'Actividad '.fake()->unique()->numberBetween(1, 99999),
+            'id_departamento' => self::departamento('Sistemas')->id_departamento,
+            'creditos' => 1,
+            'disponible' => true,
+        ]);
+
+        $actividad->carreras()->attach(self::carrera()->id_carrera);
+
+        return $actividad;
+    }
+
+    /**
+     * Grupo abierto, presencial y sin instructor, en el semestre activo (que crea si falta).
+     * `$horarios` son tuplas [id_dia, 'HH:MM', 'HH:MM'], p. ej. [[1, '10:00', '12:00']].
+     */
+    public static function grupo(array $atributos = [], array $horarios = []): Grupo
+    {
+        $atributos['id_actividad'] ??= self::actividad()->id_actividad;
+        $atributos['id_semestre'] ??= (Semestre::activo() ?? self::semestre(['status' => Semestre::ACTIVO]))->id_semestre;
+
+        $grupo = Grupo::create($atributos + [
+            'grupo' => 'A',
+            'cupo_minimo' => 1,
+            'cupo_maximo' => 20,
+            'modalidad' => 'presencial',
+            'estatus' => 'abierta',
+            'fecha_inicio' => '2026-08-31',
+            'fecha_fin' => '2026-12-04',
+        ]);
+
+        foreach ($horarios as [$dia, $inicio, $fin]) {
+            $grupo->horarios()->create(['id_dia' => $dia, 'hora_inicio' => $inicio.':00', 'hora_fin' => $fin.':00']);
+        }
+
+        return $grupo;
     }
 
     /** Crea un usuario con su rol y el perfil que le corresponde. */
