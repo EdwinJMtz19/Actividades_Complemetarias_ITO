@@ -12,7 +12,9 @@
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
-        <form method="GET" action="{{ $accion }}" role="search" class="flex items-center gap-3">
+        <form method="GET" action="{{ $accion }}" role="search" class="flex flex-wrap items-center gap-3">
+            {{-- Filtros opcionales (selectores) que viajan junto con la búsqueda. --}}
+            @isset($filtros){{ $filtros }}@endisset
             <div class="flex">
                 <label for="buscar" class="sr-only">Buscar</label>
                 <input id="buscar" type="search" name="buscar" value="{{ $buscar }}" placeholder="{{ $placeholder }}"

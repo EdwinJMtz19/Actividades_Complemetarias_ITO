@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
- * Roles y permisos (Sprint 1) más los de catálogos y semestres (Sprint 2).
+ * Roles y permisos (Sprint 1), catálogos y semestres (Sprint 2), actividades y grupos (Sprint 3).
  * Es idempotente y solo AGREGA permisos,
  * así que se puede volver a ejecutar sin pisar lo configurado en la pantalla de roles.
  * Los sprints siguientes añaden aquí sus propios permisos.
@@ -43,6 +43,16 @@ class RolesYPermisosSeeder extends Seeder
             'semestres.ver',
             'semestres.crear',
             'semestres.editar',
+            // Sprint 3 · actividades y grupos. Los horarios viajan dentro del formulario del grupo:
+            // se editan con grupos.editar, por eso no existe un permiso horarios.*.
+            'actividades.ver',
+            'actividades.crear',
+            'actividades.editar',
+            'actividades.eliminar',
+            'grupos.ver',
+            'grupos.crear',
+            'grupos.editar',
+            'grupos.eliminar',
         ];
 
         foreach ($permisos as $nombre) {
@@ -51,9 +61,15 @@ class RolesYPermisosSeeder extends Seeder
 
         $porRol = [
             'administrador' => $permisos,
-            // Ve a los instructores de su departamento (el alcance lo aplica UserPolicy).
-            'coordinador' => ['usuarios.ver'],
-            'instructor' => [],
+            // Ve a los instructores de su departamento (el alcance lo aplica UserPolicy) y administra
+            // las actividades y grupos de su departamento (el alcance lo aplican ActividadPolicy y GrupoPolicy).
+            'coordinador' => [
+                'usuarios.ver',
+                'actividades.ver', 'actividades.crear', 'actividades.editar', 'actividades.eliminar',
+                'grupos.ver', 'grupos.crear', 'grupos.editar', 'grupos.eliminar',
+            ],
+            // Consulta solo sus propios grupos (el alcance lo aplica GrupoPolicy).
+            'instructor' => ['grupos.ver'],
             'alumno' => [],
         ];
 

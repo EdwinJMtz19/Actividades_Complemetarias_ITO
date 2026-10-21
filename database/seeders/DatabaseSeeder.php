@@ -11,11 +11,15 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolesYPermisosSeeder::class,
             CatalogosBaseSeeder::class,
+            DiasSemanaSeeder::class,
         ]);
 
-        // Cuentas de prueba: nunca en producción.
+        // Datos de ejemplo y cuentas de prueba: nunca en producción.
         if (! app()->environment('production')) {
-            $this->call(UsuariosPruebaSeeder::class);
+            $this->call([
+                ActividadesBaseSeeder::class,
+                UsuariosPruebaSeeder::class,
+            ]);
         }
     }
 }
