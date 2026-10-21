@@ -27,20 +27,13 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-# ── Documentación en Markdown ─────────────────────────────────────────
-*.md
-
-# ── Documentación del proyecto ────────────────────────────────────────
-/docs
-
-# ── Agentes de IA y asistentes ────────────────────────────────────────
+# ── Agentes de IA y asistentes (artefactos de herramientas) ───────────
 /.agents
 /.opencode
 /.claude
-/AGENTS.md
-/CLAUDE.md
 boost.json
 .mcp.json
+/skills-lock.json
 
 # ── Herramienta de diseño (impeccable) ───────────────────────────────
 /.impeccable
