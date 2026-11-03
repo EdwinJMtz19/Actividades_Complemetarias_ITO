@@ -2,6 +2,7 @@
 
 use App\Models\Grupo;
 use App\Models\Horario;
+use App\Models\Inscripcion;
 use App\Models\Semestre;
 use App\Models\Ubicacion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -255,8 +256,12 @@ it('no elimina un grupo que ya tiene alumnos inscritos', function () {
         'id_actividad' => $this->actividad->id_actividad,
     ], [[1, '10:00', '12:00']]);
 
-    $grupo->cupo_ocupado = 3;
-    $grupo->save();
+    Inscripcion::create([
+        'id_alumno' => Escenarios::usuario('alumno')->id,
+        'id_grupo' => $grupo->id_grupo,
+        'fecha_inscripcion' => now(),
+        'estatus' => 'inscrito',
+    ]);
 
     $this->actingAs($this->admin)->delete("/grupos/{$grupo->id_grupo}")
         ->assertRedirect()->assertSessionHas('error', fn ($mensaje) => str_contains($mensaje, 'inscritos'));

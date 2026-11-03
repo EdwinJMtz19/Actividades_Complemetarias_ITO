@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 // La llave es el id del usuario (no se autoincrementa).
 #[Table(name: 'alumno', key: 'id_alumno', incrementing: false)]
@@ -20,5 +21,10 @@ class Alumno extends Model
     public function carrera(): BelongsTo
     {
         return $this->belongsTo(Carrera::class, 'id_carrera');
+    }
+
+    public function inscripciones(): HasMany
+    {
+        return $this->hasMany(Inscripcion::class, 'id_alumno');
     }
 }

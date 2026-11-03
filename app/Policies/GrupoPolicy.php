@@ -38,6 +38,12 @@ class GrupoPolicy
         return $auth->can('grupos.eliminar') && $this->esDeSuDepartamento($auth, $grupo);
     }
 
+    /** Solo un alumno con el permiso de inscripción puede apuntarse a un grupo. */
+    public function inscribirse(User $auth, Grupo $grupo): bool
+    {
+        return $auth->can('inscripciones.crear') && $auth->alumno !== null;
+    }
+
     private function esDeSuDepartamento(User $auth, Grupo $grupo): bool
     {
         $departamento = $auth->esCoordinador() ? $auth->ambitoDepartamento() : null;

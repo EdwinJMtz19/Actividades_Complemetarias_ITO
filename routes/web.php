@@ -7,6 +7,7 @@ use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\HorarioController;
+use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\PanelController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SemestreController;
@@ -29,6 +30,13 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'usuario.activo'])->group(function () {
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('panel', PanelController::class)->name('panel');
+
+    // Sprint 4 · Inscripción de alumnos. Los alumnos no tienen departamento, por eso va
+    // fuera del grupo `departamento.asignado`.
+    Route::get('inscripciones', [InscripcionController::class, 'index'])
+        ->middleware('permission:inscripciones.ver')->name('inscripciones.index');
+    Route::post('inscripciones/{grupo}', [InscripcionController::class, 'store'])
+        ->middleware('permission:inscripciones.crear')->name('inscripciones.store');
 
     // Módulos limitados por rol/permiso y, para coordinadores, por departamento asignado.
     Route::middleware('departamento.asignado')->group(function () {

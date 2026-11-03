@@ -7,6 +7,50 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ---
 
+## 2026-11-03 · sprint
+
+**Resumen:** HU-17 del Sprint 4: el alumno consulta los grupos disponibles y se inscribe a uno, con descuento atómico de cupo y una sola inscripción activa.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `database/migrations/2026_11_03_120000_create_inscripcion_table.php` | Nueva tabla `inscripcion` con FK a `alumno` y `grupo`; índice único de inscripción activa (columna generada en MySQL, índice parcial en SQLite). |
+| `app/Models/Inscripcion.php` | Modelo nuevo: estatus, `scopeActivas()`, `estaActiva()`, relaciones `alumno()` y `grupo()`. |
+| `app/Models/Grupo.php` | Relación `inscripciones()`; `tieneInscripciones()` ahora consulta la relación; `scopeInscribiblesPara()`. |
+| `app/Models/Alumno.php` | Relación `inscripciones()`. |
+| `app/Policies/GrupoPolicy.php` | Habilidad `inscribirse`: permiso `inscripciones.crear` y perfil de alumno. |
+| `app/Providers/AppServiceProvider.php` | `Gate::before` deja que `inscribirse` la decida la política (el administrador no tiene perfil de alumno). |
+| `app/Http/Controllers/InscripcionController.php` | Catálogo de grupos disponibles y alta de la inscripción validando ventana, periodo, estatus, actividad, carrera, cupo y unicidad. |
+| `routes/web.php` | `GET /inscripciones` y `POST /inscripciones/{grupo}` con permisos `inscripciones.ver` e `inscripciones.crear`. |
+| `database/seeders/RolesYPermisosSeeder.php` | Permisos `inscripciones.ver` e `inscripciones.crear`; el rol `alumno` los recibe. |
+| `resources/views/inscripciones/index.blade.php` | Vista del catálogo, la inscripción activa y el botón «Inscribirme». |
+| `resources/views/components/layouts/app.blade.php`, `resources/views/panel.blade.php` | Enlace «Inscripciones» para quien tenga `inscripciones.ver`. |
+| `tests/Feature/InscripcionesTest.php` | Once pruebas nuevas de la HU-17. |
+| `tests/Feature/GruposCrudTest.php` | La prueba de borrado ahora crea una inscripción real (antes usaba `cupo_ocupado`). |
+| `tests/Feature/RolesPermisosTest.php` | Conteo de permisos 29 → 31 y permisos del rol `alumno` 0 → 2. |
+| `docs/contexto.md`, `docs/requisitos.md` | Regla 18 de inscripciones, permisos y RF-09 marcado como cumplido. |
+| `docs/README.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `CONTRIBUTING.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Conteo de pruebas 204/205 → 216. |
+
+**Verificación:** `php artisan test` → **216 pruebas, 831 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-03 · cambio
+
+**Resumen:** el rol `coordinador` ahora puede ver la lista de ubicaciones en su panel de módulos, igual que el `administrador`.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `database/seeders/RolesYPermisosSeeder.php` | Se agrega `ubicaciones.ver` a los permisos del rol `coordinador` (antes solo tenía `usuarios.ver`, `actividades.*` y `grupos.*`). |
+| `tests/Feature/AccesoCatalogosTest.php` | Se separa la prueba de catálogos: `alumno` e `instructor` siguen sin acceso; `coordinador` puede `GET /ubicaciones` (ver) pero no crear, editar, eliminar, ni acceder a `/departamentos`, `/carreras` ni `/semestres`. |
+
+**Verificación:** `php artisan test` → **205 pruebas, 798 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
 ## 2026-10-20 · documentación
 
 **Resumen:** resolución de la decisión abierta sobre el borrado de grupos (**opción A: corregir la

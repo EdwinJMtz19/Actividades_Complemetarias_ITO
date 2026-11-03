@@ -28,7 +28,7 @@ docker compose down -v                          # apagar y borrar la base del vo
 php artisan migrate:fresh --seed   # rehacer la base de datos con datos iniciales
 php artisan serve                  # http://localhost:8000
 
-php artisan test                   # 204 pruebas
+php artisan test                   # 216 pruebas
 vendor\bin\pint                    # formatear    |    vendor\bin\pint --test  # revisar
 npm run build                      # compilar Tailwind y JS
 ```

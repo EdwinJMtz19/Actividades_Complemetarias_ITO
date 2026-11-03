@@ -23,7 +23,7 @@ it('manda al login a los invitados', function () {
     }
 });
 
-it('niega los catálogos y semestres a alumnos, instructores y coordinadores', function (string $rol) {
+it('niega los catálogos y semestres a alumnos e instructores', function (string $rol) {
     $usuario = Escenarios::usuario($rol, $this->sistemas);
 
     $this->actingAs($usuario);
@@ -36,7 +36,25 @@ it('niega los catálogos y semestres a alumnos, instructores y coordinadores', f
     $this->post('/ubicaciones', ['espacio' => 'X', 'capacidad' => 5])->assertForbidden();
     $this->post('/semestres', [])->assertForbidden();
     $this->delete("/departamentos/{$this->sistemas->id_departamento}")->assertForbidden();
-})->with(['alumno', 'instructor', 'coordinador']);
+})->with(['alumno', 'instructor']);
+
+it('permite al coordinador ver la lista de ubicaciones pero no crear ni acceder a otros catálogos', function () {
+    $usuario = Escenarios::usuario('coordinador', $this->sistemas);
+
+    $this->actingAs($usuario);
+    $this->get('/ubicaciones')->assertOk();
+    $this->get('/ubicaciones/create')->assertForbidden();
+    $this->post('/ubicaciones', ['espacio' => 'X', 'capacidad' => 5])->assertForbidden();
+
+    foreach (['/departamentos', '/carreras', '/semestres'] as $ruta) {
+        $this->get($ruta)->assertForbidden();
+    }
+
+    $this->post('/departamentos', ['nombre' => 'X'])->assertForbidden();
+    $this->post('/carreras', ['nombre' => 'X'])->assertForbidden();
+    $this->post('/semestres', [])->assertForbidden();
+    $this->delete("/departamentos/{$this->sistemas->id_departamento}")->assertForbidden();
+});
 
 it('permite al administrador entrar a todos los módulos', function () {
     $this->actingAs(Escenarios::usuario('administrador'));

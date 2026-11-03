@@ -16,7 +16,7 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | `administrador` | Todo, sin restricciones de departamento. Único que administra usuarios, roles y catálogos. |
 | `coordinador` | Ve y administra a los **instructores, actividades y grupos de su departamento**. |
 | `instructor` | Consulta **solo los grupos que imparte**; no los crea ni los edita (Sprint 3). |
-| `alumno` | Pendiente: consulta e inscripción en actividades (Sprint 4). |
+| `alumno` | Consulta el catálogo de grupos y se inscribe a una actividad (Sprint 4, HU-17). |
 
 ## 2. Cronograma de sprints
 
@@ -26,7 +26,7 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | 1 | Usuarios, roles y permisos + acceso por departamento | **Entregado** ([detalle](sprints/sprint-01-usuarios-y-roles.md)) |
 | 2 | Catálogos base y semestre: CRUD de departamentos, carreras y ubicaciones; semestres con cierre automático y validaciones | **Entregado** ([detalle](sprints/sprint-02-catalogos-y-semestres.md)) |
 | 3 | Actividades, grupos y horarios (instructor) | **Entregado** ([detalle](sprints/sprint-03-actividades-y-grupos.md)) |
-| 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | Pendiente |
+| 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | **En curso** (HU-17 entregada) |
 | 5 | Calificaciones | Pendiente |
 | 6 | Dashboards por rol | Pendiente |
 
@@ -60,7 +60,7 @@ perfil según su rol, y `User` lo expone con las relaciones `alumno()`, `instruc
 
 | Tabla | Sprint | Estado |
 |---|---|---|
-| `inscripcion` | 4 | Pendiente |
+| `inscripcion` | 4 | Implementada (HU-17) |
 | `calificacion` | 5 | Pendiente |
 | `log_acceso` | 6 | Pendiente |
 
@@ -88,10 +88,12 @@ ubicaciones.ver    .crear  .editar  .eliminar      (Sprint 2)
 semestres.ver      .crear  .editar                 (Sprint 2; no existe .eliminar)
 actividades.ver    .crear  .editar  .eliminar      (Sprint 3)
 grupos.ver         .crear  .editar  .eliminar      (Sprint 3; los horarios van en el formulario del grupo)
+inscripciones.ver  .crear                          (Sprint 4)
 ```
 
-Asignación: `administrador` → todos (29) · `coordinador` → `usuarios.ver`, `actividades.*` y
-`grupos.*` (recortados a su departamento) · `instructor` → `grupos.ver` (solo los suyos) · `alumno` → ninguno.
+Asignación: `administrador` → todos (31) · `coordinador` → `usuarios.ver`, `ubicaciones.ver`,
+`actividades.*` y `grupos.*` (recortados a su departamento) · `instructor` → `grupos.ver` (solo los
+suyos) · `alumno` → `inscripciones.ver` e `inscripciones.crear` (HU-17).
 Los permisos del Sprint 2 son solo del administrador; se pueden dar a otro rol desde `/roles`.
 
 Hay una pantalla (`/roles`) para modificar permisos por rol. Por eso el seeder usa
@@ -144,6 +146,14 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
 17. **Borrado de grupos:** no se elimina un grupo con `cupo_ocupado > 0`; sus horarios se van en
     cascada. El criterio 8 de HU-15 se **reescribió el 2026-10-20** para reflejar esa decisión de
     esquema (opción A): ver [`decisiones/borrado-de-grupos.md`](decisiones/borrado-de-grupos.md).
+    Desde el Sprint 4 el borrado se bloquea si el grupo tiene filas en `inscripcion`
+    (`Grupo::tieneInscripciones()` consulta la relación).
+18. **Inscripciones (HU-17):** solo el alumno se inscribe, y solo dentro de la ventana del periodo
+    activo (`Semestre::inscripcionesAbiertas()`). El grupo debe ser del periodo vigente, estar
+    `abierta`, pertenecer a una actividad `disponible` dirigida a la carrera del alumno y tener cupo.
+    Se permite **una sola inscripción activa por alumno** (`inscrito` o `cursando`), garantizada por
+    un índice único (columna generada en MySQL, índice parcial en SQLite). El alta descuenta el cupo
+    de forma atómica y registra `fecha_inscripcion`; el grupo y su cupo no se capturan a mano.
 
 ## 6. Decisiones técnicas
 

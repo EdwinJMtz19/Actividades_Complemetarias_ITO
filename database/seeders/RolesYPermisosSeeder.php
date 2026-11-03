@@ -8,7 +8,8 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
- * Roles y permisos (Sprint 1), catálogos y semestres (Sprint 2), actividades y grupos (Sprint 3).
+ * Roles y permisos (Sprint 1), catálogos y semestres (Sprint 2), actividades y grupos (Sprint 3),
+ * inscripción de alumnos (Sprint 4).
  * Es idempotente y solo AGREGA permisos,
  * así que se puede volver a ejecutar sin pisar lo configurado en la pantalla de roles.
  * Los sprints siguientes añaden aquí sus propios permisos.
@@ -53,6 +54,9 @@ class RolesYPermisosSeeder extends Seeder
             'grupos.crear',
             'grupos.editar',
             'grupos.eliminar',
+            // Sprint 4 · inscripción de alumnos. Ver el catálogo y apuntarse a un grupo.
+            'inscripciones.ver',
+            'inscripciones.crear',
         ];
 
         foreach ($permisos as $nombre) {
@@ -65,12 +69,14 @@ class RolesYPermisosSeeder extends Seeder
             // las actividades y grupos de su departamento (el alcance lo aplican ActividadPolicy y GrupoPolicy).
             'coordinador' => [
                 'usuarios.ver',
+                'ubicaciones.ver',
                 'actividades.ver', 'actividades.crear', 'actividades.editar', 'actividades.eliminar',
                 'grupos.ver', 'grupos.crear', 'grupos.editar', 'grupos.eliminar',
             ],
             // Consulta solo sus propios grupos (el alcance lo aplica GrupoPolicy).
             'instructor' => ['grupos.ver'],
-            'alumno' => [],
+            // Consulta el catálogo y se inscribe a un grupo (HU-17).
+            'alumno' => ['inscripciones.ver', 'inscripciones.crear'],
         ];
 
         foreach ($porRol as $nombre => $permisosDelRol) {

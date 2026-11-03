@@ -57,6 +57,9 @@
                 @can('grupos.ver')
                     <li><a href="{{ route('grupos.index') }}" class="font-medium text-blue-700 hover:underline">Grupos</a></li>
                 @endcan
+                @can('inscripciones.ver')
+                    <li><a href="{{ route('inscripciones.index') }}" class="font-medium text-blue-700 hover:underline">Inscripciones</a></li>
+                @endcan
                 @cannot('viewAny', App\Models\User::class)
                     <li class="text-slate-500">Los demás módulos se habilitan en los siguientes sprints.</li>
                 @endcannot

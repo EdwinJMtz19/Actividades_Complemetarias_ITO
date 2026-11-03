@@ -64,19 +64,36 @@ class Grupo extends Model
         return $this->hasMany(Horario::class, 'id_grupo')->orderBy('id_dia')->orderBy('hora_inicio');
     }
 
+    public function inscripciones(): HasMany
+    {
+        return $this->hasMany(Inscripcion::class, 'id_grupo');
+    }
+
     /** La modalidad virtual no usa espacio físico. */
     public function requiereUbicacion(): bool
     {
         return $this->modalidad !== 'virtual';
     }
 
-    /**
-     * Un grupo con alumnos no se elimina. Mientras no exista la tabla de inscripciones
-     * (Sprint 4), el cupo ocupado hace de indicador; entonces se cambia por la relación.
-     */
+    /** Un grupo con alumnos inscritos no se elimina. */
     public function tieneInscripciones(): bool
     {
-        return $this->cupo_ocupado > 0;
+        return $this->inscripciones()->exists();
+    }
+
+    /**
+     * Grupos a los que un alumno puede inscribirse: abiertos, del periodo vigente, de
+     * actividades disponibles y dirigidas a su carrera, y todavía con cupo.
+     */
+    public function scopeInscribiblesPara(Builder $consulta, Alumno $alumno, Semestre $semestre): Builder
+    {
+        return $consulta
+            ->where('id_semestre', $semestre->id_semestre)
+            ->where('estatus', 'abierta')
+            ->whereColumn('cupo_ocupado', '<', 'cupo_maximo')
+            ->whereHas('actividad', fn ($q) => $q
+                ->where('disponible', true)
+                ->whereHas('carreras', fn ($c) => $c->where('carrera.id_carrera', $alumno->id_carrera)));
     }
 
     /**

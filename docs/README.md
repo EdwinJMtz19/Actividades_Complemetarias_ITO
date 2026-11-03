@@ -63,7 +63,7 @@ php artisan migrate:fresh --seed
 # Servidor local -> http://localhost:8000
 php artisan serve
 
-# Pruebas (deben pasar 204)
+# Pruebas (deben pasar 216)
 php artisan test
 
 # Cierre automático de semestres vencidos (manual) y programador en local

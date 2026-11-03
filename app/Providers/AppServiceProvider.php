@@ -18,6 +18,12 @@ class AppServiceProvider extends ServiceProvider
         // El administrador tiene acceso a todo, con una excepción: nadie puede
         // eliminarse ni desactivarse a sí mismo (evita quedarse sin administradores).
         Gate::before(function (User $usuario, string $habilidad, array $argumentos) {
+            // Inscribirse exige el perfil de alumno, que el administrador no tiene:
+            // esta habilidad la decide siempre la política del grupo.
+            if ($habilidad === 'inscribirse') {
+                return null;
+            }
+
             if (! $usuario->hasRole('administrador')) {
                 return null;
             }
