@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\InscripcionConfirmada;
 use App\Models\Alumno;
 use App\Models\Grupo;
 use App\Models\Inscripcion;
@@ -11,7 +12,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
+use Throwable;
 
 /**
  * Inscripción de alumnos a los grupos del periodo vigente (HU-17).
@@ -97,7 +101,7 @@ class InscripcionController extends Controller
         }
 
         try {
-            $inscrito = DB::transaction(function () use ($alumno, $grupo) {
+            $inscripcion = DB::transaction(function () use ($alumno, $grupo) {
                 // Descuenta el cupo solo si aún hay lugar: una sola sentencia atómica.
                 $afectados = Grupo::query()
                     ->whereKey($grupo->getKey())
@@ -105,24 +109,32 @@ class InscripcionController extends Controller
                     ->increment('cupo_ocupado');
 
                 if ($afectados === 0) {
-                    return false;
+                    return null;
                 }
 
-                Inscripcion::create([
+                return Inscripcion::create([
                     'id_alumno' => $alumno->id_alumno,
                     'id_grupo' => $grupo->id_grupo,
                     'fecha_inscripcion' => now(),
                     'estatus' => 'inscrito',
                 ]);
-
-                return true;
             });
         } catch (QueryException) {
             return back()->with('error', 'No se pudo completar la inscripción: ya tienes una inscripción activa.');
         }
 
-        if (! $inscrito) {
+        if ($inscripcion === null) {
             return back()->with('error', 'El grupo ya no tiene cupo disponible.');
+        }
+
+        // La inscripción ya quedó confirmada: si el correo falla, se registra y no se deshace el alta.
+        try {
+            Mail::to($request->user())->queue(new InscripcionConfirmada($inscripcion));
+        } catch (Throwable $error) {
+            Log::error('No se pudo encolar el correo de confirmación de inscripción.', [
+                'id_inscripcion' => $inscripcion->id_inscripcion,
+                'error' => $error->getMessage(),
+            ]);
         }
 
         return redirect()->route('inscripciones.index')

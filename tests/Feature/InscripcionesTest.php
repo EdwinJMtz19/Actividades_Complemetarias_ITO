@@ -1,9 +1,12 @@
 <?php
 
+use App\Mail\InscripcionConfirmada;
 use App\Models\Actividad;
 use App\Models\Inscripcion;
 use App\Models\Semestre;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Tests\Support\Escenarios;
 
 uses(RefreshDatabase::class);
@@ -166,6 +169,33 @@ it('oculta del catálogo los grupos llenos, cerrados o de otra carrera', functio
 
     expect($respuesta->viewData('grupos'))->toBeEmpty()
         ->and($cerrado->id_grupo)->not->toBeNull();
+});
+
+it('envía el correo de confirmación al inscribirse', function () {
+    Mail::fake();
+
+    $this->actingAs($this->alumno)->post("/inscripciones/{$this->grupo->id_grupo}");
+
+    Mail::assertQueued(InscripcionConfirmada::class, function (InscripcionConfirmada $correo) {
+        return $correo->hasTo($this->alumno->email)
+            && $correo->inscripcion->id_grupo === $this->grupo->id_grupo
+            && str_contains($correo->render(), 'Ajedrez');
+    });
+});
+
+it('confirma la inscripción aunque el correo falle', function () {
+    Log::spy();
+    Mail::shouldReceive('to->queue')->andThrow(new RuntimeException('SMTP caído'));
+
+    $this->actingAs($this->alumno)
+        ->post("/inscripciones/{$this->grupo->id_grupo}")
+        ->assertRedirect(route('inscripciones.index'))
+        ->assertSessionHas('exito');
+
+    expect(Inscripcion::count())->toBe(1)
+        ->and($this->grupo->fresh()->cupo_ocupado)->toBe(1);
+
+    Log::shouldHaveReceived('error')->once();
 });
 
 it('no permite que un instructor consulte ni se inscriba', function () {

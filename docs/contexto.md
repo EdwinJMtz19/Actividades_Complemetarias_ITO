@@ -26,7 +26,7 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | 1 | Usuarios, roles y permisos + acceso por departamento | **Entregado** ([detalle](sprints/sprint-01-usuarios-y-roles.md)) |
 | 2 | Catálogos base y semestre: CRUD de departamentos, carreras y ubicaciones; semestres con cierre automático y validaciones | **Entregado** ([detalle](sprints/sprint-02-catalogos-y-semestres.md)) |
 | 3 | Actividades, grupos y horarios (instructor) | **Entregado** ([detalle](sprints/sprint-03-actividades-y-grupos.md)) |
-| 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | **En curso** (HU-17 entregada) |
+| 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | **En curso** (HU-17 y HU-18 entregadas) |
 | 5 | Calificaciones | Pendiente |
 | 6 | Dashboards por rol | Pendiente |
 
@@ -93,7 +93,8 @@ inscripciones.ver  .crear                          (Sprint 4)
 
 Asignación: `administrador` → todos (31) · `coordinador` → `usuarios.ver`, `ubicaciones.ver`,
 `actividades.*` y `grupos.*` (recortados a su departamento) · `instructor` → `grupos.ver` (solo los
-suyos) · `alumno` → `inscripciones.ver` e `inscripciones.crear` (HU-17).
+suyos) · `alumno` → `actividades.ver` y `grupos.ver` (solo lectura, acotados a su carrera) e
+`inscripciones.ver`/`inscripciones.crear` (HU-17).
 Los permisos del Sprint 2 son solo del administrador; se pueden dar a otro rol desde `/roles`.
 
 Hay una pantalla (`/roles`) para modificar permisos por rol. Por eso el seeder usa
@@ -148,12 +149,17 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
     esquema (opción A): ver [`decisiones/borrado-de-grupos.md`](decisiones/borrado-de-grupos.md).
     Desde el Sprint 4 el borrado se bloquea si el grupo tiene filas en `inscripcion`
     (`Grupo::tieneInscripciones()` consulta la relación).
-18. **Inscripciones (HU-17):** solo el alumno se inscribe, y solo dentro de la ventana del periodo
+18. **Visibilidad del alumno:** ve las actividades `disponible` dirigidas a su carrera y los grupos de
+    esas actividades (`Actividad::scopeVisiblesPara`, `Grupo::scopeVisiblesPara` y
+    `GrupoPolicy@view`). Es solo consulta: no puede crear, editar ni eliminar actividades ni grupos.
+19. **Inscripciones (HU-17):** solo el alumno se inscribe, y solo dentro de la ventana del periodo
     activo (`Semestre::inscripcionesAbiertas()`). El grupo debe ser del periodo vigente, estar
     `abierta`, pertenecer a una actividad `disponible` dirigida a la carrera del alumno y tener cupo.
     Se permite **una sola inscripción activa por alumno** (`inscrito` o `cursando`), garantizada por
     un índice único (columna generada en MySQL, índice parcial en SQLite). El alta descuenta el cupo
     de forma atómica y registra `fecha_inscripcion`; el grupo y su cupo no se capturan a mano.
+    Tras confirmar el alta se encola un correo de confirmación (`InscripcionConfirmada`); si el
+    envío falla, la inscripción se conserva y el error se registra en el log (RNF-06).
 
 ## 6. Decisiones técnicas
 
@@ -174,13 +180,23 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
   `getAuthPasswordName()`; el cast `hashed` se encarga de cifrar.
 - **Sesiones en base de datos:** `SESSION_DRIVER=database`, por eso `sessions` está en la migración
   de usuarios.
+- **Correo de confirmación (Sprint 4):** `App\Mail\InscripcionConfirmada` se encola con
+  `Mail::to(...)->queue(...)` después de confirmar la inscripción. Con `QUEUE_CONNECTION=database`
+  el envío ocurre en el worker; en pruebas se usa `MAIL_MAILER=array`. Si el encolado falla, el
+  controlador registra el error con `Log::error` y la inscripción no se deshace (RNF-06).
 - **MySQL 8 como motor objetivo** (migrado el 2026-10-18, ver §8). Durante el desarrollo anterior se
   usó SQLite, por eso el código evita funciones exclusivas de MySQL (columnas generadas, por ejemplo)
   y las pruebas siguen corriendo en SQLite en memoria.
 - **Horarios dentro del formulario del grupo (Sprint 3):** no hay rutas anidadas
   `grupos/{grupo}/horarios`; el formulario manda `horarios[]` y `GrupoController` reemplaza el
   conjunto completo dentro de una transacción. `HorarioController` solo expone el endpoint JSON
-  `POST grupos/conflictos`. Por eso no existen permisos `horarios.*` (el total es 29).
+  `POST grupos/conflictos`. Por eso no existen permisos `horarios.*` (el total es 31).
+- **Rejilla semanal del horario (Sprint 4):** el formulario de grupos captura el horario con una
+  rejilla de bloques de una hora (07:00–20:00, lunes a sábado), como el proyecto anterior. El
+  JavaScript traduce cada bloque marcado a un `horarios[i]` con `hora_fin = hora_inicio + 1 h`; si
+  el grupo ya tenía un horario que no cae en bloques exactos, la rejilla lo ajusta a los bloques que
+  cubre y lo avisa antes de guardar. El servidor sigue aceptando cualquier intervalo válido: la
+  rejilla es la interfaz, no una regla de negocio nueva.
 - **Una sola fuente para los conflictos (Sprint 3):** `app/Services/ServicioConflictos.php` concentra
   las cuatro reglas; lo llaman `GuardarGrupoRequest` al guardar y `HorarioController` para el aviso en
   vivo. El aviso es una ayuda visual: la garantía es la validación del servidor.

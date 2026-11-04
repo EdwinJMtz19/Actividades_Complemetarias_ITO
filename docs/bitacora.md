@@ -7,6 +7,84 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ---
 
+## 2026-11-03 · cambio
+
+**Resumen:** El formulario de grupos estrena una rejilla semanal de horarios, al estilo del proyecto anterior: filas de bloques de una hora (07:00–20:00) y columnas de lunes a sábado, con celdas clicables, leyenda y botón para limpiar.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `resources/views/grupos/_rejilla.blade.php` | Parcial nuevo con la tabla semanal, la leyenda y el JSON de horarios previos. |
+| `resources/views/grupos/_form.blade.php` | Sustituye las filas de día/hora por la rejilla; normaliza `old('horarios')` y los horarios del grupo. |
+| `resources/views/grupos/_horario.blade.php` | Se elimina: ya no hay filas dinámicas. |
+| `resources/js/grupo-horarios.js` | Traduce los bloques marcados a `horarios[i]`, precarga el horario existente, limpia la rejilla y conserva el aviso de conflictos. |
+| `resources/views/components/icono.blade.php` | Nuevo icono `palomita` para las celdas activas. |
+| `resources/css/app.css` | Estilos `.mov-rejilla-slot` para el estado seleccionado y el hover. |
+| `tests/Feature/GruposCrudTest.php` | Pruebas de la rejilla en alta y de la precarga al editar. |
+| `docs/contexto.md` | Decisión técnica de la rejilla semanal. |
+| `docs/README.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Conteo de pruebas 224 → 226. |
+
+**Verificación:** `php artisan test` → **226 pruebas, 867 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones; `npm run build` compila Tailwind y el JavaScript sin errores.
+
+---
+
+## 2026-11-03 · fix
+
+**Resumen:** El alumno ya puede consultar las actividades disponibles de su carrera y los grupos de esas actividades. Antes los permisos solo abrían Inscripciones y los alcances `visiblesPara` devolvían listas vacías para el rol `alumno`.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Models/Actividad.php` | `scopeVisiblesPara` devuelve al alumno las actividades `disponible` ligadas a su carrera. |
+| `app/Models/Grupo.php` | `scopeVisiblesPara` devuelve al alumno los grupos de esas actividades. |
+| `app/Policies/GrupoPolicy.php` | `view` permite al alumno ver el detalle de un grupo de su carrera; sigue sin poder editarlo. |
+| `database/seeders/RolesYPermisosSeeder.php` | El rol `alumno` recibe `actividades.ver` y `grupos.ver` (además de los permisos de inscripción). |
+| `tests/Feature/VisibilidadAlumnoTest.php` | Pruebas de catálogo por carrera, detalle de grupo, catálogo de inscripción y denegación de altas/ediciones. |
+| `tests/Feature/AccesoActividadesYGruposTest.php` | El caso del alumno pasa de 403 a consulta de solo lectura; el panel muestra Actividades, Grupos e Inscripciones. |
+| `tests/Feature/RolesPermisosTest.php` | El rol `alumno` ahora tiene 4 permisos. |
+| `docs/contexto.md` | Asignación de permisos del alumno y regla 18 (visibilidad de solo lectura). |
+| `docs/README.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Conteo de pruebas 218 → 224. |
+
+**Verificación:** `php artisan test` → **224 pruebas, 860 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones. En la base local se aplicó la migración pendiente `2026_11_03_120000_create_inscripcion_table` y se volvió a ejecutar `RolesYPermisosSeeder`; el alumno de prueba ve 5 actividades y 1 grupo.
+
+---
+
+## 2026-11-03 · sprint
+
+**Resumen:** HU-18 del Sprint 4: tras confirmar la inscripción se envía un correo de confirmación en cola; si el correo falla, el alta se conserva y el error queda en el log.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Mail/InscripcionConfirmada.php` | Mailable nuevo con el asunto «Inscripción confirmada: …». |
+| `resources/views/mail/inscripcion-confirmada.blade.php` | Plantilla HTML con actividad, grupo, instructor, lugar, horario, periodo y fecha. |
+| `app/Http/Controllers/InscripcionController.php` | Devuelve la inscripción creada y encola el correo después de confirmar el alta; si falla, registra el error con `Log::error` (RNF-06). |
+| `tests/Feature/InscripcionesTest.php` | Pruebas `envía el correo de confirmación al inscribirse` y `confirma la inscripción aunque el correo falle`. |
+| `docs/contexto.md`, `docs/requisitos.md` | Regla 18 ampliada, decisión técnica del correo, RF-10 y RNF-06 marcados como cumplidos. |
+| `docs/README.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `CONTRIBUTING.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Conteo de pruebas 216 → 218. |
+
+**Verificación:** `php artisan test` → **218 pruebas, 838 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-03 · infra
+
+**Resumen:** `CONTRIBUTING.md` deja de versionarse y se agrega a `.gitignore`.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `.gitignore` | Se agrega `/CONTRIBUTING.md`. |
+| `CONTRIBUTING.md` | Se quita del índice con `git rm --cached`; el archivo local se conserva. |
+
+**Verificación:** `git status` muestra la eliminación preparada y el archivo ya no aparece como pendiente.
+
+---
+
 ## 2026-11-03 · sprint
 
 **Resumen:** HU-17 del Sprint 4: el alumno consulta los grupos disponibles y se inscribe a uno, con descuento atómico de cupo y una sola inscripción activa.

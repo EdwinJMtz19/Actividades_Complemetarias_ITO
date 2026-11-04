@@ -63,7 +63,7 @@ php artisan migrate:fresh --seed
 # Servidor local -> http://localhost:8000
 php artisan serve
 
-# Pruebas (deben pasar 216)
+# Pruebas (deben pasar 226)
 php artisan test
 
 # Cierre automático de semestres vencidos (manual) y programador en local
@@ -91,7 +91,7 @@ Solo fuera de producción. Contraseña para las cuatro: `Actividades2026`
 | admin@gmail.com | administrador | Todo el sistema |
 | coordinador@gmail.com | coordinador | Instructores, actividades y grupos de «Sistemas y Computación» |
 | instructor@gmail.com | instructor | Solo consulta sus grupos (Sprint 3) |
-| alumno@gmail.com | alumno | Sin módulos todavía (Sprint 4) |
+| alumno@gmail.com | alumno | Actividades y grupos de su carrera (solo lectura) e inscripciones |
 
 ## Mapa de carpetas
 

@@ -70,12 +70,12 @@ Solo fuera de producción. Contraseña: `Actividades2026`
 | admin@gmail.com | administrador | Todo el sistema |
 | coordinador@gmail.com | coordinador | Instructores, actividades y grupos de «Sistemas y Computación» |
 | instructor@gmail.com | instructor | Solo consulta sus grupos |
-| alumno@gmail.com | alumno | Sin módulos todavía (Sprint 4) |
+| alumno@gmail.com | alumno | Actividades y grupos de su carrera (solo lectura) e inscripciones |
 
 ## Pruebas
 
 ```sh
-php artisan test             # 216 pruebas
+php artisan test             # 226 pruebas
 vendor\bin\pint --test       # estilo de código
 ```
 
