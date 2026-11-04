@@ -26,14 +26,21 @@ En la raíz del repositorio: [`README.md`](../README.md) (entrada pública),
 | 1 · Usuarios y roles | [Técnico](sprints/sprint-01-usuarios-y-roles.md) |
 | 2 · Catálogos base y semestres | [Técnico](sprints/sprint-02-catalogos-y-semestres.md) · [Historias de usuario y CRC](sprints/sprint-02-historias-de-usuario-y-crc.md) · [Tablas del Sprint 0](sprints/sprint-02-historias-de-usuario-y-crc-tablas.md) · [Resumen y mejoras de UI](sprints/resumen-sprint-2-y-mejoras.md) |
 | 3 · Actividades y grupos | [Técnico](sprints/sprint-03-actividades-y-grupos.md) · [Historias de usuario y CRC, esquema e instrucciones](sprints/sprint-03-historias-de-usuario-y-crc.md) · [Plan](sprints/sprint-03-plan.md) · [Decisión resuelta: borrado de grupos](decisiones/borrado-de-grupos.md) |
+| 4 · Inscripción de alumnos | [Técnico](sprints/sprint-04-inscripcion-de-alumnos.md) |
 
 ## Estado actual
+
+**Sprint 4 · Inscripción de alumnos — ENTREGADO (2026-11-03)**
+El alumno consulta las actividades y grupos de su carrera, se inscribe con cupo y una sola
+inscripción activa, y recibe correo de confirmación; el coordinador da de baja conservando el
+historial y el alumno también puede cancelar su propia inscripción. Detalle en
+[`sprints/sprint-04-inscripcion-de-alumnos.md`](sprints/sprint-04-inscripcion-de-alumnos.md).
+Siguiente en el cronograma: **Sprint 5 · Calificaciones y créditos**.
 
 **Sprint 3 · Actividades, grupos y horarios — ENTREGADO (2026-10-20)**
 CRUD de actividades con carreras y semestre; CRUD de grupos con horarios, instructor, ubicación y
 cupos; verificación de conflictos en el servidor y aviso en vivo. Detalle en
 [`sprints/sprint-03-actividades-y-grupos.md`](sprints/sprint-03-actividades-y-grupos.md).
-Siguiente en el cronograma: **Sprint 4 · Inscripción de alumnos**.
 
 **Sprint 2 · Catálogos base y semestre — ENTREGADO (2026-10-17)**
 CRUD de departamentos, carreras y ubicaciones; semestres con cierre automático y validaciones de
@@ -63,7 +70,7 @@ php artisan migrate:fresh --seed
 # Servidor local -> http://localhost:8000
 php artisan serve
 
-# Pruebas (deben pasar 226)
+# Pruebas (deben pasar 240)
 php artisan test
 
 # Cierre automático de semestres vencidos (manual) y programador en local
@@ -89,25 +96,26 @@ Solo fuera de producción. Contraseña para las cuatro: `Actividades2026`
 | Correo | Rol | Alcance |
 |---|---|---|
 | admin@gmail.com | administrador | Todo el sistema |
-| coordinador@gmail.com | coordinador | Instructores, actividades y grupos de «Sistemas y Computación» |
+| coordinador@gmail.com | coordinador | Instructores, actividades, grupos e inscripciones de «Sistemas y Computación» |
 | instructor@gmail.com | instructor | Solo consulta sus grupos (Sprint 3) |
-| alumno@gmail.com | alumno | Actividades y grupos de su carrera (solo lectura) e inscripciones |
+| alumno@gmail.com | alumno | Actividades y grupos de su carrera (solo lectura) e inscripciones (se inscribe y cancela la suya) |
 
 ## Mapa de carpetas
 
 ```
 app/
   Console/Commands/     CerrarSemestresVencidos
-  Http/Controllers/     Controladores (Auth\, Panel, Usuario, Rol, Departamento, Carrera, Ubicacion, Semestre, Actividad, Grupo, Horario)
+  Http/Controllers/     Controladores (Auth\, Panel, Usuario, Rol, Departamento, Carrera, Ubicacion, Semestre, Actividad, Grupo, Horario, Inscripcion)
   Http/Middleware/      usuario.activo, departamento.asignado
   Http/Requests/        Validación de formularios
-  Models/               User, Alumno, Instructor, Departamento, Carrera, CoordinadorDepartamento, Ubicacion, Semestre, DiaSemana, Actividad, Grupo, Horario
-  Policies/             UserPolicy, ActividadPolicy, GrupoPolicy
+  Mail/                 InscripcionConfirmada
+  Models/               User, Alumno, Instructor, Departamento, Carrera, CoordinadorDepartamento, Ubicacion, Semestre, DiaSemana, Actividad, Grupo, Horario, Inscripcion
+  Policies/             UserPolicy, ActividadPolicy, GrupoPolicy, InscripcionPolicy
   Services/             ServicioConflictos (reglas de horario)
 database/
-  migrations/           Esquema (16 migraciones)
+  migrations/           Esquema (17 migraciones)
   seeders/              RolesYPermisos, CatalogosBase, DiasSemana, ActividadesBase, UsuariosPrueba
-resources/views/        Blade: auth\, usuarios\, roles\, departamentos\, carreras\, ubicaciones\, semestres\, actividades\, grupos\, components\
+resources/views/        Blade: auth\, usuarios\, roles\, departamentos\, carreras\, ubicaciones\, semestres\, actividades\, grupos\, inscripciones\, mail\, components\
 resources/js/           app.js, grupo-horarios.js (aviso en vivo)
 routes/web.php          Rutas web
 tests/Feature/          Pruebas Pest

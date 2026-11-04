@@ -88,13 +88,14 @@ ubicaciones.ver    .crear  .editar  .eliminar      (Sprint 2)
 semestres.ver      .crear  .editar                 (Sprint 2; no existe .eliminar)
 actividades.ver    .crear  .editar  .eliminar      (Sprint 3)
 grupos.ver         .crear  .editar  .eliminar      (Sprint 3; los horarios van en el formulario del grupo)
-inscripciones.ver  .crear                          (Sprint 4)
+inscripciones.ver  .crear  .baja                   (Sprint 4)
 ```
 
-Asignación: `administrador` → todos (31) · `coordinador` → `usuarios.ver`, `ubicaciones.ver`,
-`actividades.*` y `grupos.*` (recortados a su departamento) · `instructor` → `grupos.ver` (solo los
-suyos) · `alumno` → `actividades.ver` y `grupos.ver` (solo lectura, acotados a su carrera) e
-`inscripciones.ver`/`inscripciones.crear` (HU-17).
+Asignación: `administrador` → todos (32) · `coordinador` → `usuarios.ver`, `ubicaciones.ver`,
+`actividades.*`, `grupos.*` e `inscripciones.ver`/`inscripciones.baja` (recortados a su
+departamento) · `instructor` → `grupos.ver` (solo los suyos) · `alumno` → `actividades.ver` y
+`grupos.ver` (solo lectura, acotados a su carrera) e `inscripciones.ver`/`inscripciones.crear`/
+`inscripciones.baja` (HU-17; la baja solo aplica a su propia inscripción, lo valida la política).
 Los permisos del Sprint 2 son solo del administrador; se pueden dar a otro rol desde `/roles`.
 
 Hay una pantalla (`/roles`) para modificar permisos por rol. Por eso el seeder usa
@@ -160,6 +161,11 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
     de forma atómica y registra `fecha_inscripcion`; el grupo y su cupo no se capturan a mano.
     Tras confirmar el alta se encola un correo de confirmación (`InscripcionConfirmada`); si el
     envío falla, la inscripción se conserva y el error se registra en el log (RNF-06).
+20. **Bajas de inscripción (HU-19):** el coordinador (o el administrador) da de baja inscripciones
+    `inscrito` o `cursando` de los grupos de su departamento; el alumno también puede cancelar su
+    propia inscripción activa. La baja es lógica: cambia el estatus a `dado_de_baja`, conserva la fila
+    (historial) y libera un lugar del cupo en la misma transacción. Una inscripción ya inactiva no se
+    vuelve a dar de baja. El alumno puede inscribirse de nuevo después de la baja.
 
 ## 6. Decisiones técnicas
 
@@ -190,7 +196,15 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
 - **Horarios dentro del formulario del grupo (Sprint 3):** no hay rutas anidadas
   `grupos/{grupo}/horarios`; el formulario manda `horarios[]` y `GrupoController` reemplaza el
   conjunto completo dentro de una transacción. `HorarioController` solo expone el endpoint JSON
-  `POST grupos/conflictos`. Por eso no existen permisos `horarios.*` (el total es 31).
+  `POST grupos/conflictos`. Por eso no existen permisos `horarios.*` (el total es 32).
+- **Baja de inscripciones (Sprint 4):** la baja es lógica (`estatus = 'dado_de_baja'`), no un
+  `DELETE`; así se conserva el historial y el índice único de inscripción activa permite volver a
+  inscribirse. `InscripcionController@baja` bloquea la fila, cambia el estatus y descuenta
+  `cupo_ocupado` en una transacción. La autorización vive en `InscripcionPolicy@baja`: el permiso
+  `inscripciones.baja` y, o bien la inscripción es del propio alumno, o bien el coordinador es del
+  departamento de la actividad. La vista `inscripciones/gestion` lista las inscripciones con filtros;
+  el alumno ve su inscripción activa (con el botón «Cancelar mi inscripción») y su historial en
+  `inscripciones/index`.
 - **Rejilla semanal del horario (Sprint 4):** el formulario de grupos captura el horario con una
   rejilla de bloques de una hora (07:00–20:00, lunes a sábado), como el proyecto anterior. El
   JavaScript traduce cada bloque marcado a un `horarios[i]` con `hora_fin = hora_inicio + 1 h`; si

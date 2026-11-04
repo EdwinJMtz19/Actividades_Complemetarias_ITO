@@ -15,7 +15,7 @@ alumno se inscribe a las actividades (a partir del Sprint 4).
 | 1 | Usuarios, roles y permisos + acceso por departamento | **Entregado** (2026-10-17) |
 | 2 | Catálogos: departamentos, carreras, ubicaciones y semestres | **Entregado** (2026-10-17) |
 | 3 | Actividades, grupos y horarios | **Entregado** (2026-10-20) |
-| 4 | Inscripción de alumnos | Pendiente |
+| 4 | Inscripción de alumnos | **Entregado** (2026-11-03) |
 | 5 | Calificaciones | Pendiente |
 | 6 | Dashboards por rol | Pendiente |
 
@@ -75,7 +75,7 @@ Solo fuera de producción. Contraseña: `Actividades2026`
 ## Pruebas
 
 ```sh
-php artisan test             # 226 pruebas
+php artisan test             # 240 pruebas
 vendor\bin\pint --test       # estilo de código
 ```
 

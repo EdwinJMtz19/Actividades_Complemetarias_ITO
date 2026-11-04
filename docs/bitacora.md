@@ -9,6 +9,48 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ## 2026-11-03 · cambio
 
+**Resumen:** el alumno también puede cancelar su propia inscripción activa desde `inscripciones/index`. La baja conserva el historial y libera el cupo con la misma transacción de HU-19; la política impide cancelar la inscripción de otro alumno.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Policies/InscripcionPolicy.php` | `baja` permite al alumno cuando la inscripción es suya (`esPropia`), además del alcance por departamento del coordinador. |
+| `database/seeders/RolesYPermisosSeeder.php` | El rol `alumno` recibe `inscripciones.baja` (32 permisos en total). |
+| `app/Http/Controllers/InscripcionController.php` | `baja` recibe la petición y muestra «Cancelaste tu inscripción…» cuando la hace el propio alumno. |
+| `resources/views/inscripciones/index.blade.php` | Botón «Cancelar mi inscripción» en la tarjeta de la inscripción activa, con confirmación. |
+| `tests/Feature/BajaInscripcionTest.php` | Tres pruebas nuevas (cancelación propia, prohibición de cancelar la de otro y botón visible) y se separó la del instructor. |
+| `tests/Feature/RolesPermisosTest.php` | El rol `alumno` pasa de 4 a 5 permisos. |
+| `docs/contexto.md`, `docs/requisitos.md`, `docs/sprints/sprint-04-inscripcion-de-alumnos.md`, `docs/README.md`, `CHANGELOG.md` | Permisos del alumno, RF-11 y alcance de la baja actualizados. |
+
+**Verificación:** `php artisan test` → **240 pruebas, 929 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+## 2026-11-03 · sprint
+
+**Resumen:** HU-19 del Sprint 4: el coordinador consulta las inscripciones de su departamento y da de baja a un alumno. La baja es lógica (`dado_de_baja`), conserva la fila y libera el cupo en una transacción; el alumno ve su historial.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Policies/InscripcionPolicy.php` | Habilidad `baja`: permiso `inscripciones.baja` y alcance por departamento del coordinador. |
+| `database/seeders/RolesYPermisosSeeder.php` | Nuevo permiso `inscripciones.baja` (32 en total); el rol `coordinador` recibe `inscripciones.ver` e `inscripciones.baja`. |
+| `routes/web.php` | `PATCH /inscripciones/{inscripcion}/baja` con `permission:inscripciones.baja`. |
+| `app/Http/Controllers/InscripcionController.php` | `index` muestra la gestión a coordinadores/administradores y el catálogo al alumno; `baja` cambia el estatus y descuenta `cupo_ocupado` en una transacción; el alumno recibe su historial. |
+| `resources/views/inscripciones/gestion.blade.php` | Listado con filtros por actividad, estatus y alumno, y botón «Dar de baja» solo para inscripciones activas. |
+| `resources/views/inscripciones/index.blade.php` | Sección «Historial» con las inscripciones no activas. |
+| `tests/Feature/BajaInscripcionTest.php` | Once pruebas de alcance, baja, cupo, historial, filtros y doble baja. |
+| `tests/Feature/RolesPermisosTest.php` | `TOTAL_PERMISOS` 31 → 32. |
+| `docs/contexto.md`, `docs/requisitos.md` | Regla 20, permisos y RF-11/RNF-03 actualizados. |
+| `docs/sprints/sprint-04-inscripcion-de-alumnos.md` | Documento del Sprint 4 con HU-17, HU-18 y HU-19. |
+| `docs/README.md`, `CHANGELOG.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Estado del Sprint 4 y conteo de pruebas 226 → 237. |
+
+**Verificación:** `php artisan test` → **237 pruebas, 919 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones; `npm run build` sin errores.
+
+---
+
+## 2026-11-03 · cambio
+
 **Resumen:** El formulario de grupos estrena una rejilla semanal de horarios, al estilo del proyecto anterior: filas de bloques de una hora (07:00–20:00) y columnas de lunes a sábado, con celdas clicables, leyenda y botón para limpiar.
 
 **Cambios:**

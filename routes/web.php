@@ -37,6 +37,10 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         ->middleware('permission:inscripciones.ver')->name('inscripciones.index');
     Route::post('inscripciones/{grupo}', [InscripcionController::class, 'store'])
         ->middleware('permission:inscripciones.crear')->name('inscripciones.store');
+    // Baja lógica (HU-19): conserva la fila y libera el cupo. El alcance por departamento lo aplica
+    // InscripcionPolicy.
+    Route::patch('inscripciones/{inscripcion}/baja', [InscripcionController::class, 'baja'])
+        ->middleware('permission:inscripciones.baja')->name('inscripciones.baja');
 
     // Módulos limitados por rol/permiso y, para coordinadores, por departamento asignado.
     Route::middleware('departamento.asignado')->group(function () {

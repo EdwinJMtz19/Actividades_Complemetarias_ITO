@@ -57,6 +57,7 @@ class RolesYPermisosSeeder extends Seeder
             // Sprint 4 · inscripción de alumnos. Ver el catálogo y apuntarse a un grupo.
             'inscripciones.ver',
             'inscripciones.crear',
+            'inscripciones.baja',
         ];
 
         foreach ($permisos as $nombre) {
@@ -72,11 +73,13 @@ class RolesYPermisosSeeder extends Seeder
                 'ubicaciones.ver',
                 'actividades.ver', 'actividades.crear', 'actividades.editar', 'actividades.eliminar',
                 'grupos.ver', 'grupos.crear', 'grupos.editar', 'grupos.eliminar',
+                'inscripciones.ver', 'inscripciones.baja',
             ],
             // Consulta solo sus propios grupos (el alcance lo aplica GrupoPolicy).
             'instructor' => ['grupos.ver'],
-            // Consulta el catálogo de su carrera, los grupos y se inscribe (HU-17).
-            'alumno' => ['actividades.ver', 'grupos.ver', 'inscripciones.ver', 'inscripciones.crear'],
+            // Consulta el catálogo de su carrera, los grupos, se inscribe (HU-17) y cancela su
+            // propia inscripción (HU-19); la política comprueba que la inscripción sea suya.
+            'alumno' => ['actividades.ver', 'grupos.ver', 'inscripciones.ver', 'inscripciones.crear', 'inscripciones.baja'],
         ];
 
         foreach ($porRol as $nombre => $permisosDelRol) {

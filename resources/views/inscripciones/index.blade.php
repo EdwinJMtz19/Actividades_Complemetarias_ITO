@@ -1,4 +1,12 @@
 <x-layouts.app titulo="Inscripciones">
+    @php
+        $coloresHistorial = [
+            'aprobado' => 'bg-emerald-100 text-emerald-800',
+            'reprobado' => 'bg-red-100 text-red-800',
+            'dado_de_baja' => 'bg-slate-200 text-slate-700',
+        ];
+    @endphp
+
     <h1 class="mb-1 text-2xl font-semibold">Inscripciones</h1>
     <p class="mb-6 text-sm text-slate-600">Elige una actividad complementaria y asegura tu lugar en uno de sus grupos.</p>
 
@@ -57,6 +65,51 @@
                     <dd>{{ $inscripcion->fecha_inscripcion->format('d/m/Y H:i') }}</dd>
                 </div>
             </dl>
+            @can('baja', $inscripcion)
+                <div class="flex justify-end border-t border-green-100 px-5 py-3">
+                    <form method="POST" action="{{ route('inscripciones.baja', $inscripcion) }}"
+                          onsubmit="return confirm('¿Cancelar tu inscripción a {{ e($inscripcion->grupo->actividad->nombre) }}? Se conservará en tu historial.')">
+                        @csrf @method('PATCH')
+                        <button class="mov-enlace text-red-700">Cancelar mi inscripción</button>
+                    </form>
+                </div>
+            @endcan
+        </section>
+    @endif
+
+    @if ($historial->isNotEmpty())
+        <section class="mb-6 rounded-lg border border-slate-200 bg-white">
+            <div class="border-b border-slate-200 px-4 py-3">
+                <h2 class="font-semibold">Historial</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <tr>
+                            <th class="px-4 py-3">Actividad</th>
+                            <th class="px-4 py-3 text-center">Grupo</th>
+                            <th class="px-4 py-3">Semestre</th>
+                            <th class="px-4 py-3">Fecha</th>
+                            <th class="px-4 py-3 text-center">Estatus</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach ($historial as $registro)
+                            <tr class="odd:bg-white even:bg-slate-50">
+                                <td class="px-4 py-3 font-medium">{{ $registro->grupo->actividad->nombre }}</td>
+                                <td class="px-4 py-3 text-center">{{ $registro->grupo->grupo }}</td>
+                                <td class="px-4 py-3 text-slate-600">{{ $registro->grupo->semestre->etiqueta }}</td>
+                                <td class="px-4 py-3 text-xs text-slate-600">{{ $registro->fecha_inscripcion->format('d/m/Y H:i') }}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $coloresHistorial[$registro->estatus] ?? 'bg-slate-200 text-slate-700' }}">
+                                        {{ \App\Models\Inscripcion::ESTATUS[$registro->estatus] }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </section>
     @endif
 

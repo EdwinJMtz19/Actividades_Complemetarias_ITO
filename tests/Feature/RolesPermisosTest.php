@@ -21,8 +21,8 @@ it('crea los cuatro roles del cronograma', function () {
 
 // 6 del Sprint 1 (usuarios, roles) + 15 del Sprint 2 (departamentos, carreras, ubicaciones y
 // semestres) + 8 del Sprint 3 (actividades y grupos; los horarios viajan en el formulario del grupo)
-// + 2 del Sprint 4 (inscripciones).
-const TOTAL_PERMISOS = 31;
+// + 3 del Sprint 4 (inscripciones: ver, crear y dar de baja).
+const TOTAL_PERMISOS = 32;
 
 it('es idempotente y no pisa permisos agregados desde la pantalla de roles', function () {
     Role::findByName('instructor')->givePermissionTo('usuarios.ver');
@@ -78,5 +78,5 @@ it('impide que un coordinador edite roles aunque conozca la ruta', function () {
 
     $this->actingAs($coordinador)->put("/roles/{$rol->id}", ['permisos' => ['usuarios.eliminar']])->assertForbidden();
 
-    expect($rol->fresh()->permissions)->toHaveCount(4);
+    expect($rol->fresh()->permissions)->toHaveCount(5);
 });
