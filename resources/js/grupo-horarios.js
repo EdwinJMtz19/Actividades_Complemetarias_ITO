@@ -1,6 +1,6 @@
 //
 // Formulario de grupos (HU-15 y HU-16), sin librerías externas.
-//  - Agregar y quitar bloques de horario sin recargar la página.
+//  - Rejilla semanal de bloques de una hora: marcar y desmarcar sin recargar la página.
 //  - Mostrar solo los instructores del departamento de la actividad elegida.
 //  - Modalidad virtual: la ubicación no aplica.
 //  - Avisar en vivo de conflictos de horario. Es una ayuda: la decisión final la toma el servidor
@@ -11,8 +11,6 @@ const ESPERA_MS = 400;
 
 const iniciar = (contenedor) => {
     const formulario = contenedor.closest('form');
-    const lista = contenedor.querySelector('[data-horarios]');
-    const plantilla = contenedor.querySelector('[data-plantilla-horario]');
     const aviso = contenedor.querySelector('[data-conflictos]');
     const campo = (selector) => formulario.querySelector(selector);
 
@@ -24,40 +22,91 @@ const iniciar = (contenedor) => {
     const estatus = campo('[data-estatus]');
     const token = campo('input[name="_token"]')?.value ?? '';
 
-    let siguiente = lista.querySelectorAll('[data-horario]').length;
     let temporizador = null;
     let controlador = null;
     let secuencia = 0;
 
-    // ── Bloques de horario ──────────────────────────────────────────────
+    // ── Rejilla semanal ─────────────────────────────────────────────────
 
-    const agregarBloque = () => {
-        lista.insertAdjacentHTML('beforeend', plantilla.innerHTML.replaceAll('__INDEX__', String(siguiente++)));
+    const rejilla = contenedor.querySelector('[data-rejilla]');
+    const celdas = rejilla ? [...rejilla.querySelectorAll('[data-slot]')] : [];
+    const horas = [...new Set(celdas.map((celda) => celda.dataset.hora))];
+    const dias = [...new Set(celdas.map((celda) => celda.dataset.dia))];
+    const ocultos = contenedor.querySelector('[data-horarios]');
+    const avisoRejilla = contenedor.querySelector('[data-rejilla-aviso]');
+    const iniciales = JSON.parse(contenedor.querySelector('[data-horarios-iniciales]')?.textContent || '[]');
+
+    const estado = new Map();
+    const clave = (dia, hora) => `${dia}|${hora}`;
+    const sumarHora = (hora) => `${String(Number(hora.slice(0, 2)) + 1).padStart(2, '0')}:00`;
+    const alineada = (hora) => /^\d{2}:00$/.test(hora);
+
+    let ajustados = 0;
+
+    for (const intervalo of iniciales) {
+        const inicio = String(intervalo.hora_inicio ?? '').slice(0, 5);
+        const fin = String(intervalo.hora_fin ?? '').slice(0, 5);
+        // Un bloque entra si se traslapa con el intervalo, aunque no empiece en punto.
+        const cubiertos = horas.filter((hora) => hora < fin && sumarHora(hora) > inicio);
+
+        if (cubiertos.length === 0) {
+            ajustados++;
+
+            continue;
+        }
+
+        // Un intervalo es exacto si empieza y termina en punto y cabe en la rejilla.
+        const exacto = alineada(inicio) && alineada(fin)
+            && horas.includes(inicio) && (horas.includes(fin) || fin === '20:00');
+
+        if (!exacto) {
+            ajustados++;
+        }
+
+        for (const hora of cubiertos) {
+            estado.set(clave(intervalo.id_dia, hora), true);
+        }
+    }
+
+    if (ajustados > 0) {
+        avisoRejilla.textContent = 'Algunos horarios no coinciden con bloques exactos de una hora: al guardar se ajustarán a los bloques marcados.';
+        avisoRejilla.classList.remove('hidden');
+    }
+
+    for (const celda of celdas) {
+        celda.setAttribute('aria-pressed', String(estado.has(clave(celda.dataset.dia, celda.dataset.hora))));
+    }
+
+    const actualizarOcultos = () => {
+        ocultos.replaceChildren();
+
+        let indice = 0;
+
+        for (const hora of horas) {
+            for (const dia of dias) {
+                if (!estado.get(clave(dia, hora))) {
+                    continue;
+                }
+
+                const campos = {
+                    id_dia: dia,
+                    hora_inicio: hora,
+                    hora_fin: sumarHora(hora),
+                };
+
+                for (const [nombre, valor] of Object.entries(campos)) {
+                    const entrada = document.createElement('input');
+
+                    entrada.type = 'hidden';
+                    entrada.name = `horarios[${indice}][${nombre}]`;
+                    entrada.value = valor;
+                    ocultos.append(entrada);
+                }
+
+                indice++;
+            }
+        }
     };
-
-    contenedor.addEventListener('click', (evento) => {
-        if (evento.target.closest('[data-agregar-horario]')) {
-            agregarBloque();
-            programar();
-
-            return;
-        }
-
-        const quitar = evento.target.closest('[data-quitar-horario]');
-
-        if (!quitar) {
-            return;
-        }
-
-        quitar.closest('[data-horario]').remove();
-
-        // Siempre queda al menos un bloque para capturar.
-        if (lista.querySelectorAll('[data-horario]').length === 0) {
-            agregarBloque();
-        }
-
-        programar();
-    });
 
     // ── Campos que dependen de otros ────────────────────────────────────
 
@@ -92,19 +141,29 @@ const iniciar = (contenedor) => {
 
     // ── Aviso de conflictos en vivo ─────────────────────────────────────
 
-    const datosActuales = () => ({
-        id_grupo: contenedor.dataset.grupo || null,
-        id_instructor: instructor.value || null,
-        id_ubicacion: ubicacion.disabled ? null : ubicacion.value || null,
-        modalidad: modalidad.value || null,
-        cupo_maximo: cupo.value || null,
-        estatus: estatus.value || null,
-        horarios: [...lista.querySelectorAll('[data-horario]')].map((bloque) => ({
-            id_dia: bloque.querySelector('[data-campo="id_dia"]').value || null,
-            hora_inicio: bloque.querySelector('[data-campo="hora_inicio"]').value || null,
-            hora_fin: bloque.querySelector('[data-campo="hora_fin"]').value || null,
-        })),
-    });
+    const datosActuales = () => {
+        const horarios = [];
+
+        for (const entrada of ocultos.querySelectorAll('input[name$="[id_dia]"]')) {
+            const base = entrada.name.slice(0, -'[id_dia]'.length);
+
+            horarios.push({
+                id_dia: entrada.value || null,
+                hora_inicio: ocultos.querySelector(`input[name="${base}[hora_inicio]"]`)?.value || null,
+                hora_fin: ocultos.querySelector(`input[name="${base}[hora_fin]"]`)?.value || null,
+            });
+        }
+
+        return {
+            id_grupo: contenedor.dataset.grupo || null,
+            id_instructor: instructor.value || null,
+            id_ubicacion: ubicacion.disabled ? null : ubicacion.value || null,
+            modalidad: modalidad.value || null,
+            cupo_maximo: cupo.value || null,
+            estatus: estatus.value || null,
+            horarios,
+        };
+    };
 
     // Con las horas en HH:MM la comparación de texto equivale a la de tiempo.
     const hayHorarioCompleto = (datos) =>
@@ -213,7 +272,37 @@ const iniciar = (contenedor) => {
         temporizador = setTimeout(verificar, ESPERA_MS);
     }
 
-    const relevantes = '[data-horario] input, [data-horario] select, [data-instructor], [data-ubicacion], [data-modalidad], [data-cupo], [data-estatus]';
+    // ── Interacción con la rejilla ──────────────────────────────────────
+
+    contenedor.addEventListener('click', (evento) => {
+        const celda = evento.target.closest('[data-slot]');
+
+        if (celda) {
+            const llave = clave(celda.dataset.dia, celda.dataset.hora);
+            const activa = !estado.get(llave);
+
+            if (activa) {
+                estado.set(llave, true);
+            } else {
+                estado.delete(llave);
+            }
+
+            celda.setAttribute('aria-pressed', String(activa));
+            actualizarOcultos();
+            programar();
+
+            return;
+        }
+
+        if (evento.target.closest('[data-limpiar-horario]')) {
+            estado.clear();
+            celdas.forEach((celda) => celda.setAttribute('aria-pressed', 'false'));
+            actualizarOcultos();
+            programar();
+        }
+    });
+
+    const relevantes = '[data-instructor], [data-ubicacion], [data-modalidad], [data-cupo], [data-estatus]';
 
     formulario.addEventListener('change', (evento) => {
         if (evento.target.matches('[data-actividad]')) {
@@ -230,13 +319,14 @@ const iniciar = (contenedor) => {
     });
 
     formulario.addEventListener('input', (evento) => {
-        if (evento.target.matches('[data-cupo], [data-horario] input')) {
+        if (evento.target.matches('[data-cupo]')) {
             programar();
         }
     });
 
     filtrarInstructores();
     ajustarUbicacion();
+    actualizarOcultos();
     verificar();
 };
 

@@ -293,3 +293,24 @@ it('elimina un grupo con horarios y se lleva sus horarios en cascada', function 
     expect(Grupo::find($grupo->id_grupo))->toBeNull()
         ->and(Horario::where('id_grupo', $grupo->id_grupo)->count())->toBe(0);
 });
+
+it('muestra la rejilla semanal en el formulario de grupos', function () {
+    $this->actingAs($this->admin)->get('/grupos/create')
+        ->assertOk()
+        ->assertSee('data-rejilla', false)
+        ->assertSee('data-slot', false)
+        ->assertSee('07:00');
+});
+
+it('precarga la rejilla con los horarios del grupo al editar', function () {
+    $grupo = Escenarios::grupo([
+        'id_actividad' => $this->actividad->id_actividad,
+        'id_ubicacion' => $this->ubicacion->id_ubicacion,
+        'id_instructor' => $this->instructor->id,
+    ], [[1, '10:00', '12:00']]);
+
+    $this->actingAs($this->admin)->get("/grupos/{$grupo->id_grupo}/edit")
+        ->assertOk()
+        ->assertSee('data-horarios-iniciales', false)
+        ->assertSee('"hora_inicio":"10:00"', false);
+});

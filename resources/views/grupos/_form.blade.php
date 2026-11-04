@@ -1,10 +1,24 @@
 {{-- Formulario compartido de alta y edición de grupos. $grupo es null al crear. --}}
 @php
     $campo = 'mov-campo mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500';
-    $filas = old('horarios', $grupo
-        ? $grupo->horarios->map(fn ($h) => ['id_dia' => $h->id_dia, 'hora_inicio' => $h->inicio_corto, 'hora_fin' => $h->fin_corto])->all()
-        : []);
-    $filas = $filas ?: [[]];
+    $intervalos = old('horarios');
+
+    if ($intervalos === null) {
+        $intervalos = $grupo
+            ? $grupo->horarios->map(fn ($h) => ['id_dia' => $h->id_dia, 'hora_inicio' => $h->inicio_corto, 'hora_fin' => $h->fin_corto])->all()
+            : [];
+    }
+
+    $intervalos = collect($intervalos)
+        ->filter(fn ($h) => is_array($h) && ! empty($h['id_dia']) && ! empty($h['hora_inicio']) && ! empty($h['hora_fin']))
+        ->map(fn ($h) => [
+            'id_dia' => (int) $h['id_dia'],
+            'hora_inicio' => substr($h['hora_inicio'], 0, 5),
+            'hora_fin' => substr($h['hora_fin'], 0, 5),
+        ])
+        ->values()
+        ->all();
+
     $modalidadActual = old('modalidad', $grupo?->modalidad ?? 'presencial');
 @endphp
 
@@ -83,29 +97,11 @@
 
     <hr class="border-slate-200">
 
-    {{-- Horarios: se agregan y quitan sin recargar; el aviso de conflictos se actualiza solo. --}}
-    <div class="space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-                <h3 class="text-sm font-bold uppercase tracking-wide text-blue-700">Horarios</h3>
-                <p class="mt-1 text-xs text-slate-500">Un grupo puede reunirse varios días. El borde no cuenta: 09:00–10:00 y 10:00–11:00 no se traslapan.</p>
-            </div>
-            <x-boton type="button" variante="secundario" icono="mas" gesto="giro" compacto data-agregar-horario>Agregar horario</x-boton>
-        </div>
+    {{-- Horario semanal en rejilla; el aviso de conflictos se actualiza solo. --}}
+    @include('grupos._rejilla', ['dias' => $dias, 'intervalos' => $intervalos])
 
-        <div class="space-y-3" data-horarios>
-            @foreach ($filas as $i => $fila)
-                @include('grupos._horario', ['i' => $i, 'h' => $fila, 'dias' => $dias])
-            @endforeach
-        </div>
+    @error('horarios')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
 
-        @error('horarios')<p class="text-sm text-red-600">{{ $message }}</p>@enderror
-
-        <template data-plantilla-horario>
-            @include('grupos._horario', ['i' => '__INDEX__', 'h' => [], 'dias' => $dias])
-        </template>
-
-        {{-- Aviso en vivo: lo llena grupo-horarios.js; el servidor vuelve a revisar al guardar. --}}
-        <div data-conflictos aria-live="polite" class="text-sm"></div>
-    </div>
+    {{-- Aviso en vivo: lo llena grupo-horarios.js; el servidor vuelve a revisar al guardar. --}}
+    <div data-conflictos aria-live="polite" class="text-sm"></div>
 </div>

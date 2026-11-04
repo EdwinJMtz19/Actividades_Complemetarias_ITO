@@ -75,8 +75,8 @@ class RolesYPermisosSeeder extends Seeder
             ],
             // Consulta solo sus propios grupos (el alcance lo aplica GrupoPolicy).
             'instructor' => ['grupos.ver'],
-            // Consulta el catálogo y se inscribe a un grupo (HU-17).
-            'alumno' => ['inscripciones.ver', 'inscripciones.crear'],
+            // Consulta el catálogo de su carrera, los grupos y se inscribe (HU-17).
+            'alumno' => ['actividades.ver', 'grupos.ver', 'inscripciones.ver', 'inscripciones.crear'],
         ];
 
         foreach ($porRol as $nombre => $permisosDelRol) {

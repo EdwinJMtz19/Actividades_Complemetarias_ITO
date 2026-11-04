@@ -78,5 +78,5 @@ it('impide que un coordinador edite roles aunque conozca la ruta', function () {
 
     $this->actingAs($coordinador)->put("/roles/{$rol->id}", ['permisos' => ['usuarios.eliminar']])->assertForbidden();
 
-    expect($rol->fresh()->permissions)->toHaveCount(2);
+    expect($rol->fresh()->permissions)->toHaveCount(4);
 });

@@ -98,12 +98,23 @@ class Grupo extends Model
 
     /**
      * Grupos que el usuario puede ver: todos si es administrador, los de su departamento
-     * si es coordinador, solo los suyos si es instructor y ninguno en otro caso.
+     * si es coordinador, los suyos si es instructor y los de las actividades de su carrera
+     * si es alumno.
      */
     public function scopeVisiblesPara(Builder $consulta, User $usuario): Builder
     {
         if ($usuario->esAdministrador()) {
             return $consulta;
+        }
+
+        if ($usuario->hasRole('alumno')) {
+            $carrera = $usuario->alumno?->id_carrera;
+
+            return $carrera === null
+                ? $consulta->whereRaw('1 = 0')
+                : $consulta->whereHas('actividad', fn ($q) => $q
+                    ->where('disponible', true)
+                    ->whereHas('carreras', fn ($c) => $c->where('carrera.id_carrera', $carrera)));
         }
 
         if ($usuario->esCoordinador()) {
