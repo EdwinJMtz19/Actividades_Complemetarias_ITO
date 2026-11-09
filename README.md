@@ -5,8 +5,8 @@ Oaxaca: catálogo de departamentos, carreras, instructores y alumnos; actividade
 horarios; inscripción de alumnos y calificaciones; y dashboards por rol.
 
 Cada persona entra con un **rol** y opera solo lo que le corresponde: el administrador ve todo, el
-coordinador gestiona a los instructores de su departamento, el instructor consulta sus grupos y el
-alumno se inscribe a las actividades (a partir del Sprint 4).
+coordinador gestiona a los instructores de su departamento, el instructor consulta sus grupos y
+califica a sus alumnos, y el alumno se inscribe y consulta su calificación.
 
 ## Estado del proyecto
 
@@ -16,7 +16,7 @@ alumno se inscribe a las actividades (a partir del Sprint 4).
 | 2 | Catálogos: departamentos, carreras, ubicaciones y semestres | **Entregado** (2026-10-17) |
 | 3 | Actividades, grupos y horarios | **Entregado** (2026-10-20) |
 | 4 | Inscripción de alumnos | **Entregado** (2026-11-03) |
-| 5 | Calificaciones | Pendiente |
+| 5 | Calificaciones y créditos | **En curso** (HU-20 entregada; HU-21 pendiente) |
 | 6 | Dashboards por rol | Pendiente |
 
 ## Documentación
@@ -68,14 +68,14 @@ Solo fuera de producción. Contraseña: `Actividades2026`
 | Correo | Rol | Alcance |
 |---|---|---|
 | admin@gmail.com | administrador | Todo el sistema |
-| coordinador@gmail.com | coordinador | Instructores, actividades y grupos de «Sistemas y Computación» |
-| instructor@gmail.com | instructor | Solo consulta sus grupos |
-| alumno@gmail.com | alumno | Actividades y grupos de su carrera (solo lectura) e inscripciones |
+| coordinador@gmail.com | coordinador | Instructores, actividades, grupos, inscripciones y calificaciones de «Sistemas y Computación» |
+| instructor@gmail.com | instructor | Consulta sus grupos y califica a sus alumnos |
+| alumno@gmail.com | alumno | Actividades y grupos de su carrera (solo lectura), inscripciones y su calificación en el historial |
 
 ## Pruebas
 
 ```sh
-php artisan test             # 240 pruebas
+php artisan test             # 252 pruebas
 vendor\bin\pint --test       # estilo de código
 ```
 

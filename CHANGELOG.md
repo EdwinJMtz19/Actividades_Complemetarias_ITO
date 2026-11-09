@@ -6,6 +6,19 @@ interno). Formato basado en [Keep a Changelog](https://keepachangelog.com/es/).
 
 Las versiones corresponden a los sprints entregados; la fecha es la fecha de entrega.
 
+## [Unreleased]
+
+### Agregado
+
+- **Calificaciones:** el instructor califica a los alumnos de sus grupos con un desempeño
+  (`excelente`, `bueno` o `malo`) y observaciones opcionales; la inscripción pasa a aprobado o
+  reprobado. El coordinador consulta las calificaciones de su departamento y el alumno ve la suya en
+  el historial.
+
+### Pendiente
+
+- Actualizar los créditos acumulados del alumno al aprobar una actividad (HU-21).
+
 ## [0.4.0] - 2026-11-03
 
 ### Agregado

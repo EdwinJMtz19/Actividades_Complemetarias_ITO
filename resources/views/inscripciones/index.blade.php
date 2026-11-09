@@ -91,6 +91,7 @@
                             <th class="px-4 py-3">Semestre</th>
                             <th class="px-4 py-3">Fecha</th>
                             <th class="px-4 py-3 text-center">Estatus</th>
+                            <th class="px-4 py-3">Calificación</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -104,6 +105,16 @@
                                     <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $coloresHistorial[$registro->estatus] ?? 'bg-slate-200 text-slate-700' }}">
                                         {{ \App\Models\Inscripcion::ESTATUS[$registro->estatus] }}
                                     </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if ($registro->calificacion)
+                                        <span class="font-medium">{{ \App\Models\Calificacion::DESEMPENIOS[$registro->calificacion->desempenio] ?? $registro->calificacion->desempenio }}</span>
+                                        @if ($registro->calificacion->observaciones)
+                                            <span class="block text-xs text-slate-500">{{ $registro->calificacion->observaciones }}</span>
+                                        @endif
+                                    @else
+                                        <span class="text-slate-400">—</span>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

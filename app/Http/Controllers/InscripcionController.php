@@ -53,7 +53,7 @@ class InscripcionController extends Controller
         $historial = Inscripcion::query()
             ->where('id_alumno', $alumno->id_alumno)
             ->whereNotIn('estatus', Inscripcion::ACTIVOS)
-            ->with(['grupo.actividad', 'grupo.semestre'])
+            ->with(['grupo.actividad', 'grupo.semestre', 'calificacion'])
             ->orderByDesc('fecha_inscripcion')
             ->get();
 

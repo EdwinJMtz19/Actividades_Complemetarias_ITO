@@ -7,6 +7,32 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ---
 
+## 2026-11-03 · sprint
+
+**Resumen:** HU-20 del Sprint 5: el instructor registra el desempeño de un alumno inscrito en sus grupos (`excelente`, `bueno` o `malo`) y observaciones opcionales. Al guardar, la inscripción pasa a `aprobado` (bueno/excelente) o `reprobado` (malo) en la misma transacción. El coordinador consulta las calificaciones de su departamento en modo lectura y el alumno ve la suya en el historial.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `database/migrations/2026_11_03_130000_create_calificacion_table.php` | Nueva tabla `calificacion`: `id_inscripcion` único, `desempenio` nullable y `observaciones` de 255. |
+| `app/Models/Calificacion.php` | Modelo con `DESEMPENIOS` y relación `inscripcion()`. |
+| `app/Models/Inscripcion.php` | Relación `calificacion()` (HasOne). |
+| `database/seeders/RolesYPermisosSeeder.php` | Permisos `calificaciones.ver` y `.editar` (34 en total); el coordinador recibe `ver`, el instructor `ver` y `editar`. |
+| `app/Policies/InscripcionPolicy.php` | `verCalificacion` y `calificar`; el instructor solo califica sus grupos y no se califica una inscripción dada de baja. |
+| `routes/web.php` | `GET/PUT /inscripciones/{inscripcion}/calificacion` con sus permisos. |
+| `app/Http/Controllers/CalificacionController.php` | `edit` muestra el formulario; `update` valida y guarda calificación + estatus en una transacción. |
+| `app/Http/Controllers/GrupoController.php` | `show` carga las inscripciones del grupo para quien tiene `calificaciones.ver`. |
+| `resources/views/grupos/show.blade.php` | Sección «Alumnos inscritos» con estatus, calificación y acción de calificar. |
+| `resources/views/calificaciones/edit.blade.php` | Formulario con datos del alumno, avisos y tarjetas de desempeño. |
+| `app/Http/Controllers/InscripcionController.php` | El historial del alumno carga `calificacion`. |
+| `resources/views/inscripciones/index.blade.php` | Columna «Calificación» en el historial. |
+| `tests/Feature/CalificacionesTest.php` | Doce pruebas de alcance, registro, modificación, validación y lectura por rol. |
+| `tests/Feature/RolesPermisosTest.php` | `TOTAL_PERMISOS` 32 → 34. |
+| `docs/contexto.md`, `docs/requisitos.md`, `docs/sprints/sprint-05-calificaciones.md`, `docs/README.md`, `CHANGELOG.md` | Regla 21, RF-12/RNF-03, estado y conteos actualizados. |
+
+**Verificación:** `php artisan test` → **252 pruebas, 978 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones; `npm run build` correcto.
+
 ## 2026-11-03 · cambio
 
 **Resumen:** el alumno también puede cancelar su propia inscripción activa desde `inscripciones/index`. La baja conserva el historial y libera el cupo con la misma transacción de HU-19; la política impide cancelar la inscripción de otro alumno.

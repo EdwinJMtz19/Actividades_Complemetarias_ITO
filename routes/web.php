@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActividadController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegistroController;
+use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\GrupoController;
@@ -100,5 +101,12 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->middlewareFor(['create', 'store'], 'permission:grupos.crear')
             ->middlewareFor(['edit', 'update'], 'permission:grupos.editar')
             ->middlewareFor('destroy', 'permission:grupos.eliminar');
+
+        // Sprint 5 · Calificaciones (HU-20). El alcance (instructor del grupo o departamento
+        // del coordinador) lo aplica InscripcionPolicy.
+        Route::get('inscripciones/{inscripcion}/calificacion', [CalificacionController::class, 'edit'])
+            ->middleware('permission:calificaciones.ver')->name('calificaciones.edit');
+        Route::put('inscripciones/{inscripcion}/calificacion', [CalificacionController::class, 'update'])
+            ->middleware('permission:calificaciones.editar')->name('calificaciones.update');
     });
 });

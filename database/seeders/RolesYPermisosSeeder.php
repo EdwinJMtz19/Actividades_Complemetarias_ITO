@@ -9,7 +9,7 @@ use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Roles y permisos (Sprint 1), catálogos y semestres (Sprint 2), actividades y grupos (Sprint 3),
- * inscripción de alumnos (Sprint 4).
+ * inscripción de alumnos (Sprint 4) y calificaciones (Sprint 5).
  * Es idempotente y solo AGREGA permisos,
  * así que se puede volver a ejecutar sin pisar lo configurado en la pantalla de roles.
  * Los sprints siguientes añaden aquí sus propios permisos.
@@ -58,6 +58,10 @@ class RolesYPermisosSeeder extends Seeder
             'inscripciones.ver',
             'inscripciones.crear',
             'inscripciones.baja',
+            // Sprint 5 · calificaciones. El instructor registra el desempeño; el coordinador
+            // consulta las de su departamento y el administrador todo.
+            'calificaciones.ver',
+            'calificaciones.editar',
         ];
 
         foreach ($permisos as $nombre) {
@@ -74,9 +78,10 @@ class RolesYPermisosSeeder extends Seeder
                 'actividades.ver', 'actividades.crear', 'actividades.editar', 'actividades.eliminar',
                 'grupos.ver', 'grupos.crear', 'grupos.editar', 'grupos.eliminar',
                 'inscripciones.ver', 'inscripciones.baja',
+                'calificaciones.ver',
             ],
-            // Consulta solo sus propios grupos (el alcance lo aplica GrupoPolicy).
-            'instructor' => ['grupos.ver'],
+            // Consulta y califica solo sus propios grupos (el alcance lo aplica InscripcionPolicy).
+            'instructor' => ['grupos.ver', 'calificaciones.ver', 'calificaciones.editar'],
             // Consulta el catálogo de su carrera, los grupos, se inscribe (HU-17) y cancela su
             // propia inscripción (HU-19); la política comprueba que la inscripción sea suya.
             'alumno' => ['actividades.ver', 'grupos.ver', 'inscripciones.ver', 'inscripciones.crear', 'inscripciones.baja'],

@@ -34,10 +34,37 @@ class InscripcionPolicy
             || $this->esDeSuDepartamento($auth, $inscripcion);
     }
 
+    /**
+     * Consulta de la calificación (Sprint 5, HU-20): instructor del grupo, coordinador del
+     * departamento o administrador. El alumno la ve en su propio historial.
+     */
+    public function verCalificacion(User $auth, Inscripcion $inscripcion): bool
+    {
+        return $auth->can('calificaciones.ver')
+            && ($this->esSuGrupo($auth, $inscripcion) || $this->esDeSuDepartamento($auth, $inscripcion));
+    }
+
+    /**
+     * Registrar o modificar la calificación: solo el instructor del grupo. Una inscripción
+     * dada de baja no se califica.
+     */
+    public function calificar(User $auth, Inscripcion $inscripcion): bool
+    {
+        return $auth->can('calificaciones.editar')
+            && $inscripcion->estatus !== 'dado_de_baja'
+            && $this->esSuGrupo($auth, $inscripcion);
+    }
+
     private function esPropia(User $auth, Inscripcion $inscripcion): bool
     {
         return $auth->alumno !== null
             && (int) $auth->alumno->id_alumno === (int) $inscripcion->id_alumno;
+    }
+
+    private function esSuGrupo(User $auth, Inscripcion $inscripcion): bool
+    {
+        return $auth->hasRole('instructor')
+            && (int) $inscripcion->grupo->id_instructor === (int) $auth->getKey();
     }
 
     private function esDeSuDepartamento(User $auth, Inscripcion $inscripcion): bool

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Inscripción de un alumno a un grupo. Solo puede haber una activa por alumno
@@ -42,6 +43,11 @@ class Inscripcion extends Model
     public function grupo(): BelongsTo
     {
         return $this->belongsTo(Grupo::class, 'id_grupo');
+    }
+
+    public function calificacion(): HasOne
+    {
+        return $this->hasOne(Calificacion::class, 'id_inscripcion');
     }
 
     public function scopeActivas(Builder $consulta): Builder
