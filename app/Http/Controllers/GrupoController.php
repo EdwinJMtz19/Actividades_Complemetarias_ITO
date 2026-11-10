@@ -6,6 +6,7 @@ use App\Http\Requests\GuardarGrupoRequest;
 use App\Models\Actividad;
 use App\Models\DiaSemana;
 use App\Models\Grupo;
+use App\Models\Inscripcion;
 use App\Models\Instructor;
 use App\Models\Semestre;
 use App\Models\Ubicacion;
@@ -80,12 +81,25 @@ class GrupoController extends Controller
         return redirect()->route('grupos.show', $grupo)->with('exito', 'Grupo creado correctamente.');
     }
 
-    public function show(Grupo $grupo): View
+    public function show(Request $request, Grupo $grupo): View
     {
         Gate::authorize('view', $grupo);
 
+        $grupo->load(['actividad.departamento', 'actividad.carreras', 'semestre', 'instructor.usuario', 'ubicacion', 'horarios.dia']);
+
+        // El instructor, el coordinador y el administrador consultan las calificaciones del grupo;
+        // el alumno no ve a sus compañeros.
+        $inscripciones = $request->user()->can('calificaciones.ver')
+            ? $grupo->inscripciones()
+                ->with(['alumno.usuario', 'alumno.carrera', 'calificacion'])
+                ->orderBy('id_inscripcion')
+                ->get()
+                ->each(fn (Inscripcion $inscripcion) => $inscripcion->setRelation('grupo', $grupo))
+            : collect();
+
         return view('grupos.show', [
-            'grupo' => $grupo->load(['actividad.departamento', 'actividad.carreras', 'semestre', 'instructor.usuario', 'ubicacion', 'horarios.dia']),
+            'grupo' => $grupo,
+            'inscripciones' => $inscripciones,
         ]);
     }
 

@@ -1,6 +1,14 @@
 <x-layouts.app :titulo="'Grupo '.$grupo->grupo.' · '.$grupo->actividad->nombre">
     @php
         $colores = ['abierta' => 'bg-green-100 text-green-800', 'cancelada' => 'bg-red-100 text-red-800'];
+        $coloresInscripcion = [
+            'inscrito' => 'bg-sky-100 text-sky-800',
+            'cursando' => 'bg-amber-100 text-amber-800',
+            'aprobado' => 'bg-emerald-100 text-emerald-800',
+            'reprobado' => 'bg-red-100 text-red-800',
+            'dado_de_baja' => 'bg-slate-200 text-slate-700',
+        ];
+        $desempenios = \App\Models\Calificacion::DESEMPENIOS;
     @endphp
 
     <div class="mb-4 flex flex-wrap items-center gap-3">
@@ -78,4 +86,62 @@
             </ul>
         </section>
     </div>
+
+    @if (auth()->user()->can('calificaciones.ver'))
+        <section class="mt-4 rounded-lg border border-slate-200 bg-white">
+            <div class="border-b border-slate-200 px-4 py-3"><h2 class="font-semibold">Alumnos inscritos</h2></div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <tr>
+                            <th class="px-4 py-3">Alumno</th>
+                            <th class="px-4 py-3">No. control</th>
+                            <th class="px-4 py-3">Carrera</th>
+                            <th class="px-4 py-3 text-center">Estatus</th>
+                            <th class="px-4 py-3">Calificación</th>
+                            <th class="px-4 py-3 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse ($inscripciones as $inscripcion)
+                            <tr class="odd:bg-white even:bg-slate-50">
+                                <td class="px-4 py-3 font-medium">{{ $inscripcion->alumno->usuario->nombre_completo }}</td>
+                                <td class="px-4 py-3 text-slate-600">{{ $inscripcion->alumno->num_control }}</td>
+                                <td class="px-4 py-3 text-slate-600">{{ $inscripcion->alumno->carrera->nombre }}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $coloresInscripcion[$inscripcion->estatus] ?? 'bg-slate-200 text-slate-700' }}">
+                                        {{ \App\Models\Inscripcion::ESTATUS[$inscripcion->estatus] }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if ($inscripcion->calificacion)
+                                        <span class="font-medium">{{ $desempenios[$inscripcion->calificacion->desempenio] ?? $inscripcion->calificacion->desempenio }}</span>
+                                        @if ($inscripcion->calificacion->observaciones)
+                                            <span class="block text-xs text-slate-500">{{ $inscripcion->calificacion->observaciones }}</span>
+                                        @endif
+                                    @else
+                                        <span class="text-slate-400">Sin calificar</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-center gap-2">
+                                        @can('calificar', $inscripcion)
+                                            <x-accion tipo="editar" :href="route('calificaciones.edit', $inscripcion)"
+                                                      :etiqueta="$inscripcion->calificacion ? 'Editar calificación' : 'Calificar'" />
+                                        @endcan
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-4 py-10 text-center text-slate-500">
+                                    Este grupo no tiene alumnos inscritos.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    @endif
 </x-layouts.app>

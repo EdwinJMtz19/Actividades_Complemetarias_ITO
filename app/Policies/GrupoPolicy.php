@@ -9,6 +9,7 @@ use App\Models\User;
  * Reglas de acceso a los grupos. El administrador pasa todas por Gate::before (AppServiceProvider).
  *  - Coordinador: ve y administra los grupos de las actividades de SU departamento.
  *  - Instructor: solo ve los grupos que tiene asignados; no los modifica.
+ *  - Alumno: solo ve los grupos de las actividades dirigidas a su carrera.
  */
 class GrupoPolicy
 {
@@ -20,7 +21,7 @@ class GrupoPolicy
     public function view(User $auth, Grupo $grupo): bool
     {
         return $auth->can('grupos.ver')
-            && ($this->esDeSuDepartamento($auth, $grupo) || $this->loImparte($auth, $grupo));
+            && ($this->esDeSuDepartamento($auth, $grupo) || $this->loImparte($auth, $grupo) || $this->esDeSuCarrera($auth, $grupo));
     }
 
     public function create(User $auth): bool
@@ -38,6 +39,12 @@ class GrupoPolicy
         return $auth->can('grupos.eliminar') && $this->esDeSuDepartamento($auth, $grupo);
     }
 
+    /** Solo un alumno con el permiso de inscripción puede apuntarse a un grupo. */
+    public function inscribirse(User $auth, Grupo $grupo): bool
+    {
+        return $auth->can('inscripciones.crear') && $auth->alumno !== null;
+    }
+
     private function esDeSuDepartamento(User $auth, Grupo $grupo): bool
     {
         $departamento = $auth->esCoordinador() ? $auth->ambitoDepartamento() : null;
@@ -48,5 +55,13 @@ class GrupoPolicy
     private function loImparte(User $auth, Grupo $grupo): bool
     {
         return $auth->hasRole('instructor') && (int) $grupo->id_instructor === (int) $auth->getKey();
+    }
+
+    private function esDeSuCarrera(User $auth, Grupo $grupo): bool
+    {
+        $carrera = $auth->alumno?->id_carrera;
+
+        return $carrera !== null
+            && $grupo->actividad->carreras->contains('id_carrera', $carrera);
     }
 }

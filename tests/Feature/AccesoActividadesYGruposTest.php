@@ -43,12 +43,15 @@ it('manda al login a los invitados', function () {
     }
 });
 
-it('niega el acceso al alumno', function () {
+it('deja al alumno consultar el catálogo sin administrarlo', function () {
     $alumno = Escenarios::usuario('alumno');
 
-    $this->actingAs($alumno)->get('/actividades')->assertForbidden();
-    $this->get('/grupos')->assertForbidden();
-    $this->get("/grupos/{$this->grupoPropio->id_grupo}")->assertForbidden();
+    $this->actingAs($alumno)->get('/actividades')->assertOk();
+    $this->get('/grupos')->assertOk();
+    $this->get("/grupos/{$this->grupoPropio->id_grupo}")->assertOk();
+    $this->get('/actividades/create')->assertForbidden();
+    $this->get('/grupos/create')->assertForbidden();
+    $this->get("/grupos/{$this->grupoPropio->id_grupo}/edit")->assertForbidden();
 });
 
 it('deja al administrador ver todo', function () {
@@ -100,8 +103,9 @@ it('muestra en el panel solo los módulos que el rol puede usar', function () {
 
     $this->actingAs(Escenarios::usuario('alumno'))->get('/panel')
         ->assertOk()
-        ->assertDontSee(route('actividades.index'), false)
-        ->assertDontSee(route('grupos.index'), false);
+        ->assertSee(route('actividades.index'), false)
+        ->assertSee(route('grupos.index'), false)
+        ->assertSee(route('inscripciones.index'), false);
 
     $this->actingAs(Escenarios::usuario('instructor', $this->sistemas))->get('/panel')
         ->assertOk()

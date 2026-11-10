@@ -213,6 +213,25 @@
     [data-acceso] [data-ver-icono] {
         transition: opacity var(--dur-feedback) var(--ease-llegada);
     }
+
+    /*
+     | Rejilla semanal del formulario de grupos: cada celda es un bloque de una hora.
+     | El color lo decide `aria-pressed`, que el JavaScript mantiene al día.
+     */
+    .mov-rejilla-slot {
+        transition:
+            background-color var(--dur-feedback) var(--ease-llegada),
+            color var(--dur-feedback) var(--ease-llegada);
+    }
+
+    .mov-rejilla-slot:hover:not([aria-pressed='true']) {
+        background-color: oklch(93.2% 0.032 255.585);
+    }
+
+    .mov-rejilla-slot[aria-pressed='true'] {
+        background-color: oklch(48.8% 0.243 264.376);
+        color: white;
+    }
 }
 
 /* El desglose solo aparece en navegadores que saben animar la entrada de contenido. */

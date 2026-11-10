@@ -7,6 +7,196 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ---
 
+## 2026-11-03 · sprint
+
+**Resumen:** HU-20 del Sprint 5: el instructor registra el desempeño de un alumno inscrito en sus grupos (`excelente`, `bueno` o `malo`) y observaciones opcionales. Al guardar, la inscripción pasa a `aprobado` (bueno/excelente) o `reprobado` (malo) en la misma transacción. El coordinador consulta las calificaciones de su departamento en modo lectura y el alumno ve la suya en el historial.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `database/migrations/2026_11_03_130000_create_calificacion_table.php` | Nueva tabla `calificacion`: `id_inscripcion` único, `desempenio` nullable y `observaciones` de 255. |
+| `app/Models/Calificacion.php` | Modelo con `DESEMPENIOS` y relación `inscripcion()`. |
+| `app/Models/Inscripcion.php` | Relación `calificacion()` (HasOne). |
+| `database/seeders/RolesYPermisosSeeder.php` | Permisos `calificaciones.ver` y `.editar` (34 en total); el coordinador recibe `ver`, el instructor `ver` y `editar`. |
+| `app/Policies/InscripcionPolicy.php` | `verCalificacion` y `calificar`; el instructor solo califica sus grupos y no se califica una inscripción dada de baja. |
+| `routes/web.php` | `GET/PUT /inscripciones/{inscripcion}/calificacion` con sus permisos. |
+| `app/Http/Controllers/CalificacionController.php` | `edit` muestra el formulario; `update` valida y guarda calificación + estatus en una transacción. |
+| `app/Http/Controllers/GrupoController.php` | `show` carga las inscripciones del grupo para quien tiene `calificaciones.ver`. |
+| `resources/views/grupos/show.blade.php` | Sección «Alumnos inscritos» con estatus, calificación y acción de calificar. |
+| `resources/views/calificaciones/edit.blade.php` | Formulario con datos del alumno, avisos y tarjetas de desempeño. |
+| `app/Http/Controllers/InscripcionController.php` | El historial del alumno carga `calificacion`. |
+| `resources/views/inscripciones/index.blade.php` | Columna «Calificación» en el historial. |
+| `tests/Feature/CalificacionesTest.php` | Doce pruebas de alcance, registro, modificación, validación y lectura por rol. |
+| `tests/Feature/RolesPermisosTest.php` | `TOTAL_PERMISOS` 32 → 34. |
+| `docs/contexto.md`, `docs/requisitos.md`, `docs/sprints/sprint-05-calificaciones.md`, `docs/README.md`, `CHANGELOG.md` | Regla 21, RF-12/RNF-03, estado y conteos actualizados. |
+
+**Verificación:** `php artisan test` → **252 pruebas, 978 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones; `npm run build` correcto.
+
+## 2026-11-03 · cambio
+
+**Resumen:** el alumno también puede cancelar su propia inscripción activa desde `inscripciones/index`. La baja conserva el historial y libera el cupo con la misma transacción de HU-19; la política impide cancelar la inscripción de otro alumno.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Policies/InscripcionPolicy.php` | `baja` permite al alumno cuando la inscripción es suya (`esPropia`), además del alcance por departamento del coordinador. |
+| `database/seeders/RolesYPermisosSeeder.php` | El rol `alumno` recibe `inscripciones.baja` (32 permisos en total). |
+| `app/Http/Controllers/InscripcionController.php` | `baja` recibe la petición y muestra «Cancelaste tu inscripción…» cuando la hace el propio alumno. |
+| `resources/views/inscripciones/index.blade.php` | Botón «Cancelar mi inscripción» en la tarjeta de la inscripción activa, con confirmación. |
+| `tests/Feature/BajaInscripcionTest.php` | Tres pruebas nuevas (cancelación propia, prohibición de cancelar la de otro y botón visible) y se separó la del instructor. |
+| `tests/Feature/RolesPermisosTest.php` | El rol `alumno` pasa de 4 a 5 permisos. |
+| `docs/contexto.md`, `docs/requisitos.md`, `docs/sprints/sprint-04-inscripcion-de-alumnos.md`, `docs/README.md`, `CHANGELOG.md` | Permisos del alumno, RF-11 y alcance de la baja actualizados. |
+
+**Verificación:** `php artisan test` → **240 pruebas, 929 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+## 2026-11-03 · sprint
+
+**Resumen:** HU-19 del Sprint 4: el coordinador consulta las inscripciones de su departamento y da de baja a un alumno. La baja es lógica (`dado_de_baja`), conserva la fila y libera el cupo en una transacción; el alumno ve su historial.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Policies/InscripcionPolicy.php` | Habilidad `baja`: permiso `inscripciones.baja` y alcance por departamento del coordinador. |
+| `database/seeders/RolesYPermisosSeeder.php` | Nuevo permiso `inscripciones.baja` (32 en total); el rol `coordinador` recibe `inscripciones.ver` e `inscripciones.baja`. |
+| `routes/web.php` | `PATCH /inscripciones/{inscripcion}/baja` con `permission:inscripciones.baja`. |
+| `app/Http/Controllers/InscripcionController.php` | `index` muestra la gestión a coordinadores/administradores y el catálogo al alumno; `baja` cambia el estatus y descuenta `cupo_ocupado` en una transacción; el alumno recibe su historial. |
+| `resources/views/inscripciones/gestion.blade.php` | Listado con filtros por actividad, estatus y alumno, y botón «Dar de baja» solo para inscripciones activas. |
+| `resources/views/inscripciones/index.blade.php` | Sección «Historial» con las inscripciones no activas. |
+| `tests/Feature/BajaInscripcionTest.php` | Once pruebas de alcance, baja, cupo, historial, filtros y doble baja. |
+| `tests/Feature/RolesPermisosTest.php` | `TOTAL_PERMISOS` 31 → 32. |
+| `docs/contexto.md`, `docs/requisitos.md` | Regla 20, permisos y RF-11/RNF-03 actualizados. |
+| `docs/sprints/sprint-04-inscripcion-de-alumnos.md` | Documento del Sprint 4 con HU-17, HU-18 y HU-19. |
+| `docs/README.md`, `CHANGELOG.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Estado del Sprint 4 y conteo de pruebas 226 → 237. |
+
+**Verificación:** `php artisan test` → **237 pruebas, 919 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones; `npm run build` sin errores.
+
+---
+
+## 2026-11-03 · cambio
+
+**Resumen:** El formulario de grupos estrena una rejilla semanal de horarios, al estilo del proyecto anterior: filas de bloques de una hora (07:00–20:00) y columnas de lunes a sábado, con celdas clicables, leyenda y botón para limpiar.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `resources/views/grupos/_rejilla.blade.php` | Parcial nuevo con la tabla semanal, la leyenda y el JSON de horarios previos. |
+| `resources/views/grupos/_form.blade.php` | Sustituye las filas de día/hora por la rejilla; normaliza `old('horarios')` y los horarios del grupo. |
+| `resources/views/grupos/_horario.blade.php` | Se elimina: ya no hay filas dinámicas. |
+| `resources/js/grupo-horarios.js` | Traduce los bloques marcados a `horarios[i]`, precarga el horario existente, limpia la rejilla y conserva el aviso de conflictos. |
+| `resources/views/components/icono.blade.php` | Nuevo icono `palomita` para las celdas activas. |
+| `resources/css/app.css` | Estilos `.mov-rejilla-slot` para el estado seleccionado y el hover. |
+| `tests/Feature/GruposCrudTest.php` | Pruebas de la rejilla en alta y de la precarga al editar. |
+| `docs/contexto.md` | Decisión técnica de la rejilla semanal. |
+| `docs/README.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Conteo de pruebas 224 → 226. |
+
+**Verificación:** `php artisan test` → **226 pruebas, 867 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones; `npm run build` compila Tailwind y el JavaScript sin errores.
+
+---
+
+## 2026-11-03 · fix
+
+**Resumen:** El alumno ya puede consultar las actividades disponibles de su carrera y los grupos de esas actividades. Antes los permisos solo abrían Inscripciones y los alcances `visiblesPara` devolvían listas vacías para el rol `alumno`.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Models/Actividad.php` | `scopeVisiblesPara` devuelve al alumno las actividades `disponible` ligadas a su carrera. |
+| `app/Models/Grupo.php` | `scopeVisiblesPara` devuelve al alumno los grupos de esas actividades. |
+| `app/Policies/GrupoPolicy.php` | `view` permite al alumno ver el detalle de un grupo de su carrera; sigue sin poder editarlo. |
+| `database/seeders/RolesYPermisosSeeder.php` | El rol `alumno` recibe `actividades.ver` y `grupos.ver` (además de los permisos de inscripción). |
+| `tests/Feature/VisibilidadAlumnoTest.php` | Pruebas de catálogo por carrera, detalle de grupo, catálogo de inscripción y denegación de altas/ediciones. |
+| `tests/Feature/AccesoActividadesYGruposTest.php` | El caso del alumno pasa de 403 a consulta de solo lectura; el panel muestra Actividades, Grupos e Inscripciones. |
+| `tests/Feature/RolesPermisosTest.php` | El rol `alumno` ahora tiene 4 permisos. |
+| `docs/contexto.md` | Asignación de permisos del alumno y regla 18 (visibilidad de solo lectura). |
+| `docs/README.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Conteo de pruebas 218 → 224. |
+
+**Verificación:** `php artisan test` → **224 pruebas, 860 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones. En la base local se aplicó la migración pendiente `2026_11_03_120000_create_inscripcion_table` y se volvió a ejecutar `RolesYPermisosSeeder`; el alumno de prueba ve 5 actividades y 1 grupo.
+
+---
+
+## 2026-11-03 · sprint
+
+**Resumen:** HU-18 del Sprint 4: tras confirmar la inscripción se envía un correo de confirmación en cola; si el correo falla, el alta se conserva y el error queda en el log.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Mail/InscripcionConfirmada.php` | Mailable nuevo con el asunto «Inscripción confirmada: …». |
+| `resources/views/mail/inscripcion-confirmada.blade.php` | Plantilla HTML con actividad, grupo, instructor, lugar, horario, periodo y fecha. |
+| `app/Http/Controllers/InscripcionController.php` | Devuelve la inscripción creada y encola el correo después de confirmar el alta; si falla, registra el error con `Log::error` (RNF-06). |
+| `tests/Feature/InscripcionesTest.php` | Pruebas `envía el correo de confirmación al inscribirse` y `confirma la inscripción aunque el correo falle`. |
+| `docs/contexto.md`, `docs/requisitos.md` | Regla 18 ampliada, decisión técnica del correo, RF-10 y RNF-06 marcados como cumplidos. |
+| `docs/README.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `CONTRIBUTING.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Conteo de pruebas 216 → 218. |
+
+**Verificación:** `php artisan test` → **218 pruebas, 838 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-03 · infra
+
+**Resumen:** `CONTRIBUTING.md` deja de versionarse y se agrega a `.gitignore`.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `.gitignore` | Se agrega `/CONTRIBUTING.md`. |
+| `CONTRIBUTING.md` | Se quita del índice con `git rm --cached`; el archivo local se conserva. |
+
+**Verificación:** `git status` muestra la eliminación preparada y el archivo ya no aparece como pendiente.
+
+---
+
+## 2026-11-03 · sprint
+
+**Resumen:** HU-17 del Sprint 4: el alumno consulta los grupos disponibles y se inscribe a uno, con descuento atómico de cupo y una sola inscripción activa.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `database/migrations/2026_11_03_120000_create_inscripcion_table.php` | Nueva tabla `inscripcion` con FK a `alumno` y `grupo`; índice único de inscripción activa (columna generada en MySQL, índice parcial en SQLite). |
+| `app/Models/Inscripcion.php` | Modelo nuevo: estatus, `scopeActivas()`, `estaActiva()`, relaciones `alumno()` y `grupo()`. |
+| `app/Models/Grupo.php` | Relación `inscripciones()`; `tieneInscripciones()` ahora consulta la relación; `scopeInscribiblesPara()`. |
+| `app/Models/Alumno.php` | Relación `inscripciones()`. |
+| `app/Policies/GrupoPolicy.php` | Habilidad `inscribirse`: permiso `inscripciones.crear` y perfil de alumno. |
+| `app/Providers/AppServiceProvider.php` | `Gate::before` deja que `inscribirse` la decida la política (el administrador no tiene perfil de alumno). |
+| `app/Http/Controllers/InscripcionController.php` | Catálogo de grupos disponibles y alta de la inscripción validando ventana, periodo, estatus, actividad, carrera, cupo y unicidad. |
+| `routes/web.php` | `GET /inscripciones` y `POST /inscripciones/{grupo}` con permisos `inscripciones.ver` e `inscripciones.crear`. |
+| `database/seeders/RolesYPermisosSeeder.php` | Permisos `inscripciones.ver` e `inscripciones.crear`; el rol `alumno` los recibe. |
+| `resources/views/inscripciones/index.blade.php` | Vista del catálogo, la inscripción activa y el botón «Inscribirme». |
+| `resources/views/components/layouts/app.blade.php`, `resources/views/panel.blade.php` | Enlace «Inscripciones» para quien tenga `inscripciones.ver`. |
+| `tests/Feature/InscripcionesTest.php` | Once pruebas nuevas de la HU-17. |
+| `tests/Feature/GruposCrudTest.php` | La prueba de borrado ahora crea una inscripción real (antes usaba `cupo_ocupado`). |
+| `tests/Feature/RolesPermisosTest.php` | Conteo de permisos 29 → 31 y permisos del rol `alumno` 0 → 2. |
+| `docs/contexto.md`, `docs/requisitos.md` | Regla 18 de inscripciones, permisos y RF-09 marcado como cumplido. |
+| `docs/README.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `CONTRIBUTING.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Conteo de pruebas 204/205 → 216. |
+
+**Verificación:** `php artisan test` → **216 pruebas, 831 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-03 · cambio
+
+**Resumen:** el rol `coordinador` ahora puede ver la lista de ubicaciones en su panel de módulos, igual que el `administrador`.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `database/seeders/RolesYPermisosSeeder.php` | Se agrega `ubicaciones.ver` a los permisos del rol `coordinador` (antes solo tenía `usuarios.ver`, `actividades.*` y `grupos.*`). |
+| `tests/Feature/AccesoCatalogosTest.php` | Se separa la prueba de catálogos: `alumno` e `instructor` siguen sin acceso; `coordinador` puede `GET /ubicaciones` (ver) pero no crear, editar, eliminar, ni acceder a `/departamentos`, `/carreras` ni `/semestres`. |
+
+**Verificación:** `php artisan test` → **205 pruebas, 798 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
 ## 2026-10-20 · documentación
 
 **Resumen:** resolución de la decisión abierta sobre el borrado de grupos (**opción A: corregir la

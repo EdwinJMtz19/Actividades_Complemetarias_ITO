@@ -6,6 +6,38 @@ interno). Formato basado en [Keep a Changelog](https://keepachangelog.com/es/).
 
 Las versiones corresponden a los sprints entregados; la fecha es la fecha de entrega.
 
+## [Unreleased]
+
+### Agregado
+
+- **Calificaciones:** el instructor califica a los alumnos de sus grupos con un desempeño
+  (`excelente`, `bueno` o `malo`) y observaciones opcionales; la inscripción pasa a aprobado o
+  reprobado. El coordinador consulta las calificaciones de su departamento y el alumno ve la suya en
+  el historial.
+
+### Pendiente
+
+- Actualizar los créditos acumulados del alumno al aprobar una actividad (HU-21).
+
+## [0.4.0] - 2026-11-03
+
+### Agregado
+
+- **Inscripción de alumnos:** el alumno consulta las actividades y grupos de su carrera, se inscribe
+  a un grupo del periodo vigente con cupo y una sola inscripción activa, y recibe un correo de
+  confirmación.
+- **Baja de alumnos:** el coordinador consulta las inscripciones de su departamento y da de baja a un
+  alumno; la baja conserva el historial y libera el lugar. El alumno también puede cancelar su propia
+  inscripción desde su pantalla de inscripciones.
+- **Historial del alumno:** el alumno ve sus inscripciones anteriores (bajas, aprobadas o
+  reprobadas) y puede volver a inscribirse.
+- **Rejilla semanal de horarios:** el formulario de grupos captura los horarios con bloques de una
+  hora, con leyenda y aviso de conflictos.
+
+### Corregido
+
+- **Visibilidad del alumno:** ya puede consultar las actividades y grupos de su carrera.
+
 ## [0.3.0] - 2026-10-20
 
 ### Agregado
@@ -36,6 +68,7 @@ Las versiones corresponden a los sprints entregados; la fecha es la fecha de ent
 - **Permisos por departamento:** cada coordinador ve y gestiona solo a los instructores de su
   departamento.
 
+[0.4.0]: https://github.com/EdwinJMtz19/Actividades_Complemetarias_ITO/commits/main
 [0.3.0]: https://github.com/EdwinJMtz19/Actividades_Complemetarias_ITO/commits/main
 [0.2.0]: https://github.com/EdwinJMtz19/Actividades_Complemetarias_ITO/commits/main
 [0.1.0]: https://github.com/EdwinJMtz19/Actividades_Complemetarias_ITO/commits/main

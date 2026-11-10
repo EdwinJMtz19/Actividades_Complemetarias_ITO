@@ -26,6 +26,7 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/CONTRIBUTING.md
 
 # ── Agentes de IA y asistentes (artefactos de herramientas) ───────────
 /.agents

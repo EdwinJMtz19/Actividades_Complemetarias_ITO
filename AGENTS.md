@@ -2,8 +2,7 @@
 
 Sistema web (Laravel 13 + Blade + Tailwind 4 + MySQL 8) para administrar las actividades
 complementarias del ITO: usuarios por rol, actividades, grupos, horarios, inscripciones y
-calificaciones. Sprint actual: **3 · Actividades, grupos y horarios (entregado)**; sigue el **4 ·
-Inscripción de alumnos**.
+calificaciones. Sprint actual: **5 · Calificaciones y créditos (en curso; HU-20 entregada)**.
 
 ## Lee esto primero
 
@@ -20,7 +19,7 @@ Inscripción de alumnos**.
 ## Reglas que no se rompen
 
 1. **Nada sin pruebas.** Todo cambio va con su prueba Pest en `tests/Feature/`. Debe quedar:
-   `php artisan test` en verde (hoy son 205) y `vendor\bin\pint --test` sin observaciones.
+   `php artisan test` en verde (hoy son 252) y `vendor\bin\pint --test` sin observaciones.
 2. **No edites migraciones ya aplicadas.** Crea una nueva `YYYY_MM_DD_HHMMSS_*.php`.
 3. **El acceso se controla con permisos y políticas**, no con condicionales en las vistas:
    `permission:...` en rutas, `UserPolicy` para reglas sobre modelos, middleware propio para
@@ -47,7 +46,7 @@ Todo está en [`docs/README.md`](docs/README.md): comandos de Docker y de PHP lo
 en Windows, cuentas de prueba y mapa de carpetas. Resumen mínimo:
 
 ```sh
-php artisan test                   # 205 pruebas
+php artisan test                   # 252 pruebas
 vendor\bin\pint                    # formatear
 ```
 

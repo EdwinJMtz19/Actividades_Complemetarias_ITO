@@ -3,10 +3,12 @@
 use App\Http\Controllers\ActividadController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegistroController;
+use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\HorarioController;
+use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\PanelController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SemestreController;
@@ -29,6 +31,17 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'usuario.activo'])->group(function () {
     Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('panel', PanelController::class)->name('panel');
+
+    // Sprint 4 · Inscripción de alumnos. Los alumnos no tienen departamento, por eso va
+    // fuera del grupo `departamento.asignado`.
+    Route::get('inscripciones', [InscripcionController::class, 'index'])
+        ->middleware('permission:inscripciones.ver')->name('inscripciones.index');
+    Route::post('inscripciones/{grupo}', [InscripcionController::class, 'store'])
+        ->middleware('permission:inscripciones.crear')->name('inscripciones.store');
+    // Baja lógica (HU-19): conserva la fila y libera el cupo. El alcance por departamento lo aplica
+    // InscripcionPolicy.
+    Route::patch('inscripciones/{inscripcion}/baja', [InscripcionController::class, 'baja'])
+        ->middleware('permission:inscripciones.baja')->name('inscripciones.baja');
 
     // Módulos limitados por rol/permiso y, para coordinadores, por departamento asignado.
     Route::middleware('departamento.asignado')->group(function () {
@@ -88,5 +101,12 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->middlewareFor(['create', 'store'], 'permission:grupos.crear')
             ->middlewareFor(['edit', 'update'], 'permission:grupos.editar')
             ->middlewareFor('destroy', 'permission:grupos.eliminar');
+
+        // Sprint 5 · Calificaciones (HU-20). El alcance (instructor del grupo o departamento
+        // del coordinador) lo aplica InscripcionPolicy.
+        Route::get('inscripciones/{inscripcion}/calificacion', [CalificacionController::class, 'edit'])
+            ->middleware('permission:calificaciones.ver')->name('calificaciones.edit');
+        Route::put('inscripciones/{inscripcion}/calificacion', [CalificacionController::class, 'update'])
+            ->middleware('permission:calificaciones.editar')->name('calificaciones.update');
     });
 });

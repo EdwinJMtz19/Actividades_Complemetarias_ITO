@@ -14,9 +14,9 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | Rol | Qué puede hacer |
 |---|---|
 | `administrador` | Todo, sin restricciones de departamento. Único que administra usuarios, roles y catálogos. |
-| `coordinador` | Ve y administra a los **instructores, actividades y grupos de su departamento**. |
-| `instructor` | Consulta **solo los grupos que imparte**; no los crea ni los edita (Sprint 3). |
-| `alumno` | Pendiente: consulta e inscripción en actividades (Sprint 4). |
+| `coordinador` | Ve y administra a los **instructores, actividades y grupos de su departamento**; consulta las calificaciones de ese departamento (Sprint 5). |
+| `instructor` | Consulta **solo los grupos que imparte** y califica a sus alumnos (Sprints 3 y 5); no crea ni edita grupos. |
+| `alumno` | Consulta el catálogo de grupos, se inscribe (Sprint 4, HU-17) y ve su calificación en el historial (Sprint 5). |
 
 ## 2. Cronograma de sprints
 
@@ -26,8 +26,8 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | 1 | Usuarios, roles y permisos + acceso por departamento | **Entregado** ([detalle](sprints/sprint-01-usuarios-y-roles.md)) |
 | 2 | Catálogos base y semestre: CRUD de departamentos, carreras y ubicaciones; semestres con cierre automático y validaciones | **Entregado** ([detalle](sprints/sprint-02-catalogos-y-semestres.md)) |
 | 3 | Actividades, grupos y horarios (instructor) | **Entregado** ([detalle](sprints/sprint-03-actividades-y-grupos.md)) |
-| 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | Pendiente |
-| 5 | Calificaciones | Pendiente |
+| 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | **Entregado** (HU-17, HU-18 y HU-19) |
+| 5 | Calificaciones y créditos | **En curso** (HU-20 entregada; HU-21 pendiente) |
 | 6 | Dashboards por rol | Pendiente |
 
 ## 3. Modelo de datos
@@ -60,8 +60,8 @@ perfil según su rol, y `User` lo expone con las relaciones `alumno()`, `instruc
 
 | Tabla | Sprint | Estado |
 |---|---|---|
-| `inscripcion` | 4 | Pendiente |
-| `calificacion` | 5 | Pendiente |
+| `inscripcion` | 4 | Implementada (HU-17) |
+| `calificacion` | 5 | Implementada (HU-20) |
 | `log_acceso` | 6 | Pendiente |
 
 Vienen del paquete `Sprint0_Base_de_Datos.zip`. Las cinco tablas del Sprint 3
@@ -88,11 +88,18 @@ ubicaciones.ver    .crear  .editar  .eliminar      (Sprint 2)
 semestres.ver      .crear  .editar                 (Sprint 2; no existe .eliminar)
 actividades.ver    .crear  .editar  .eliminar      (Sprint 3)
 grupos.ver         .crear  .editar  .eliminar      (Sprint 3; los horarios van en el formulario del grupo)
+inscripciones.ver  .crear  .baja                   (Sprint 4)
+calificaciones.ver .editar                         (Sprint 5)
 ```
 
-Asignación: `administrador` → todos (29) · `coordinador` → `usuarios.ver`, `actividades.*` y
-`grupos.*` (recortados a su departamento) · `instructor` → `grupos.ver` (solo los suyos) · `alumno` → ninguno.
-Los permisos del Sprint 2 son solo del administrador; se pueden dar a otro rol desde `/roles`.
+Asignación: `administrador` → todos (34) · `coordinador` → `usuarios.ver`, `ubicaciones.ver`,
+`actividades.*`, `grupos.*`, `inscripciones.ver`/`inscripciones.baja` y `calificaciones.ver`
+(recortados a su departamento) · `instructor` → `grupos.ver`, `calificaciones.ver` y
+`calificaciones.editar` (solo sus grupos) · `alumno` → `actividades.ver` y `grupos.ver` (solo
+lectura, acotados a su carrera) e `inscripciones.ver`/`inscripciones.crear`/`inscripciones.baja`
+(HU-17; la baja solo aplica a su propia inscripción, lo valida la política). El alumno ve sus
+calificaciones en el historial sin necesitar `calificaciones.ver`. Los permisos del Sprint 2 son
+solo del administrador; se pueden dar a otro rol desde `/roles`.
 
 Hay una pantalla (`/roles`) para modificar permisos por rol. Por eso el seeder usa
 `Permission::firstOrCreate` y es **idempotente**: se puede volver a ejecutar sin borrar lo que se
@@ -144,6 +151,32 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
 17. **Borrado de grupos:** no se elimina un grupo con `cupo_ocupado > 0`; sus horarios se van en
     cascada. El criterio 8 de HU-15 se **reescribió el 2026-10-20** para reflejar esa decisión de
     esquema (opción A): ver [`decisiones/borrado-de-grupos.md`](decisiones/borrado-de-grupos.md).
+    Desde el Sprint 4 el borrado se bloquea si el grupo tiene filas en `inscripcion`
+    (`Grupo::tieneInscripciones()` consulta la relación).
+18. **Visibilidad del alumno:** ve las actividades `disponible` dirigidas a su carrera y los grupos de
+    esas actividades (`Actividad::scopeVisiblesPara`, `Grupo::scopeVisiblesPara` y
+    `GrupoPolicy@view`). Es solo consulta: no puede crear, editar ni eliminar actividades ni grupos.
+19. **Inscripciones (HU-17):** solo el alumno se inscribe, y solo dentro de la ventana del periodo
+    activo (`Semestre::inscripcionesAbiertas()`). El grupo debe ser del periodo vigente, estar
+    `abierta`, pertenecer a una actividad `disponible` dirigida a la carrera del alumno y tener cupo.
+    Se permite **una sola inscripción activa por alumno** (`inscrito` o `cursando`), garantizada por
+    un índice único (columna generada en MySQL, índice parcial en SQLite). El alta descuenta el cupo
+    de forma atómica y registra `fecha_inscripcion`; el grupo y su cupo no se capturan a mano.
+    Tras confirmar el alta se encola un correo de confirmación (`InscripcionConfirmada`); si el
+    envío falla, la inscripción se conserva y el error se registra en el log (RNF-06).
+20. **Bajas de inscripción (HU-19):** el coordinador (o el administrador) da de baja inscripciones
+    `inscrito` o `cursando` de los grupos de su departamento; el alumno también puede cancelar su
+    propia inscripción activa. La baja es lógica: cambia el estatus a `dado_de_baja`, conserva la fila
+    (historial) y libera un lugar del cupo en la misma transacción. Una inscripción ya inactiva no se
+    vuelve a dar de baja. El alumno puede inscribirse de nuevo después de la baja.
+21. **Calificaciones (HU-20):** el instructor del grupo registra un desempeño cualitativo
+    (`excelente`, `bueno` o `malo`) y, opcionalmente, observaciones de hasta 255 caracteres. La
+    calificación es única por inscripción (`id_inscripcion` único) y se puede modificar sin duplicar
+    la fila. Al guardarla, la inscripción pasa a `aprobado` si el desempeño es `bueno` o `excelente`,
+    y a `reprobado` si es `malo`; ambos cambios ocurren en la misma transacción. No se califica una
+    inscripción `dado_de_baja`. El coordinador consulta las calificaciones de su departamento en modo
+    lectura; el alumno ve la suya en el historial de `inscripciones/index`. El cálculo de
+    `creditos_acumulados` queda para HU-21.
 
 ## 6. Decisiones técnicas
 
@@ -164,13 +197,38 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
   `getAuthPasswordName()`; el cast `hashed` se encarga de cifrar.
 - **Sesiones en base de datos:** `SESSION_DRIVER=database`, por eso `sessions` está en la migración
   de usuarios.
+- **Correo de confirmación (Sprint 4):** `App\Mail\InscripcionConfirmada` se encola con
+  `Mail::to(...)->queue(...)` después de confirmar la inscripción. Con `QUEUE_CONNECTION=database`
+  el envío ocurre en el worker; en pruebas se usa `MAIL_MAILER=array`. Si el encolado falla, el
+  controlador registra el error con `Log::error` y la inscripción no se deshace (RNF-06).
 - **MySQL 8 como motor objetivo** (migrado el 2026-10-18, ver §8). Durante el desarrollo anterior se
   usó SQLite, por eso el código evita funciones exclusivas de MySQL (columnas generadas, por ejemplo)
   y las pruebas siguen corriendo en SQLite en memoria.
 - **Horarios dentro del formulario del grupo (Sprint 3):** no hay rutas anidadas
   `grupos/{grupo}/horarios`; el formulario manda `horarios[]` y `GrupoController` reemplaza el
   conjunto completo dentro de una transacción. `HorarioController` solo expone el endpoint JSON
-  `POST grupos/conflictos`. Por eso no existen permisos `horarios.*` (el total es 29).
+  `POST grupos/conflictos`. Por eso no existen permisos `horarios.*` (el total es 34).
+- **Baja de inscripciones (Sprint 4):** la baja es lógica (`estatus = 'dado_de_baja'`), no un
+  `DELETE`; así se conserva el historial y el índice único de inscripción activa permite volver a
+  inscribirse. `InscripcionController@baja` bloquea la fila, cambia el estatus y descuenta
+  `cupo_ocupado` en una transacción. La autorización vive en `InscripcionPolicy@baja`: el permiso
+  `inscripciones.baja` y, o bien la inscripción es del propio alumno, o bien el coordinador es del
+  departamento de la actividad. La vista `inscripciones/gestion` lista las inscripciones con filtros;
+  el alumno ve su inscripción activa (con el botón «Cancelar mi inscripción») y su historial en
+  `inscripciones/index`.
+- **Calificaciones (Sprint 5):** la tabla `calificacion` guarda el desempeño y las observaciones; el
+  estatus `aprobado`/`reprobado` vive en `inscripcion` y lo actualiza `CalificacionController@update`
+  dentro de una transacción con `updateOrCreate`. La autorización está en `InscripcionPolicy`
+  (`verCalificacion` y `calificar`): el instructor solo califica los grupos que imparte, el
+  coordinador consulta su departamento y el administrador pasa por `Gate::before`. El formulario
+  reutiliza `x-tarjeta-formulario` y tarjetas de radio con `peer-checked`; la lista de alumnos se
+  muestra en `grupos/show` solo a quien tiene `calificaciones.ver`.
+- **Rejilla semanal del horario (Sprint 4):** el formulario de grupos captura el horario con una
+  rejilla de bloques de una hora (07:00–20:00, lunes a sábado), como el proyecto anterior. El
+  JavaScript traduce cada bloque marcado a un `horarios[i]` con `hora_fin = hora_inicio + 1 h`; si
+  el grupo ya tenía un horario que no cae en bloques exactos, la rejilla lo ajusta a los bloques que
+  cubre y lo avisa antes de guardar. El servidor sigue aceptando cualquier intervalo válido: la
+  rejilla es la interfaz, no una regla de negocio nueva.
 - **Una sola fuente para los conflictos (Sprint 3):** `app/Services/ServicioConflictos.php` concentra
   las cuatro reglas; lo llaman `GuardarGrupoRequest` al guardar y `HorarioController` para el aviso en
   vivo. El aviso es una ayuda visual: la garantía es la validación del servidor.

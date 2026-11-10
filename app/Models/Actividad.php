@@ -54,12 +54,22 @@ class Actividad extends Model
 
     /**
      * Actividades que el usuario puede ver: todas si es administrador, las de su
-     * departamento si coordina uno, y ninguna en cualquier otro caso.
+     * departamento si coordina uno, las disponibles de su carrera si es alumno
+     * y ninguna en cualquier otro caso.
      */
     public function scopeVisiblesPara(Builder $consulta, User $usuario): Builder
     {
         if ($usuario->esAdministrador()) {
             return $consulta;
+        }
+
+        if ($usuario->hasRole('alumno')) {
+            $carrera = $usuario->alumno?->id_carrera;
+
+            return $carrera === null
+                ? $consulta->whereRaw('1 = 0')
+                : $consulta->where('disponible', true)
+                    ->whereHas('carreras', fn ($q) => $q->where('carrera.id_carrera', $carrera));
         }
 
         $departamento = $usuario->ambitoDepartamento();
