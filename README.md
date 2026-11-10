@@ -16,7 +16,7 @@ califica a sus alumnos, y el alumno se inscribe y consulta su calificación.
 | 2 | Catálogos: departamentos, carreras, ubicaciones y semestres | **Entregado** (2026-10-17) |
 | 3 | Actividades, grupos y horarios | **Entregado** (2026-10-20) |
 | 4 | Inscripción de alumnos | **Entregado** (2026-11-03) |
-| 5 | Calificaciones y créditos | **En curso** (HU-20 entregada; HU-21 pendiente) |
+| 5 | Calificaciones y créditos | **Entregado** (2026-11-03) |
 | 6 | Dashboards por rol | Pendiente |
 
 ## Documentación
@@ -75,7 +75,7 @@ Solo fuera de producción. Contraseña: `Actividades2026`
 ## Pruebas
 
 ```sh
-php artisan test             # 252 pruebas
+php artisan test             # 261 pruebas
 vendor\bin\pint --test       # estilo de código
 ```
 

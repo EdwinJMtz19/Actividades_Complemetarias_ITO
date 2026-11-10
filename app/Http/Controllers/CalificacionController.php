@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alumno;
 use App\Models\Calificacion;
 use App\Models\Inscripcion;
 use Illuminate\Http\RedirectResponse;
@@ -12,8 +13,9 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
- * Calificaciones de las inscripciones (Sprint 5, HU-20).
- * El instructor registra el desempeño y el estatus pasa a aprobado o reprobado.
+ * Calificaciones de las inscripciones (Sprint 5, HU-20 y HU-21).
+ * El instructor registra el desempeño, el estatus pasa a aprobado o reprobado y los créditos
+ * acumulados del alumno se ajustan en la misma transacción.
  */
 class CalificacionController extends Controller
 {
@@ -45,7 +47,13 @@ class CalificacionController extends Controller
             'observaciones' => ['nullable', 'string', 'max:255'],
         ]);
 
-        DB::transaction(function () use ($inscripcion, $datos) {
+        $inscripcion->loadMissing('grupo.actividad');
+        $estatusAnterior = $inscripcion->estatus;
+        $nuevoEstatus = in_array($datos['desempenio'], ['bueno', 'excelente'], true)
+            ? 'aprobado'
+            : 'reprobado';
+
+        DB::transaction(function () use ($inscripcion, $datos, $estatusAnterior, $nuevoEstatus) {
             Calificacion::updateOrCreate(
                 ['id_inscripcion' => $inscripcion->id_inscripcion],
                 [
@@ -54,15 +62,44 @@ class CalificacionController extends Controller
                 ]
             );
 
-            $inscripcion->update([
-                'estatus' => in_array($datos['desempenio'], ['bueno', 'excelente'], true)
-                    ? 'aprobado'
-                    : 'reprobado',
-            ]);
+            $inscripcion->update(['estatus' => $nuevoEstatus]);
+
+            $this->ajustarCreditos($inscripcion, $estatusAnterior, $nuevoEstatus);
         });
 
         return redirect()
             ->route('grupos.show', $inscripcion->id_grupo)
             ->with('exito', 'Calificación guardada correctamente.');
+    }
+
+    /**
+     * Suma los créditos de la actividad cuando la inscripción pasa a aprobada por primera vez y
+     * los descuenta si se revierte a reprobada. Cambiar entre desempeños aprobatorios no los
+     * duplica. Nunca deja el acumulado en negativo.
+     */
+    private function ajustarCreditos(Inscripcion $inscripcion, string $estatusAnterior, string $nuevoEstatus): void
+    {
+        if ($estatusAnterior === $nuevoEstatus) {
+            return;
+        }
+
+        if ($nuevoEstatus !== 'aprobado' && $estatusAnterior !== 'aprobado') {
+            return;
+        }
+
+        $creditos = (int) ($inscripcion->grupo->actividad->creditos ?? 0);
+
+        if ($creditos <= 0) {
+            return;
+        }
+
+        $consulta = Alumno::query()->whereKey($inscripcion->id_alumno);
+
+        if ($nuevoEstatus === 'aprobado') {
+            $consulta->increment('creditos_acumulados', $creditos);
+        } else {
+            $consulta->where('creditos_acumulados', '>=', $creditos)
+                ->decrement('creditos_acumulados', $creditos);
+        }
     }
 }

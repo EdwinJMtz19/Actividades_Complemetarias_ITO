@@ -9,6 +9,20 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ## 2026-11-03 · sprint
 
+**Resumen:** HU-21 del Sprint 5: al aprobar una actividad se suman sus créditos a `alumno.creditos_acumulados` y, si la calificación se revierte a reprobado, se descuentan. El ajuste ocurre en la misma transacción que guarda la calificación y el estatus; cambiar entre `bueno` y `excelente` no duplica créditos y el acumulado nunca queda en negativo.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Http/Controllers/CalificacionController.php` | Captura el estatus anterior y ajusta créditos dentro de la transacción con `ajustarCreditos()`; importa `Alumno`. |
+| `tests/Feature/CreditosTest.php` | Nueve pruebas de suma, descuento, idempotencia, no negativos y administrador en otro departamento. |
+| `docs/contexto.md`, `docs/requisitos.md`, `docs/sprints/sprint-05-calificaciones.md`, `docs/README.md`, `CHANGELOG.md`, `README.md`, `AGENTS.md`, `CLAUDE.md`, `docs/convenciones.md`, `.github/workflows/ci.yml` | Regla 21, RF-12/RNF-03, estado de Sprint 5 y conteos actualizados. |
+
+**Verificación:** `php artisan test` → **261 pruebas, 999 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones; `npm run build` correcto.
+
+## 2026-11-03 · sprint
+
 **Resumen:** HU-20 del Sprint 5: el instructor registra el desempeño de un alumno inscrito en sus grupos (`excelente`, `bueno` o `malo`) y observaciones opcionales. Al guardar, la inscripción pasa a `aprobado` (bueno/excelente) o `reprobado` (malo) en la misma transacción. El coordinador consulta las calificaciones de su departamento en modo lectura y el alumno ve la suya en el historial.
 
 **Cambios:**

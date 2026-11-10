@@ -31,12 +31,12 @@ En la raíz del repositorio: [`README.md`](../README.md) (entrada pública),
 
 ## Estado actual
 
-**Sprint 5 · Calificaciones y créditos — EN CURSO (2026-11-03)**
-HU-20 entregada: el instructor califica a los alumnos de sus grupos con un desempeño cualitativo y
-observaciones; el estatus pasa a aprobado o reprobado y el alumno ve su calificación en el historial.
-El coordinador consulta las calificaciones de su departamento en modo lectura. Falta HU-21
-(actualizar créditos acumulados). Detalle en
-[`sprints/sprint-05-calificaciones.md`](sprints/sprint-05-calificaciones.md).
+**Sprint 5 · Calificaciones y créditos — ENTREGADO (2026-11-03)**
+El instructor califica a los alumnos de sus grupos con un desempeño cualitativo y observaciones; el
+estatus pasa a aprobado o reprobado y el alumno ve su calificación en el historial. Al aprobar se
+suman los créditos de la actividad a `creditos_acumulados` y al revertir a reprobado se descuentan,
+sin duplicarlos. El coordinador consulta las calificaciones de su departamento en modo lectura.
+Detalle en [`sprints/sprint-05-calificaciones.md`](sprints/sprint-05-calificaciones.md).
 
 **Sprint 4 · Inscripción de alumnos — ENTREGADO (2026-11-03)**
 El alumno consulta las actividades y grupos de su carrera, se inscribe con cupo y una sola
@@ -77,7 +77,7 @@ php artisan migrate:fresh --seed
 # Servidor local -> http://localhost:8000
 php artisan serve
 
-# Pruebas (deben pasar 252)
+# Pruebas (deben pasar 261)
 php artisan test
 
 # Cierre automático de semestres vencidos (manual) y programador en local

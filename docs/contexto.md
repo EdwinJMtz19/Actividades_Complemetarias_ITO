@@ -27,7 +27,7 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | 2 | Catálogos base y semestre: CRUD de departamentos, carreras y ubicaciones; semestres con cierre automático y validaciones | **Entregado** ([detalle](sprints/sprint-02-catalogos-y-semestres.md)) |
 | 3 | Actividades, grupos y horarios (instructor) | **Entregado** ([detalle](sprints/sprint-03-actividades-y-grupos.md)) |
 | 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | **Entregado** (HU-17, HU-18 y HU-19) |
-| 5 | Calificaciones y créditos | **En curso** (HU-20 entregada; HU-21 pendiente) |
+| 5 | Calificaciones y créditos | **Entregado** (HU-20 y HU-21) |
 | 6 | Dashboards por rol | Pendiente |
 
 ## 3. Modelo de datos
@@ -175,8 +175,10 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
     la fila. Al guardarla, la inscripción pasa a `aprobado` si el desempeño es `bueno` o `excelente`,
     y a `reprobado` si es `malo`; ambos cambios ocurren en la misma transacción. No se califica una
     inscripción `dado_de_baja`. El coordinador consulta las calificaciones de su departamento en modo
-    lectura; el alumno ve la suya en el historial de `inscripciones/index`. El cálculo de
-    `creditos_acumulados` queda para HU-21.
+    lectura; el alumno ve la suya en el historial de `inscripciones/index`. Al pasar a `aprobado` se
+    suman los créditos de la actividad a `alumno.creditos_acumulados`; si la calificación se revierte
+    a `reprobado`, se descuentan. Cambiar entre `bueno` y `excelente` no los duplica y el acumulado
+    nunca queda en negativo.
 
 ## 6. Decisiones técnicas
 
@@ -218,7 +220,9 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
   `inscripciones/index`.
 - **Calificaciones (Sprint 5):** la tabla `calificacion` guarda el desempeño y las observaciones; el
   estatus `aprobado`/`reprobado` vive en `inscripcion` y lo actualiza `CalificacionController@update`
-  dentro de una transacción con `updateOrCreate`. La autorización está en `InscripcionPolicy`
+  dentro de una transacción con `updateOrCreate`. En la misma transacción se ajustan los créditos
+  acumulados: se suman al pasar a aprobado y se descuentan al revertir a reprobado, con una
+  comparación del estatus anterior para no duplicarlos. La autorización está en `InscripcionPolicy`
   (`verCalificacion` y `calificar`): el instructor solo califica los grupos que imparte, el
   coordinador consulta su departamento y el administrador pasa por `Gate::before`. El formulario
   reutiliza `x-tarjeta-formulario` y tarjetas de radio con `peer-checked`; la lista de alumnos se

@@ -1,7 +1,7 @@
 # Sprint 5 · Calificaciones y créditos
 
 **Fecha:** 2026-11-03
-**Estado:** en curso (HU-20 entregada; HU-21 pendiente)
+**Estado:** entregado
 **Historias:** HU-20 (RF-12) y HU-21 (RF-12).
 
 ## Alcance
@@ -9,7 +9,8 @@
 El instructor califica a los alumnos inscritos en sus grupos con un desempeño cualitativo
 (`excelente`, `bueno` o `malo`) y observaciones opcionales. La inscripción pasa a `aprobado` o
 `reprobado` según el desempeño. El coordinador consulta las calificaciones de su departamento y el
-alumno ve la suya en su historial. El cálculo de créditos acumulados queda para HU-21.
+alumno ve la suya en su historial. Al aprobar se suman los créditos de la actividad al acumulado del
+alumno; si la calificación se revierte a reprobado, se descuentan.
 
 ## HU-20 · Registrar calificación
 
@@ -30,11 +31,16 @@ alumno ve la suya en su historial. El cálculo de créditos acumulados queda par
 - El alumno ve la calificación y las observaciones en la columna «Calificación» del historial de
   `inscripciones/index`.
 
-## HU-21 · Actualizar créditos acumulados (pendiente)
+## HU-21 · Actualizar créditos acumulados
 
-- Al aprobar una actividad se sumarán sus créditos a `alumno.creditos_acumulados`.
-- Debe ser idempotente y transaccional: modificar una calificación no debe duplicar créditos.
-- Se implementará en una entrega posterior del mismo sprint.
+- `CalificacionController@update` captura el estatus anterior y, dentro de la misma transacción que
+  guarda la calificación y el nuevo estatus, ajusta `alumno.creditos_acumulados`.
+- Si la inscripción pasa a `aprobado` desde cualquier otro estatus, se suman los créditos de
+  `grupo.actividad.creditos`.
+- Si pasa de `aprobado` a `reprobado`, se descuentan. Cambiar entre `bueno` y `excelente` no los
+  duplica porque ambos dejan el estatus en `aprobado`.
+- El descuento solo se aplica si el acumulado alcanza; nunca queda en negativo.
+- Si la calificación o el estatus fallan, la transacción revierte también el ajuste de créditos.
 
 ## Modelo de datos
 
@@ -43,6 +49,8 @@ alumno ve la suya en su historial. El cálculo de créditos acumulados queda par
 - `Calificacion::DESEMPENIOS` = `excelente`, `bueno`, `malo`.
 - `Inscripcion::calificacion()` (HasOne) y `Calificacion::inscripcion()` (BelongsTo).
 - El estatus `aprobado`/`reprobado` sigue viviendo en `inscripcion`.
+- HU-21 no agrega migraciones: `alumno.creditos_acumulados` ya existía y se actualiza desde el
+  controlador.
 
 ## Permisos
 
@@ -65,7 +73,11 @@ alumno ve la suya en su historial. El cálculo de créditos acumulados queda par
   alumno, registro de excelente/bueno/malo, modificación sin duplicar, instructor de otro grupo,
   alumno y coordinador sin edición, inscripción dada de baja, validación del desempeño, lectura del
   alumno en el historial, lectura del coordinador y administrador en cualquier departamento.
+- `tests/Feature/CreditosTest.php` (9 pruebas): suma con excelente y bueno, no suma con malo, no
+  duplica al cambiar entre aprobatorios, descuenta al revertir a reprobado, vuelve a sumar al
+  reaprobar, no duplica si ya estaba aprobada, no deja el acumulado en negativo y actualiza créditos
+  cuando el administrador califica en otro departamento.
 - `tests/Feature/RolesPermisosTest.php` (`TOTAL_PERMISOS` = 34).
 
-**Verificación:** `php artisan test` → **252 pruebas, 978 aserciones, en verde**;
+**Verificación:** `php artisan test` → **261 pruebas, 999 aserciones, en verde**;
 `vendor\bin\pint --test` sin observaciones; `npm run build` correcto.
