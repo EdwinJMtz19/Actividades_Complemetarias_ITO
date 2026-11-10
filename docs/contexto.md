@@ -220,9 +220,10 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
   `inscripciones/index`.
 - **Calificaciones (Sprint 5):** la tabla `calificacion` guarda el desempeño y las observaciones; el
   estatus `aprobado`/`reprobado` vive en `inscripcion` y lo actualiza `CalificacionController@update`
-  dentro de una transacción con `updateOrCreate`. En la misma transacción se ajustan los créditos
-  acumulados: se suman al pasar a aprobado y se descuentan al revertir a reprobado, con una
-  comparación del estatus anterior para no duplicarlos. La autorización está en `InscripcionPolicy`
+  dentro de una transacción con `updateOrCreate`, bloqueando la inscripción con `lockForUpdate()`.
+  En la misma transacción se ajustan los créditos acumulados: se suman al pasar a aprobado y se
+  descuentan al revertir a reprobado, con una comparación del estatus anterior para no duplicarlos.
+  La autorización está en `InscripcionPolicy`
   (`verCalificacion` y `calificar`): el instructor solo califica los grupos que imparte, el
   coordinador consulta su departamento y el administrador pasa por `Gate::before`. El formulario
   reutiliza `x-tarjeta-formulario` y tarjetas de radio con `peer-checked`; la lista de alumnos se

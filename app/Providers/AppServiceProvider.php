@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Inscripcion;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -22,6 +23,14 @@ class AppServiceProvider extends ServiceProvider
             // esta habilidad la decide siempre la política del grupo.
             if ($habilidad === 'inscribirse') {
                 return null;
+            }
+
+            // Regla de negocio: una inscripción dada de baja no se califica, ni siquiera
+            // para el administrador (Gate::before normalmente lo dejaría pasar).
+            if ($habilidad === 'calificar'
+                && ($argumentos[0] ?? null) instanceof Inscripcion
+                && $argumentos[0]->estatus === 'dado_de_baja') {
+                return false;
             }
 
             if (! $usuario->hasRole('administrador')) {

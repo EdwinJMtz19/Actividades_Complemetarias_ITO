@@ -47,24 +47,35 @@ class CalificacionController extends Controller
             'observaciones' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $inscripcion->loadMissing('grupo.actividad');
-        $estatusAnterior = $inscripcion->estatus;
         $nuevoEstatus = in_array($datos['desempenio'], ['bueno', 'excelente'], true)
             ? 'aprobado'
             : 'reprobado';
 
-        DB::transaction(function () use ($inscripcion, $datos, $estatusAnterior, $nuevoEstatus) {
+        DB::transaction(function () use ($inscripcion, $datos, $nuevoEstatus) {
+            // Bloquea la fila para que dos calificaciones simultáneas no dupliquen créditos.
+            $bloqueada = Inscripcion::query()
+                ->whereKey($inscripcion->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($bloqueada->estatus === 'dado_de_baja') {
+                abort(403, 'La inscripción está dada de baja; no se puede calificar.');
+            }
+
+            $bloqueada->loadMissing('grupo.actividad');
+            $estatusAnterior = $bloqueada->estatus;
+
             Calificacion::updateOrCreate(
-                ['id_inscripcion' => $inscripcion->id_inscripcion],
+                ['id_inscripcion' => $bloqueada->id_inscripcion],
                 [
                     'desempenio' => $datos['desempenio'],
                     'observaciones' => $datos['observaciones'] ?? null,
                 ]
             );
 
-            $inscripcion->update(['estatus' => $nuevoEstatus]);
+            $bloqueada->update(['estatus' => $nuevoEstatus]);
 
-            $this->ajustarCreditos($inscripcion, $estatusAnterior, $nuevoEstatus);
+            $this->ajustarCreditos($bloqueada, $estatusAnterior, $nuevoEstatus);
         });
 
         return redirect()

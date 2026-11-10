@@ -75,7 +75,7 @@ Solo fuera de producción. Contraseña: `Actividades2026`
 ## Pruebas
 
 ```sh
-php artisan test             # 261 pruebas
+php artisan test             # 265 pruebas
 vendor\bin\pint --test       # estilo de código
 ```
 

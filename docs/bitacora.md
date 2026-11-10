@@ -7,6 +7,22 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ---
 
+## 2026-11-10 · fix
+
+**Resumen:** revisión de calificaciones y créditos. Se corrigió que el administrador pudiera calificar una inscripción `dado_de_baja` (Gate::before se saltaba la regla de la política) y se reforzó `CalificacionController@update` con `lockForUpdate()` para que dos calificaciones simultáneas no dupliquen créditos.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Providers/AppServiceProvider.php` | `Gate::before` devuelve `false` para `calificar` cuando la inscripción está `dado_de_baja`, incluso para el administrador. |
+| `app/Http/Controllers/CalificacionController.php` | Bloquea la inscripción dentro de la transacción y vuelve a comprobar el estatus antes de guardar y ajustar créditos. |
+| `tests/Feature/CalificacionesTest.php` | Dos pruebas nuevas: administrador bloqueado en una baja y formulario oculto. |
+| `tests/Feature/CreditosTest.php` | Dos pruebas nuevas: créditos intactos en una baja y suma de los créditos configurados (1). |
+| `docs/sprints/sprint-05-calificaciones.md`, `docs/bitacora.md`, `CHANGELOG.md` y conteos de pruebas | Detalle de la corrección y verificación actualizada. |
+
+**Verificación:** `php artisan test` → **265 pruebas, 1011 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
 ## 2026-11-03 · sprint
 
 **Resumen:** HU-21 del Sprint 5: al aprobar una actividad se suman sus créditos a `alumno.creditos_acumulados` y, si la calificación se revierte a reprobado, se descuentan. El ajuste ocurre en la misma transacción que guarda la calificación y el estatus; cambiar entre `bueno` y `excelente` no duplica créditos y el acumulado nunca queda en negativo.

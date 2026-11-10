@@ -33,14 +33,16 @@ alumno; si la calificación se revierte a reprobado, se descuentan.
 
 ## HU-21 · Actualizar créditos acumulados
 
-- `CalificacionController@update` captura el estatus anterior y, dentro de la misma transacción que
-  guarda la calificación y el nuevo estatus, ajusta `alumno.creditos_acumulados`.
+- `CalificacionController@update` bloquea la inscripción con `lockForUpdate()` y, dentro de la misma
+  transacción que guarda la calificación y el nuevo estatus, ajusta `alumno.creditos_acumulados`.
 - Si la inscripción pasa a `aprobado` desde cualquier otro estatus, se suman los créditos de
   `grupo.actividad.creditos`.
 - Si pasa de `aprobado` a `reprobado`, se descuentan. Cambiar entre `bueno` y `excelente` no los
   duplica porque ambos dejan el estatus en `aprobado`.
 - El descuento solo se aplica si el acumulado alcanza; nunca queda en negativo.
 - Si la calificación o el estatus fallan, la transacción revierte también el ajuste de créditos.
+- Una inscripción `dado_de_baja` no se califica ni siquiera por el administrador: `Gate::before`
+  respeta esa regla y el controlador la vuelve a comprobar después del bloqueo.
 
 ## Modelo de datos
 
@@ -69,15 +71,17 @@ alumno; si la calificación se revierte a reprobado, se descuentan.
 
 ## Pruebas
 
-- `tests/Feature/CalificacionesTest.php` (12 pruebas): alcance del instructor, visibilidad del
+- `tests/Feature/CalificacionesTest.php` (14 pruebas): alcance del instructor, visibilidad del
   alumno, registro de excelente/bueno/malo, modificación sin duplicar, instructor de otro grupo,
-  alumno y coordinador sin edición, inscripción dada de baja, validación del desempeño, lectura del
-  alumno en el historial, lectura del coordinador y administrador en cualquier departamento.
-- `tests/Feature/CreditosTest.php` (9 pruebas): suma con excelente y bueno, no suma con malo, no
+  alumno y coordinador sin edición, inscripción dada de baja (instructor y administrador), validación
+  del desempeño, lectura del alumno en el historial, lectura del coordinador y administrador en
+  cualquier departamento.
+- `tests/Feature/CreditosTest.php` (11 pruebas): suma con excelente y bueno, no suma con malo, no
   duplica al cambiar entre aprobatorios, descuenta al revertir a reprobado, vuelve a sumar al
-  reaprobar, no duplica si ya estaba aprobada, no deja el acumulado en negativo y actualiza créditos
-  cuando el administrador califica en otro departamento.
+  reaprobar, no duplica si ya estaba aprobada, no deja el acumulado en negativo, respeta los créditos
+  configurados, no ajusta créditos al intentar calificar una baja y actualiza créditos cuando el
+  administrador califica en otro departamento.
 - `tests/Feature/RolesPermisosTest.php` (`TOTAL_PERMISOS` = 34).
 
-**Verificación:** `php artisan test` → **261 pruebas, 999 aserciones, en verde**;
+**Verificación:** `php artisan test` → **265 pruebas, 1011 aserciones, en verde**;
 `vendor\bin\pint --test` sin observaciones; `npm run build` correcto.

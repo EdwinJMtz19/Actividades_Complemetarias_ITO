@@ -151,6 +151,27 @@ it('no califica una inscripción dada de baja', function () {
         ->and($baja->fresh()->calificacion)->toBeNull();
 });
 
+it('no permite al administrador calificar una inscripción dada de baja', function () {
+    $baja = crearInscripcionParaCalificacion(Escenarios::usuario('alumno'), $this->grupo, 'dado_de_baja');
+
+    $this->actingAs($this->admin)
+        ->put(route('calificaciones.update', $baja), ['desempenio' => 'bueno'])
+        ->assertForbidden();
+
+    expect($baja->fresh()->estatus)->toBe('dado_de_baja')
+        ->and($baja->fresh()->calificacion)->toBeNull();
+});
+
+it('oculta el formulario de calificación al administrador si la inscripción está dada de baja', function () {
+    $baja = crearInscripcionParaCalificacion(Escenarios::usuario('alumno'), $this->grupo, 'dado_de_baja');
+
+    $this->actingAs($this->admin)
+        ->get(route('calificaciones.edit', $baja))
+        ->assertOk()
+        ->assertSee('La inscripción está dada de baja; no se puede calificar.')
+        ->assertDontSee('Guardar calificación');
+});
+
 it('rechaza un desempeño que no está en el catálogo', function () {
     $this->from(route('calificaciones.edit', $this->inscripcion))
         ->actingAs($this->instructor)

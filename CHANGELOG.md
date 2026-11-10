@@ -18,6 +18,13 @@ Las versiones corresponden a los sprints entregados; la fecha es la fecha de ent
   al revertir la calificación a reprobado se descuentan, sin duplicarlos y sin dejar el acumulado en
   negativo.
 
+### Corregido
+
+- **Calificaciones dadas de baja:** el administrador ya no puede calificar una inscripción
+  `dado_de_baja`; la regla se respeta también en la interfaz.
+- **Créditos duplicados:** la calificación bloquea la inscripción durante la transacción para evitar
+  que dos envíos simultáneos sumen los créditos dos veces.
+
 ## [0.4.0] - 2026-11-03
 
 ### Agregado

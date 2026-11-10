@@ -132,6 +132,29 @@ it('no deja los créditos en negativo si el acumulado no alcanza', function () {
     expect($alumno->alumno->fresh()->creditos_acumulados)->toBe(0);
 });
 
+it('no modifica créditos si el administrador intenta calificar una inscripción dada de baja', function () {
+    $alumno = Escenarios::usuario('alumno');
+    $inscripcion = crearInscripcionParaCreditos($alumno, $this->grupo, 'dado_de_baja');
+
+    $this->actingAs($this->admin)
+        ->put(route('calificaciones.update', $inscripcion), ['desempenio' => 'excelente'])
+        ->assertForbidden();
+
+    expect($inscripcion->fresh()->estatus)->toBe('dado_de_baja')
+        ->and($inscripcion->fresh()->calificacion)->toBeNull()
+        ->and($alumno->alumno->fresh()->creditos_acumulados)->toBe(0);
+});
+
+it('suma la cantidad de créditos configurada en la actividad', function () {
+    $this->actividad->update(['creditos' => 1]);
+
+    $this->actingAs($this->instructor)
+        ->put(route('calificaciones.update', $this->inscripcion), ['desempenio' => 'excelente'])
+        ->assertSessionHas('exito');
+
+    expect($this->alumno->alumno->fresh()->creditos_acumulados)->toBe(1);
+});
+
 it('permite al administrador calificar y actualizar créditos en otro departamento', function () {
     $otroInstructor = Escenarios::usuario('instructor', $this->otro);
     $ajena = Escenarios::actividad([
