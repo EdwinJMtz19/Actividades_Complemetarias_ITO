@@ -6,7 +6,7 @@ interno). Formato basado en [Keep a Changelog](https://keepachangelog.com/es/).
 
 Las versiones corresponden a los sprints entregados; la fecha es la fecha de entrega.
 
-## [Unreleased]
+## [0.5.0] - 2026-11-03
 
 ### Agregado
 
@@ -14,10 +14,16 @@ Las versiones corresponden a los sprints entregados; la fecha es la fecha de ent
   (`excelente`, `bueno` o `malo`) y observaciones opcionales; la inscripción pasa a aprobado o
   reprobado. El coordinador consulta las calificaciones de su departamento y el alumno ve la suya en
   el historial.
+- **Créditos acumulados:** al aprobar una actividad se suman sus créditos al acumulado del alumno y
+  al revertir la calificación a reprobado se descuentan, sin duplicarlos y sin dejar el acumulado en
+  negativo.
 
-### Pendiente
+### Corregido
 
-- Actualizar los créditos acumulados del alumno al aprobar una actividad (HU-21).
+- **Calificaciones dadas de baja:** el administrador ya no puede calificar una inscripción
+  `dado_de_baja`; la regla se respeta también en la interfaz.
+- **Créditos duplicados:** la calificación bloquea la inscripción durante la transacción para evitar
+  que dos envíos simultáneos sumen los créditos dos veces.
 
 ## [0.4.0] - 2026-11-03
 
@@ -68,6 +74,7 @@ Las versiones corresponden a los sprints entregados; la fecha es la fecha de ent
 - **Permisos por departamento:** cada coordinador ve y gestiona solo a los instructores de su
   departamento.
 
+[0.5.0]: https://github.com/EdwinJMtz19/Actividades_Complemetarias_ITO/commits/main
 [0.4.0]: https://github.com/EdwinJMtz19/Actividades_Complemetarias_ITO/commits/main
 [0.3.0]: https://github.com/EdwinJMtz19/Actividades_Complemetarias_ITO/commits/main
 [0.2.0]: https://github.com/EdwinJMtz19/Actividades_Complemetarias_ITO/commits/main
