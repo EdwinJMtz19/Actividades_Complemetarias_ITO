@@ -62,6 +62,9 @@ class RolesYPermisosSeeder extends Seeder
             // consulta las de su departamento y el administrador todo.
             'calificaciones.ver',
             'calificaciones.editar',
+            // Sprint 6 - dashboard del departamento (HU-22). Solo el coordinador lo consulta;
+            // los reportes administrativos de HU-23 agregaran sus propios permisos.
+            'dashboard.ver',
         ];
 
         foreach ($permisos as $nombre) {
@@ -79,6 +82,7 @@ class RolesYPermisosSeeder extends Seeder
                 'grupos.ver', 'grupos.crear', 'grupos.editar', 'grupos.eliminar',
                 'inscripciones.ver', 'inscripciones.baja',
                 'calificaciones.ver',
+                'dashboard.ver',
             ],
             // Consulta y califica solo sus propios grupos (el alcance lo aplica InscripcionPolicy).
             'instructor' => ['grupos.ver', 'calificaciones.ver', 'calificaciones.editar'],

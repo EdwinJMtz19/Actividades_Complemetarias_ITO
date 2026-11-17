@@ -28,7 +28,7 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | 3 | Actividades, grupos y horarios (instructor) | **Entregado** ([detalle](sprints/sprint-03-actividades-y-grupos.md)) |
 | 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | **Entregado** (HU-17, HU-18 y HU-19) |
 | 5 | Calificaciones y créditos | **Entregado** (HU-20 y HU-21) |
-| 6 | Dashboards por rol | Pendiente |
+| 6 | Dashboards por rol | En curso (HU-22 entregado, HU-23 pendiente) |
 
 ## 3. Modelo de datos
 

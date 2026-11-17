@@ -83,5 +83,5 @@ alumno; si la calificación se revierte a reprobado, se descuentan.
   administrador califica en otro departamento.
 - `tests/Feature/RolesPermisosTest.php` (`TOTAL_PERMISOS` = 34).
 
-**Verificación:** `php artisan test` → **265 pruebas, 1011 aserciones, en verde**;
+**Verificación:** `php artisan test` → **271 pruebas, 1054 aserciones, en verde**;
 `vendor\bin\pint --test` sin observaciones; `npm run build` correcto.

@@ -7,6 +7,26 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ---
 
+## 2026-11-10 · cambio
+
+**Resumen:** HU-22 del Sprint 6: dashboard del departamento. Se agregó el permiso `dashboard.ver` (coordinador y administrador), `PanelController::dashboardDepartamento()` con alcance por departamento para el coordinador y resumen general para el administrador, y una sección de tarjetas + grupos recientes en `resources/views/panel.blade.php`. Se añadieron 6 pruebas en `tests/Feature/DashboardDepartamentoTest.php`.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `database/seeders/RolesYPermisosSeeder.php` | Agrega el permiso `dashboard.ver` y lo asigna a `administrador` y `coordinador`. |
+| `app/Http/Controllers/PanelController.php` | Método privado `dashboardDepartamento()` con métricas del departamento (o todas las unidades si es administrador). |
+| `resources/views/panel.blade.php` | Muestra el dashboard cuando el usuario tiene `dashboard.ver`; tarjetas de actividades, grupos, instructores, alumnos inscritos, inscripciones activas, aprobados, reprobados y grupos sin instructor, más tabla de grupos recientes. |
+| `tests/Feature/DashboardDepartamentoTest.php` | 6 pruebas: dashboard del coordinador, alcance por departamento, dashboard general del administrador, sin dashboard para instructor/alumno, coordinador sin departamento y asignación del permiso. |
+| `tests/Feature/RolesPermisosTest.php` | `TOTAL_PERMISOS` pasa de 34 a 35. |
+| `docs/requisitos.md` | RF-13 pasa a **Parcial** con evidencia de HU-22; falta HU-23. |
+| Conteos de pruebas | `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/README.md`, `docs/convenciones.md`, `.github/workflows/ci.yml`, `docs/sprints/sprint-05-calificaciones.md` y bitácora: 271 pruebas, 1054 aserciones. |
+
+**Verificación:** `php artisan test` → **271 pruebas, 1054 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
 ## 2026-11-10 · fix
 
 **Resumen:** revisión de calificaciones y créditos. Se corrigió que el administrador pudiera calificar una inscripción `dado_de_baja` (Gate::before se saltaba la regla de la política) y se reforzó `CalificacionController@update` con `lockForUpdate()` para que dos calificaciones simultáneas no dupliquen créditos.
@@ -21,7 +41,7 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 | `tests/Feature/CreditosTest.php` | Dos pruebas nuevas: créditos intactos en una baja y suma de los créditos configurados (1). |
 | `docs/sprints/sprint-05-calificaciones.md`, `docs/bitacora.md`, `CHANGELOG.md` y conteos de pruebas | Detalle de la corrección y verificación actualizada. |
 
-**Verificación:** `php artisan test` → **265 pruebas, 1011 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+**Verificación:** `php artisan test` → **271 pruebas, 1054 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
 
 ## 2026-11-03 · sprint
 

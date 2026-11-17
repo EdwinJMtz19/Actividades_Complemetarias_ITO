@@ -10,6 +10,110 @@
         </div>
     @endif
 
+    @if ($dashboard)
+        <section class="mt-6">
+            <div class="flex flex-wrap items-end justify-between gap-2">
+                <div>
+                    <h2 class="text-lg font-semibold">{{ $dashboard['titulo'] }}</h2>
+                    <p class="text-sm text-slate-600">
+                        {{ $dashboard['subtitulo'] ?? $dashboard['departamento']?->nombre }}
+                    </p>
+                </div>
+                <a href="{{ route('grupos.index') }}" class="text-sm font-medium text-blue-700 hover:underline">Ver grupos</a>
+            </div>
+
+            <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-lg border border-slate-200 bg-white p-5">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Actividades</p>
+                    <p class="mt-2 text-3xl font-semibold">{{ $dashboard['totalActividades'] }}</p>
+                    <a href="{{ route('actividades.index') }}" class="mt-2 inline-block text-xs font-medium text-blue-700 hover:underline">Consultar</a>
+                </div>
+                <div class="rounded-lg border border-slate-200 bg-white p-5">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Grupos</p>
+                    <p class="mt-2 text-3xl font-semibold">{{ $dashboard['totalGrupos'] }}</p>
+                    <a href="{{ route('grupos.index') }}" class="mt-2 inline-block text-xs font-medium text-blue-700 hover:underline">Consultar</a>
+                </div>
+                <div class="rounded-lg border border-slate-200 bg-white p-5">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Instructores</p>
+                    <p class="mt-2 text-3xl font-semibold">{{ $dashboard['totalInstructores'] }}</p>
+                    <a href="{{ route('usuarios.index') }}" class="mt-2 inline-block text-xs font-medium text-blue-700 hover:underline">Consultar</a>
+                </div>
+                <div class="rounded-lg border border-slate-200 bg-white p-5">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Alumnos inscritos</p>
+                    <p class="mt-2 text-3xl font-semibold">{{ $dashboard['totalAlumnos'] }}</p>
+                    <a href="{{ route('inscripciones.index') }}" class="mt-2 inline-block text-xs font-medium text-blue-700 hover:underline">Consultar</a>
+                </div>
+            </div>
+
+            <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-lg border border-slate-200 bg-white p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Inscripciones activas</p>
+                    <p class="mt-1 text-2xl font-semibold">{{ $dashboard['totalInscripcionesActivas'] }}</p>
+                </div>
+                <div class="rounded-lg border border-slate-200 bg-white p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Aprobados</p>
+                    <p class="mt-1 text-2xl font-semibold text-green-700">{{ $dashboard['aprobados'] }}</p>
+                </div>
+                <div class="rounded-lg border border-slate-200 bg-white p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Reprobados</p>
+                    <p class="mt-1 text-2xl font-semibold text-red-700">{{ $dashboard['reprobados'] }}</p>
+                </div>
+                <div class="rounded-lg border border-slate-200 bg-white p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Grupos sin instructor</p>
+                    <p class="mt-1 text-2xl font-semibold text-amber-700">{{ $dashboard['gruposSinInstructor'] }}</p>
+                </div>
+            </div>
+
+            <div class="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-white">
+                <div class="flex items-center justify-between gap-2 border-b border-slate-200 px-4 py-3">
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Grupos recientes</h3>
+                    <a href="{{ route('grupos.index') }}" class="text-xs font-medium text-blue-700 hover:underline">Ver todos</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            <tr>
+                                <th class="px-4 py-3">Actividad</th>
+                                <th class="px-4 py-3 text-center">Grupo</th>
+                                <th class="px-4 py-3">Instructor</th>
+                                <th class="px-4 py-3">Horario</th>
+                                <th class="px-4 py-3 text-center">Cupo</th>
+                                <th class="px-4 py-3 text-center">Estatus</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse ($dashboard['gruposRecientes'] as $grupo)
+                                <tr class="odd:bg-white even:bg-slate-50">
+                                    <td class="px-4 py-3">
+                                        <span class="font-medium">{{ $grupo->actividad->nombre }}</span>
+                                        <span class="block text-xs text-slate-500">{{ $grupo->semestre->etiqueta_corta }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center font-semibold">{{ $grupo->grupo }}</td>
+                                    <td class="px-4 py-3 text-slate-600">{{ $grupo->instructor?->usuario->nombre_completo ?? 'Sin asignar' }}</td>
+                                    <td class="px-4 py-3 text-xs text-slate-600">
+                                        @foreach ($grupo->horarios as $horario)
+                                            <span class="block whitespace-nowrap">{{ $horario->descripcion_corta }}</span>
+                                        @endforeach
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-slate-600">{{ $grupo->cupo_ocupado }} / {{ $grupo->cupo_maximo }}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-700">
+                                            {{ \App\Models\Grupo::ESTATUS[$grupo->estatus] ?? $grupo->estatus }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="px-4 py-8 text-center text-slate-500">Aún no hay grupos registrados en el departamento.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    @endif
+
     <section class="mt-6 grid gap-4 sm:grid-cols-2">
         <div class="rounded-lg border border-slate-200 bg-white p-5">
             <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Mi cuenta</h2>
