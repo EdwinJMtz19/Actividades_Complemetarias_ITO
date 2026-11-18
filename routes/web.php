@@ -37,12 +37,20 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
     // fuera del grupo `departamento.asignado`.
     Route::get('inscripciones', [InscripcionController::class, 'index'])
         ->middleware('permission:inscripciones.ver')->name('inscripciones.index');
+    // Sprint 7 - horario del alumno en PDF (HU-26). El controlador valida el perfil de alumno
+    // y su inscripción activa.
+    Route::get('inscripciones/horario.pdf', [InscripcionController::class, 'descargarHorario'])
+        ->middleware('permission:inscripciones.ver')->name('inscripciones.horario.pdf');
     Route::post('inscripciones/{grupo}', [InscripcionController::class, 'store'])
         ->middleware('permission:inscripciones.crear')->name('inscripciones.store');
     // Baja lógica (HU-19): conserva la fila y libera el cupo. El alcance por departamento lo aplica
     // InscripcionPolicy.
     Route::patch('inscripciones/{inscripcion}/baja', [InscripcionController::class, 'baja'])
         ->middleware('permission:inscripciones.baja')->name('inscripciones.baja');
+    // Sprint 7 - constancia de acreditación en PDF (HU-27). Solo el propio alumno y una
+    // inscripción aprobada.
+    Route::get('inscripciones/{inscripcion}/constancia.pdf', [InscripcionController::class, 'descargarConstancia'])
+        ->middleware('permission:inscripciones.ver')->name('inscripciones.constancia.pdf');
 
     // Módulos limitados por rol/permiso y, para coordinadores, por departamento asignado.
     Route::middleware('departamento.asignado')->group(function () {
@@ -103,6 +111,14 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         // Aviso de conflictos en vivo (JSON). Va antes del recurso para que "conflictos" no se lea como {grupo}.
         Route::post('grupos/conflictos', [HorarioController::class, 'verificar'])
             ->middleware('permission:grupos.crear|grupos.editar')->name('grupos.conflictos');
+
+        // Sprint 7 - exportación de la lista de alumnos del grupo (HU-24).
+        Route::get('grupos/{grupo}/alumnos.csv', [GrupoController::class, 'exportarAlumnos'])
+            ->middleware('permission:calificaciones.ver')->name('grupos.alumnos.csv');
+
+        // Sprint 7 - lista de asistencia imprimible (HU-25).
+        Route::get('grupos/{grupo}/asistencia.pdf', [GrupoController::class, 'descargarAsistencia'])
+            ->middleware('permission:calificaciones.ver')->name('grupos.asistencia.pdf');
 
         Route::resource('grupos', GrupoController::class)
             ->parameters(['grupos' => 'grupo'])

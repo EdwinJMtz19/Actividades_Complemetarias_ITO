@@ -9,6 +9,89 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ## 2026-11-17 · sprint
 
+**Resumen:** HU-27 del Sprint 7: constancia de acreditación en PDF. Se agregó `InscripcionController@descargarConstancia`, la ruta `GET inscripciones/{inscripcion}/constancia.pdf` protegida con `inscripciones.ver`, la habilidad `constancia` de `InscripcionPolicy`, la vista `pdf/constancia-acreditacion`, el botón «PDF» en la columna «Constancia» del historial y 7 pruebas. Solo se genera para inscripciones aprobadas del propio alumno.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Http/Controllers/InscripcionController.php` | Nuevo `descargarConstancia()` con `Pdf::loadView()`, validación del estatus aprobado y nombre de archivo con la actividad. |
+| `app/Policies/InscripcionPolicy.php` | Nueva habilidad `constancia`: exige `inscripciones.ver` y que la inscripción sea del propio alumno. |
+| `routes/web.php` | Ruta `GET inscripciones/{inscripcion}/constancia.pdf` con `permission:inscripciones.ver` y nombre `inscripciones.constancia.pdf`. |
+| `resources/views/pdf/constancia-acreditacion.blade.php` | Constancia formal con datos del alumno y la actividad, tabla de acreditación y firmas. |
+| `resources/views/inscripciones/index.blade.php` | Columna «Constancia» en el historial con el botón «PDF» solo en actividades aprobadas. |
+| `tests/Feature/DescargarConstanciaPdfTest.php` | 7 pruebas: login, descarga, contenido, otro alumno, instructores y coordinadores, no aprobada y botón. |
+| `docs/requisitos.md` | RF-15 pasa a **Cumplido** con HU-26 y HU-27. |
+| `docs/contexto.md`, `docs/sprints/sprint-07-documentos.md`, `docs/README.md`, `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md` y conteos de pruebas | Sprint 7 entregado con HU-24 a HU-27 y verificación actualizados. |
+
+**Verificación:** `php artisan test` → **309 pruebas, 1265 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-17 · sprint
+
+**Resumen:** HU-26 del Sprint 7: horario del alumno en PDF. Se agregó `InscripcionController@descargarHorario`, la ruta `GET inscripciones/horario.pdf` protegida con `inscripciones.ver`, la vista `pdf/horario-alumno`, el botón «Descargar horario PDF» en `inscripciones/index` y 8 pruebas. El documento se arma con la inscripción activa del alumno e incluye sus datos, la actividad y cada bloque de horario.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Http/Controllers/InscripcionController.php` | Nuevo `descargarHorario()` con `Pdf::loadView()`, validación del perfil de alumno y consulta de su inscripción activa. |
+| `routes/web.php` | Ruta `GET inscripciones/horario.pdf` con `permission:inscripciones.ver` y nombre `inscripciones.horario.pdf`. |
+| `resources/views/pdf/horario-alumno.blade.php` | Vista imprimible con datos del alumno, de la actividad y tabla de bloques de horario. |
+| `resources/views/inscripciones/index.blade.php` | Botón «Descargar horario PDF» en la sección «Mi inscripción». |
+| `tests/Feature/DescargarHorarioPdfTest.php` | 8 pruebas: login, descarga, contenido, sin inscripción activa, baja ignorada, roles, grupo sin horarios y botón. |
+| `docs/requisitos.md` | RF-15 pasa a **Parcial** con HU-26; falta HU-27. |
+| `docs/contexto.md`, `docs/sprints/sprint-07-documentos.md`, `docs/README.md`, `README.md`, `CHANGELOG.md` y conteos de pruebas | Sprint 7 en curso con HU-24, HU-25 y HU-26, decisión de PDF y verificación actualizados. |
+
+**Verificación:** `php artisan test` → **302 pruebas, 1243 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-17 · sprint
+
+**Resumen:** HU-25 del Sprint 7: lista de asistencia en PDF. Se agregó `GrupoController@descargarAsistencia`, la ruta `GET grupos/{grupo}/asistencia.pdf` protegida con `calificaciones.ver` y el alcance de `GrupoPolicy`, la vista `pdf/asistencia-grupo`, el botón «Lista de asistencia PDF» en `grupos/show`, la dependencia `barryvdh/laravel-dompdf` y 7 pruebas. El PDF incluye datos del grupo, instructor, horario, fechas y solo alumnos activos con espacio para la firma.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Http/Controllers/GrupoController.php` | Nuevo `descargarAsistencia()` con `Pdf::loadView()`, datos del grupo y consulta de alumnos activos. |
+| `routes/web.php` | Ruta `GET grupos/{grupo}/asistencia.pdf` con `permission:calificaciones.ver` y nombre `grupos.asistencia.pdf`. |
+| `resources/views/pdf/asistencia-grupo.blade.php` | Vista imprimible con encabezado, datos del grupo, tabla de alumnos y firma del instructor. |
+| `resources/views/grupos/show.blade.php` | Botón «Lista de asistencia PDF» junto a «Exportar CSV». |
+| `composer.json`, `composer.lock` | Dependencia `barryvdh/laravel-dompdf` 3.1.2. |
+| `storage/fonts/.gitignore` | Caché de fuentes de DomPDF fuera de Git. |
+| `tests/Feature/DescargarAsistenciaPdfTest.php` | 7 pruebas: login, descarga, contenido, roles, grupo sin alumnos activos y botón. |
+| `docs/requisitos.md` | RF-14 pasa a **Cumplido** con HU-24 y HU-25. |
+| `docs/contexto.md`, `docs/sprints/sprint-07-documentos.md`, `docs/README.md`, `README.md`, `CHANGELOG.md` y conteos de pruebas | Sprint 7 en curso con HU-24 y HU-25, decisión de PDF y verificación actualizados. |
+
+**Verificación:** `php artisan test` → **294 pruebas, 1214 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-17 · sprint
+
+**Resumen:** HU-24 del Sprint 7: exportación de la lista de alumnos de un grupo en CSV. Se agregó `GrupoController@exportarAlumnos`, la ruta `GET grupos/{grupo}/alumnos.csv` protegida con `calificaciones.ver` y el alcance de `GrupoPolicy`, el botón «Exportar CSV» en `grupos/show`, el icono de descarga y 7 pruebas. El CSV incluye estatus, calificación y observaciones, usa BOM UTF-8 y neutraliza fórmulas.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Http/Controllers/GrupoController.php` | Nuevo `exportarAlumnos()` con `streamDownload`, columnas del CSV, BOM UTF-8 y neutralización de fórmulas. |
+| `routes/web.php` | Ruta `GET grupos/{grupo}/alumnos.csv` con `permission:calificaciones.ver` y nombre `grupos.alumnos.csv`. |
+| `resources/views/grupos/show.blade.php` | Botón «Exportar CSV» en la sección de alumnos inscritos. |
+| `resources/views/components/icono.blade.php` | Icono `descargar`. |
+| `tests/Feature/ExportarAlumnosCsvTest.php` | 7 pruebas: login, descarga, contenido, roles, grupo vacío, fórmulas y botón. |
+| `docs/requisitos.md` | RF-14 pasa a **Parcial** con HU-24; falta HU-25. |
+| `docs/contexto.md`, `docs/sprints/sprint-07-documentos.md`, `docs/README.md`, `README.md`, `CHANGELOG.md` y conteos de pruebas | Sprint 7 en curso, decisión de exportación y verificación actualizados. |
+
+**Verificación:** `php artisan test` → **287 pruebas, 1183 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-17 · sprint
+
 **Resumen:** HU-23 del Sprint 6: reportes administrativos de solo lectura. Se agregó el permiso `reportes.ver` (solo administrador), `ReporteController` con las pantallas de índice, padrón de alumnos, monitor de inscripciones y últimos accesos, rutas protegidas y enlaces en el panel y la navegación. Se añadieron 9 pruebas en `tests/Feature/ReportesAdministrativosTest.php`.
 
 **Cambios:**

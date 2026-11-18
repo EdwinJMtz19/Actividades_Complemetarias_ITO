@@ -18,6 +18,7 @@ califica a sus alumnos, y el alumno se inscribe y consulta su calificación.
 | 4 | Inscripción de alumnos | **Entregado** (2026-11-03) |
 | 5 | Calificaciones y créditos | **Entregado** (2026-11-03) |
 | 6 | Dashboards por rol y reportes | **Entregado** (2026-11-17) |
+| 7 | Generación de documentos (CSV y PDF) | **Entregado** (2026-11-17) |
 
 ## Documentación
 
@@ -75,14 +76,14 @@ Solo fuera de producción. Contraseña: `Actividades2026`
 ## Pruebas
 
 ```sh
-php artisan test             # 280 pruebas
+php artisan test             # 309 pruebas
 vendor\bin\pint --test       # estilo de código
 ```
 
 ## Stack
 
-Laravel 13 · PHP 8.4.1+ · MySQL 8 (SQLite en pruebas) · `spatie/laravel-permission` 8.3 · Pest 5 ·
-Tailwind CSS 4 (Vite)
+Laravel 13 · PHP 8.4.1+ · MySQL 8 (SQLite en pruebas) · `spatie/laravel-permission` 8.3 ·
+`barryvdh/laravel-dompdf` 3.1 · Pest 5 · Tailwind CSS 4 (Vite)
 
 ## Repositorio
 

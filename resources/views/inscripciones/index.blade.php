@@ -65,15 +65,16 @@
                     <dd>{{ $inscripcion->fecha_inscripcion->format('d/m/Y H:i') }}</dd>
                 </div>
             </dl>
-            @can('baja', $inscripcion)
-                <div class="flex justify-end border-t border-green-100 px-5 py-3">
+            <div class="flex flex-wrap items-center justify-end gap-3 border-t border-green-100 px-5 py-3">
+                <x-boton :href="route('inscripciones.horario.pdf')" variante="secundario" icono="descargar" compacto>Descargar horario PDF</x-boton>
+                @can('baja', $inscripcion)
                     <form method="POST" action="{{ route('inscripciones.baja', $inscripcion) }}"
                           onsubmit="return confirm('¿Cancelar tu inscripción a {{ e($inscripcion->grupo->actividad->nombre) }}? Se conservará en tu historial.')">
                         @csrf @method('PATCH')
                         <button class="mov-enlace text-red-700">Cancelar mi inscripción</button>
                     </form>
-                </div>
-            @endcan
+                @endcan
+            </div>
         </section>
     @endif
 
@@ -92,6 +93,7 @@
                             <th class="px-4 py-3">Fecha</th>
                             <th class="px-4 py-3 text-center">Estatus</th>
                             <th class="px-4 py-3">Calificación</th>
+                            <th class="px-4 py-3 text-center">Constancia</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -112,6 +114,15 @@
                                         @if ($registro->calificacion->observaciones)
                                             <span class="block text-xs text-slate-500">{{ $registro->calificacion->observaciones }}</span>
                                         @endif
+                                    @else
+                                        <span class="text-slate-400">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    @if ($registro->estatus === 'aprobado' && $registro->calificacion)
+                                        @can('constancia', $registro)
+                                            <x-boton :href="route('inscripciones.constancia.pdf', $registro)" variante="secundario" icono="descargar" compacto>PDF</x-boton>
+                                        @endcan
                                     @else
                                         <span class="text-slate-400">—</span>
                                     @endif
