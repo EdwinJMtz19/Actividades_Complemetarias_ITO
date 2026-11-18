@@ -89,7 +89,10 @@
 
     @if (auth()->user()->can('calificaciones.ver'))
         <section class="mt-4 rounded-lg border border-slate-200 bg-white">
-            <div class="border-b border-slate-200 px-4 py-3"><h2 class="font-semibold">Alumnos inscritos</h2></div>
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+                <h2 class="font-semibold">Alumnos inscritos</h2>
+                <x-boton :href="route('grupos.alumnos.csv', $grupo)" variante="secundario" icono="descargar" compacto>Exportar CSV</x-boton>
+            </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead class="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">

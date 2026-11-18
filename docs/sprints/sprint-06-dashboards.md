@@ -65,5 +65,5 @@ y, además, accede a reportes administrativos de solo lectura sobre alumnos, ins
   accesos con filtros.
 - `tests/Feature/RolesPermisosTest.php` (`TOTAL_PERMISOS` = 36).
 
-**Verificación:** `php artisan test` → **280 pruebas, 1145 aserciones, en verde**;
+**Verificación:** `php artisan test` → **287 pruebas, 1183 aserciones, en verde**;
 `vendor\bin\pint --test` sin observaciones.

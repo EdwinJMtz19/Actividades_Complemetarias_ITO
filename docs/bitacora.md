@@ -9,6 +9,26 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ## 2026-11-17 · sprint
 
+**Resumen:** HU-24 del Sprint 7: exportación de la lista de alumnos de un grupo en CSV. Se agregó `GrupoController@exportarAlumnos`, la ruta `GET grupos/{grupo}/alumnos.csv` protegida con `calificaciones.ver` y el alcance de `GrupoPolicy`, el botón «Exportar CSV» en `grupos/show`, el icono de descarga y 7 pruebas. El CSV incluye estatus, calificación y observaciones, usa BOM UTF-8 y neutraliza fórmulas.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Http/Controllers/GrupoController.php` | Nuevo `exportarAlumnos()` con `streamDownload`, columnas del CSV, BOM UTF-8 y neutralización de fórmulas. |
+| `routes/web.php` | Ruta `GET grupos/{grupo}/alumnos.csv` con `permission:calificaciones.ver` y nombre `grupos.alumnos.csv`. |
+| `resources/views/grupos/show.blade.php` | Botón «Exportar CSV» en la sección de alumnos inscritos. |
+| `resources/views/components/icono.blade.php` | Icono `descargar`. |
+| `tests/Feature/ExportarAlumnosCsvTest.php` | 7 pruebas: login, descarga, contenido, roles, grupo vacío, fórmulas y botón. |
+| `docs/requisitos.md` | RF-14 pasa a **Parcial** con HU-24; falta HU-25. |
+| `docs/contexto.md`, `docs/sprints/sprint-07-documentos.md`, `docs/README.md`, `README.md`, `CHANGELOG.md` y conteos de pruebas | Sprint 7 en curso, decisión de exportación y verificación actualizados. |
+
+**Verificación:** `php artisan test` → **287 pruebas, 1183 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-17 · sprint
+
 **Resumen:** HU-23 del Sprint 6: reportes administrativos de solo lectura. Se agregó el permiso `reportes.ver` (solo administrador), `ReporteController` con las pantallas de índice, padrón de alumnos, monitor de inscripciones y últimos accesos, rutas protegidas y enlaces en el panel y la navegación. Se añadieron 9 pruebas en `tests/Feature/ReportesAdministrativosTest.php`.
 
 **Cambios:**

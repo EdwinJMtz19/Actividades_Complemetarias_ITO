@@ -29,6 +29,7 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | **Entregado** (HU-17, HU-18 y HU-19) |
 | 5 | Calificaciones y créditos | **Entregado** (HU-20 y HU-21) |
 | 6 | Dashboards por rol y reportes administrativos | **Entregado** (HU-22 y HU-23) |
+| 7 | Generación de documentos (CSV y PDF) | En curso (HU-24 entregado; HU-25 a HU-27 pendientes) |
 
 ## 3. Modelo de datos
 
@@ -238,6 +239,11 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
   el reporte de accesos usa `USUARIO.ultimo_acceso` (no existe una tabla `log_acceso` en la
   aplicación) y filtra por rol y búsqueda. No hay exportación ni escritura: son consultas de solo
   lectura.
+- **Exportación CSV de alumnos (Sprint 7, HU-24):** desde `grupos/show`, quien tiene
+  `calificaciones.ver` y puede ver el grupo descarga `GET grupos/{grupo}/alumnos.csv`. El CSV incluye
+  todas las inscripciones del grupo con número de control, nombre, correo, carrera, estatus,
+  calificación, observaciones y fecha de inscripción; usa BOM UTF-8 para Excel y neutraliza valores
+  que empiezan con `=`, `+`, `-` o `@`. No agrega permisos nuevos.
 - **Rejilla semanal del horario (Sprint 4):** el formulario de grupos captura el horario con una
   rejilla de bloques de una hora (07:00–20:00, lunes a sábado), como el proyecto anterior. El
   JavaScript traduce cada bloque marcado a un `horarios[i]` con `hora_fin = hora_inicio + 1 h`; si

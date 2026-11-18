@@ -104,6 +104,10 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::post('grupos/conflictos', [HorarioController::class, 'verificar'])
             ->middleware('permission:grupos.crear|grupos.editar')->name('grupos.conflictos');
 
+        // Sprint 7 - exportación de la lista de alumnos del grupo (HU-24).
+        Route::get('grupos/{grupo}/alumnos.csv', [GrupoController::class, 'exportarAlumnos'])
+            ->middleware('permission:calificaciones.ver')->name('grupos.alumnos.csv');
+
         Route::resource('grupos', GrupoController::class)
             ->parameters(['grupos' => 'grupo'])
             ->middlewareFor(['index', 'show'], 'permission:grupos.ver')

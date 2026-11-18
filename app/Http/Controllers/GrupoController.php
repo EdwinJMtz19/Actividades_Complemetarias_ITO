@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\GuardarGrupoRequest;
 use App\Models\Actividad;
+use App\Models\Calificacion;
 use App\Models\DiaSemana;
 use App\Models\Grupo;
 use App\Models\Inscripcion;
@@ -15,7 +16,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Grupos de actividades con sus horarios. Cada rol ve lo suyo: el administrador todo, el coordinador los
@@ -103,6 +106,61 @@ class GrupoController extends Controller
         ]);
     }
 
+    /**
+     * Exporta la lista de alumnos del grupo en CSV (HU-24). Incluye todas las
+     * inscripciones con su estatus y calificación; el alcance lo aplica GrupoPolicy
+     * y el permiso `calificaciones.ver` lo exige la ruta.
+     */
+    public function exportarAlumnos(Grupo $grupo): StreamedResponse
+    {
+        Gate::authorize('view', $grupo);
+
+        $grupo->loadMissing('actividad');
+
+        $inscripciones = $grupo->inscripciones()
+            ->with(['alumno.usuario', 'alumno.carrera', 'calificacion'])
+            ->orderBy('id_inscripcion')
+            ->get();
+
+        $slug = Str::slug($grupo->actividad->nombre.'-'.$grupo->grupo) ?: 'grupo';
+
+        return response()->streamDownload(function () use ($inscripciones) {
+            $salida = fopen('php://output', 'w');
+
+            fwrite($salida, "\xEF\xBB\xBF");
+
+            fputcsv($salida, [
+                'No. control',
+                'Nombre',
+                'Correo',
+                'Carrera',
+                'Estatus',
+                'Calificación',
+                'Observaciones',
+                'Fecha de inscripción',
+            ], ',', '"', '');
+
+            foreach ($inscripciones as $inscripcion) {
+                $desempenio = $inscripcion->calificacion
+                    ? (Calificacion::DESEMPENIOS[$inscripcion->calificacion->desempenio] ?? $inscripcion->calificacion->desempenio)
+                    : 'Sin calificar';
+
+                fputcsv($salida, [
+                    $this->celdaCsv($inscripcion->alumno->num_control),
+                    $this->celdaCsv($inscripcion->alumno->usuario->nombre_completo),
+                    $this->celdaCsv($inscripcion->alumno->usuario->email),
+                    $this->celdaCsv($inscripcion->alumno->carrera?->nombre),
+                    Inscripcion::ESTATUS[$inscripcion->estatus] ?? $inscripcion->estatus,
+                    $desempenio,
+                    $this->celdaCsv($inscripcion->calificacion?->observaciones),
+                    $inscripcion->fecha_inscripcion?->format('d/m/Y H:i') ?? '',
+                ], ',', '"', '');
+            }
+
+            fclose($salida);
+        }, "alumnos-{$slug}.csv", ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
     public function edit(Request $request, Grupo $grupo): View
     {
         Gate::authorize('update', $grupo);
@@ -140,6 +198,14 @@ class GrupoController extends Controller
         }
 
         return redirect()->route('grupos.index')->with('exito', 'Grupo eliminado correctamente.');
+    }
+
+    /** Evita que un valor de texto se interprete como fórmula al abrir el CSV. */
+    private function celdaCsv(?string $valor): string
+    {
+        $valor = (string) $valor;
+
+        return preg_match('/^[=+\-@]/', $valor) === 1 ? "'{$valor}" : $valor;
     }
 
     /** Listas para los selectores del formulario, recortadas a lo que el usuario puede elegir. */
