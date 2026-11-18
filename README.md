@@ -2,7 +2,7 @@
 
 Sistema web para administrar las **actividades complementarias** del Instituto Tecnológico de
 Oaxaca: catálogo de departamentos, carreras, instructores y alumnos; actividades con grupos y
-horarios; inscripción de alumnos y calificaciones; y dashboards por rol.
+horarios; inscripción de alumnos y calificaciones; dashboards por rol y reportes administrativos.
 
 Cada persona entra con un **rol** y opera solo lo que le corresponde: el administrador ve todo, el
 coordinador gestiona a los instructores de su departamento, el instructor consulta sus grupos y
@@ -17,7 +17,7 @@ califica a sus alumnos, y el alumno se inscribe y consulta su calificación.
 | 3 | Actividades, grupos y horarios | **Entregado** (2026-10-20) |
 | 4 | Inscripción de alumnos | **Entregado** (2026-11-03) |
 | 5 | Calificaciones y créditos | **Entregado** (2026-11-03) |
-| 6 | Dashboards por rol | Pendiente |
+| 6 | Dashboards por rol y reportes | **Entregado** (2026-11-17) |
 
 ## Documentación
 
@@ -75,7 +75,7 @@ Solo fuera de producción. Contraseña: `Actividades2026`
 ## Pruebas
 
 ```sh
-php artisan test             # 271 pruebas
+php artisan test             # 280 pruebas
 vendor\bin\pint --test       # estilo de código
 ```
 

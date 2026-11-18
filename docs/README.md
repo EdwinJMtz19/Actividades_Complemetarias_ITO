@@ -28,8 +28,15 @@ En la raíz del repositorio: [`README.md`](../README.md) (entrada pública),
 | 3 · Actividades y grupos | [Técnico](sprints/sprint-03-actividades-y-grupos.md) · [Historias de usuario y CRC, esquema e instrucciones](sprints/sprint-03-historias-de-usuario-y-crc.md) · [Plan](sprints/sprint-03-plan.md) · [Decisión resuelta: borrado de grupos](decisiones/borrado-de-grupos.md) |
 | 4 · Inscripción de alumnos | [Técnico](sprints/sprint-04-inscripcion-de-alumnos.md) |
 | 5 · Calificaciones y créditos | [Técnico](sprints/sprint-05-calificaciones.md) |
+| 6 · Dashboards por rol y reportes | [Técnico](sprints/sprint-06-dashboards.md) |
 
 ## Estado actual
+
+**Sprint 6 · Dashboards por rol y reportes administrativos — ENTREGADO (2026-11-17)**
+El coordinador consulta en `/panel` un resumen de su departamento y el administrador ve el resumen
+general de todas las unidades. El administrador además consulta reportes de solo lectura: padrón de
+alumnos, monitor de inscripciones y últimos accesos. Detalle en
+[`sprints/sprint-06-dashboards.md`](sprints/sprint-06-dashboards.md).
 
 **Sprint 5 · Calificaciones y créditos — ENTREGADO (2026-11-03)**
 El instructor califica a los alumnos de sus grupos con un desempeño cualitativo y observaciones; el
@@ -77,7 +84,7 @@ php artisan migrate:fresh --seed
 # Servidor local -> http://localhost:8000
 php artisan serve
 
-# Pruebas (deben pasar 271)
+# Pruebas (deben pasar 280)
 php artisan test
 
 # Cierre automático de semestres vencidos (manual) y programador en local
@@ -112,7 +119,7 @@ Solo fuera de producción. Contraseña para las cuatro: `Actividades2026`
 ```
 app/
   Console/Commands/     CerrarSemestresVencidos
-  Http/Controllers/     Controladores (Auth\, Panel, Usuario, Rol, Departamento, Carrera, Ubicacion, Semestre, Actividad, Grupo, Horario, Inscripcion, Calificacion)
+  Http/Controllers/     Controladores (Auth\, Panel, Usuario, Rol, Departamento, Carrera, Ubicacion, Semestre, Actividad, Grupo, Horario, Inscripcion, Calificacion, Reporte)
   Http/Middleware/      usuario.activo, departamento.asignado
   Http/Requests/        Validación de formularios
   Mail/                 InscripcionConfirmada
@@ -122,7 +129,7 @@ app/
 database/
   migrations/           Esquema (18 migraciones)
   seeders/              RolesYPermisos, CatalogosBase, DiasSemana, ActividadesBase, UsuariosPrueba
-resources/views/        Blade: auth\, usuarios\, roles\, departamentos\, carreras\, ubicaciones\, semestres\, actividades\, grupos\, inscripciones\, calificaciones\, mail\, components\
+resources/views/        Blade: auth\, usuarios\, roles\, departamentos\, carreras\, ubicaciones\, semestres\, actividades\, grupos\, inscripciones\, calificaciones\, reportes\, mail\, components\
 resources/js/           app.js, grupo-horarios.js (aviso en vivo)
 routes/web.php          Rutas web
 tests/Feature/          Pruebas Pest

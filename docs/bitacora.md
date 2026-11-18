@@ -7,6 +7,29 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ---
 
+## 2026-11-17 · sprint
+
+**Resumen:** HU-23 del Sprint 6: reportes administrativos de solo lectura. Se agregó el permiso `reportes.ver` (solo administrador), `ReporteController` con las pantallas de índice, padrón de alumnos, monitor de inscripciones y últimos accesos, rutas protegidas y enlaces en el panel y la navegación. Se añadieron 9 pruebas en `tests/Feature/ReportesAdministrativosTest.php`.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `database/seeders/RolesYPermisosSeeder.php` | Agrega el permiso `reportes.ver` y lo asigna al `administrador`. |
+| `app/Http/Controllers/ReporteController.php` | Nuevo controlador con índice de totales, padrón de alumnos, monitor de inscripciones y reporte de accesos; todos refuerzan `Gate::authorize('reportes.ver')`. |
+| `routes/web.php` | Rutas `GET /reportes`, `/reportes/alumnos`, `/reportes/inscripciones` y `/reportes/accesos` con `permission:reportes.ver`. |
+| `resources/views/reportes/` | Cuatro vistas de solo lectura con filtros, totales y paginación. |
+| `resources/views/panel.blade.php` | Enlace a reportes visible solo con `reportes.ver`. |
+| `resources/views/components/layouts/app.blade.php` | Enlace a reportes en la navegación, visible solo con `reportes.ver`. |
+| `tests/Feature/ReportesAdministrativosTest.php` | 9 pruebas: login, índice, 403 por rol, permiso exclusivo, enlace en el panel, filtros de alumnos, totales y filtros de inscripciones, y reporte de accesos. |
+| `tests/Feature/RolesPermisosTest.php` | `TOTAL_PERMISOS` pasa de 35 a 36. |
+| `docs/requisitos.md` | RF-13 pasa a **Cumplido** con HU-22 y HU-23; se aclara que el reporte de accesos usa `USUARIO.ultimo_acceso`. |
+| `docs/contexto.md`, `docs/sprints/sprint-06-dashboards.md`, `docs/bitacora.md`, `CHANGELOG.md` y conteos de pruebas | Sprint 6 entregado, permisos y verificación actualizados. |
+
+**Verificación:** `php artisan test` → **280 pruebas, 1145 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
 ## 2026-11-10 · cambio
 
 **Resumen:** HU-22 del Sprint 6: dashboard del departamento. Se agregó el permiso `dashboard.ver` (coordinador y administrador), `PanelController::dashboardDepartamento()` con alcance por departamento para el coordinador y resumen general para el administrador, y una sección de tarjetas + grupos recientes en `resources/views/panel.blade.php`. Se añadieron 6 pruebas en `tests/Feature/DashboardDepartamentoTest.php`.

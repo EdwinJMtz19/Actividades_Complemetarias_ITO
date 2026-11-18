@@ -56,7 +56,7 @@ alumno; si la calificación se revierte a reprobado, se descuentan.
 
 ## Permisos
 
-- `calificaciones.ver` y `calificaciones.editar` (34 permisos en total).
+- `calificaciones.ver` y `calificaciones.editar` (34 permisos al cierre del Sprint 5; 36 al cierre del Sprint 6).
 - `instructor`: `calificaciones.ver` y `calificaciones.editar` (solo sus grupos).
 - `coordinador`: `calificaciones.ver` (solo su departamento).
 - `administrador`: todos.
@@ -81,7 +81,7 @@ alumno; si la calificación se revierte a reprobado, se descuentan.
   reaprobar, no duplica si ya estaba aprobada, no deja el acumulado en negativo, respeta los créditos
   configurados, no ajusta créditos al intentar calificar una baja y actualiza créditos cuando el
   administrador califica en otro departamento.
-- `tests/Feature/RolesPermisosTest.php` (`TOTAL_PERMISOS` = 34).
+- `tests/Feature/RolesPermisosTest.php` (`TOTAL_PERMISOS` = 36; 34 al cierre de este sprint).
 
-**Verificación:** `php artisan test` → **271 pruebas, 1054 aserciones, en verde**;
+**Verificación:** `php artisan test` → **280 pruebas, 1145 aserciones, en verde**;
 `vendor\bin\pint --test` sin observaciones; `npm run build` correcto.

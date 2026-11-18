@@ -22,8 +22,8 @@ it('crea los cuatro roles del cronograma', function () {
 // 6 del Sprint 1 (usuarios, roles) + 15 del Sprint 2 (departamentos, carreras, ubicaciones y
 // semestres) + 8 del Sprint 3 (actividades y grupos; los horarios viajan en el formulario del grupo)
 // + 3 del Sprint 4 (inscripciones: ver, crear y dar de baja) + 2 del Sprint 5 (calificaciones:
-// ver y editar) + 1 del Sprint 6 (dashboard del departamento).
-const TOTAL_PERMISOS = 35;
+// ver y editar) + 2 del Sprint 6 (dashboard y reportes administrativos).
+const TOTAL_PERMISOS = 36;
 
 it('es idempotente y no pisa permisos agregados desde la pantalla de roles', function () {
     Role::findByName('instructor')->givePermissionTo('usuarios.ver');

@@ -7,7 +7,7 @@
 
 Sistema web para administrar las **actividades complementarias** del ITO: catálogo de
 departamentos, carreras, Instructors y alumnos; inscripción de alumnos a actividades; horarios,
-inscripciones y calificaciones; y dashboards por rol.
+inscripciones y calificaciones; dashboards por rol y reportes administrativos.
 
 Cada persona entra con un **rol** y opera solo lo que le corresponde:
 
@@ -28,7 +28,7 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | 3 | Actividades, grupos y horarios (instructor) | **Entregado** ([detalle](sprints/sprint-03-actividades-y-grupos.md)) |
 | 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | **Entregado** (HU-17, HU-18 y HU-19) |
 | 5 | Calificaciones y créditos | **Entregado** (HU-20 y HU-21) |
-| 6 | Dashboards por rol | En curso (HU-22 entregado, HU-23 pendiente) |
+| 6 | Dashboards por rol y reportes administrativos | **Entregado** (HU-22 y HU-23) |
 
 ## 3. Modelo de datos
 
@@ -90,12 +90,14 @@ actividades.ver    .crear  .editar  .eliminar      (Sprint 3)
 grupos.ver         .crear  .editar  .eliminar      (Sprint 3; los horarios van en el formulario del grupo)
 inscripciones.ver  .crear  .baja                   (Sprint 4)
 calificaciones.ver .editar                         (Sprint 5)
+dashboard.ver                                      (Sprint 6)
+reportes.ver                                       (Sprint 6; solo administrador)
 ```
 
-Asignación: `administrador` → todos (34) · `coordinador` → `usuarios.ver`, `ubicaciones.ver`,
-`actividades.*`, `grupos.*`, `inscripciones.ver`/`inscripciones.baja` y `calificaciones.ver`
-(recortados a su departamento) · `instructor` → `grupos.ver`, `calificaciones.ver` y
-`calificaciones.editar` (solo sus grupos) · `alumno` → `actividades.ver` y `grupos.ver` (solo
+Asignación: `administrador` → todos (36); `coordinador` → `usuarios.ver`, `ubicaciones.ver`,
+`actividades.*`, `grupos.*`, `inscripciones.ver`/`inscripciones.baja`, `calificaciones.ver` y
+`dashboard.ver` (recortados a su departamento); `instructor` → `grupos.ver`, `calificaciones.ver` y
+`calificaciones.editar` (solo sus grupos); `alumno` → `actividades.ver` y `grupos.ver` (solo
 lectura, acotados a su carrera) e `inscripciones.ver`/`inscripciones.crear`/`inscripciones.baja`
 (HU-17; la baja solo aplica a su propia inscripción, lo valida la política). El alumno ve sus
 calificaciones en el historial sin necesitar `calificaciones.ver`. Los permisos del Sprint 2 son
@@ -209,7 +211,7 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
 - **Horarios dentro del formulario del grupo (Sprint 3):** no hay rutas anidadas
   `grupos/{grupo}/horarios`; el formulario manda `horarios[]` y `GrupoController` reemplaza el
   conjunto completo dentro de una transacción. `HorarioController` solo expone el endpoint JSON
-  `POST grupos/conflictos`. Por eso no existen permisos `horarios.*` (el total es 34).
+  `POST grupos/conflictos`. Por eso no existen permisos `horarios.*` (el total es 36).
 - **Baja de inscripciones (Sprint 4):** la baja es lógica (`estatus = 'dado_de_baja'`), no un
   `DELETE`; así se conserva el historial y el índice único de inscripción activa permite volver a
   inscribirse. `InscripcionController@baja` bloquea la fila, cambia el estatus y descuenta
@@ -228,6 +230,14 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
   coordinador consulta su departamento y el administrador pasa por `Gate::before`. El formulario
   reutiliza `x-tarjeta-formulario` y tarjetas de radio con `peer-checked`; la lista de alumnos se
   muestra en `grupos/show` solo a quien tiene `calificaciones.ver`.
+- **Reportes administrativos (Sprint 6):** `ReporteController` expone reportes de solo lectura en
+  `/reportes` (índice), `/reportes/alumnos`, `/reportes/inscripciones` y `/reportes/accesos`, todos
+  protegidos con el permiso `reportes.ver`, que solo tiene el administrador. El padrón de alumnos
+  busca por nombre, correo o número de control y filtra por carrera; el monitor de inscripciones
+  filtra por estatus, carrera, actividad, departamento y semestre, y resume los totales por estatus;
+  el reporte de accesos usa `USUARIO.ultimo_acceso` (no existe una tabla `log_acceso` en la
+  aplicación) y filtra por rol y búsqueda. No hay exportación ni escritura: son consultas de solo
+  lectura.
 - **Rejilla semanal del horario (Sprint 4):** el formulario de grupos captura el horario con una
   rejilla de bloques de una hora (07:00–20:00, lunes a sábado), como el proyecto anterior. El
   JavaScript traduce cada bloque marcado a un `horarios[i]` con `hora_fin = hora_inicio + 1 h`; si

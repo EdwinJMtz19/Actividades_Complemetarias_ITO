@@ -41,6 +41,9 @@
                     @can('inscripciones.ver')
                         <a href="{{ route('inscripciones.index') }}" class="hover:text-blue-700">Inscripciones</a>
                     @endcan
+                    @can('reportes.ver')
+                        <a href="{{ route('reportes.index') }}" class="hover:text-blue-700">Reportes</a>
+                    @endcan
                 </nav>
             </div>
             <div class="flex items-center gap-3 text-sm">

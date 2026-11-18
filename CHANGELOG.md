@@ -6,6 +6,17 @@ interno). Formato basado en [Keep a Changelog](https://keepachangelog.com/es/).
 
 Las versiones corresponden a los sprints entregados; la fecha es la fecha de entrega.
 
+## [0.6.0] - 2026-11-17
+
+### Agregado
+
+- **Dashboard del departamento:** el coordinador consulta en `/panel` un resumen de actividades,
+  grupos, instructores, alumnos inscritos, inscripciones activas, aprobados, reprobados y grupos
+  recientes de su departamento. El administrador ve el resumen general de todas las unidades.
+- **Reportes administrativos:** el administrador consulta el padrón de alumnos, el monitor de
+  inscripciones con totales por estatus y los últimos accesos de los usuarios. Los reportes tienen
+  búsqueda y filtros, y son de solo lectura.
+
 ## [0.5.0] - 2026-11-03
 
 ### Agregado

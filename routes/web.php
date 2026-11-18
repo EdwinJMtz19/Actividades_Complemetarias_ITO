@@ -10,6 +10,7 @@ use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\PanelController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SemestreController;
 use App\Http\Controllers\UbicacionController;
@@ -81,6 +82,14 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->middlewareFor(['index', 'show'], 'permission:semestres.ver')
             ->middlewareFor(['create', 'store'], 'permission:semestres.crear')
             ->middlewareFor(['edit', 'update'], 'permission:semestres.editar');
+
+        // Sprint 6 - reportes administrativos de solo lectura (HU-23).
+        Route::middleware('permission:reportes.ver')->group(function () {
+            Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.index');
+            Route::get('reportes/alumnos', [ReporteController::class, 'alumnos'])->name('reportes.alumnos');
+            Route::get('reportes/inscripciones', [ReporteController::class, 'inscripciones'])->name('reportes.inscripciones');
+            Route::get('reportes/accesos', [ReporteController::class, 'accesos'])->name('reportes.accesos');
+        });
 
         // Sprint 3 · Actividades y grupos. El alcance por departamento (o por instructor) lo aplican
         // ActividadPolicy y GrupoPolicy; aquí solo se pide el permiso de la acción.

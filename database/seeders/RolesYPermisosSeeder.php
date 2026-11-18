@@ -65,6 +65,8 @@ class RolesYPermisosSeeder extends Seeder
             // Sprint 6 - dashboard del departamento (HU-22). Solo el coordinador lo consulta;
             // los reportes administrativos de HU-23 agregaran sus propios permisos.
             'dashboard.ver',
+            // Sprint 6 - reportes administrativos de solo lectura (HU-23).
+            'reportes.ver',
         ];
 
         foreach ($permisos as $nombre) {
