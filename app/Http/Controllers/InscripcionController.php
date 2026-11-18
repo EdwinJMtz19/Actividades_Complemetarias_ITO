@@ -8,9 +8,11 @@ use App\Models\Alumno;
 use App\Models\Grupo;
 use App\Models\Inscripcion;
 use App\Models\Semestre;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -74,6 +76,42 @@ class InscripcionController extends Controller
             'historial' => $historial,
             'grupos' => $grupos,
         ]);
+    }
+
+    /**
+     * Descarga el horario del alumno en PDF (HU-26). Solo el propio alumno y a partir de su
+     * inscripción activa; el permiso `inscripciones.ver` lo exige la ruta.
+     */
+    public function descargarHorario(Request $request): Response|RedirectResponse
+    {
+        $alumno = $request->user()->alumno;
+
+        if ($alumno === null) {
+            abort(403, 'Solo los alumnos pueden descargar su horario.');
+        }
+
+        $inscripcion = Inscripcion::query()
+            ->activas()
+            ->where('id_alumno', $alumno->id_alumno)
+            ->with([
+                'grupo.actividad.departamento',
+                'grupo.semestre',
+                'grupo.instructor.usuario',
+                'grupo.ubicacion',
+                'grupo.horarios.dia',
+            ])
+            ->first();
+
+        if ($inscripcion === null) {
+            return redirect()->route('inscripciones.index')
+                ->with('error', 'No tienes una inscripción activa; no hay horario para descargar.');
+        }
+
+        return Pdf::loadView('pdf.horario-alumno', [
+            'alumno' => $alumno->loadMissing(['usuario', 'carrera']),
+            'inscripcion' => $inscripcion,
+            'generadoEl' => now(),
+        ])->setPaper('letter')->download("horario-{$alumno->num_control}.pdf");
     }
 
     public function store(Request $request, Grupo $grupo): RedirectResponse

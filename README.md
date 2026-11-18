@@ -18,7 +18,7 @@ califica a sus alumnos, y el alumno se inscribe y consulta su calificación.
 | 4 | Inscripción de alumnos | **Entregado** (2026-11-03) |
 | 5 | Calificaciones y créditos | **Entregado** (2026-11-03) |
 | 6 | Dashboards por rol y reportes | **Entregado** (2026-11-17) |
-| 7 | Generación de documentos (CSV y PDF) | En curso (HU-24 y HU-25) |
+| 7 | Generación de documentos (CSV y PDF) | En curso (HU-24, HU-25 y HU-26) |
 
 ## Documentación
 
@@ -76,7 +76,7 @@ Solo fuera de producción. Contraseña: `Actividades2026`
 ## Pruebas
 
 ```sh
-php artisan test             # 294 pruebas
+php artisan test             # 302 pruebas
 vendor\bin\pint --test       # estilo de código
 ```
 

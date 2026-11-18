@@ -15,6 +15,8 @@ Las versiones corresponden a los sprints entregados; la fecha es la fecha de ent
   observaciones y fecha de inscripción. El archivo es compatible con Excel y neutraliza fórmulas.
 - **Lista de asistencia en PDF:** el instructor descarga una hoja de asistencia de sus grupos con los
   datos del grupo, instructor, horario y una tabla de alumnos activos con espacio para la firma.
+- **Horario del alumno en PDF:** el alumno descarga su horario desde la pantalla de inscripciones, con
+  sus datos, la actividad, el instructor, el lugar y cada bloque de clase del periodo.
 
 ## [0.6.0] - 2026-11-17
 

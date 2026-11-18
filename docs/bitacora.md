@@ -9,6 +9,26 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ## 2026-11-17 · sprint
 
+**Resumen:** HU-26 del Sprint 7: horario del alumno en PDF. Se agregó `InscripcionController@descargarHorario`, la ruta `GET inscripciones/horario.pdf` protegida con `inscripciones.ver`, la vista `pdf/horario-alumno`, el botón «Descargar horario PDF» en `inscripciones/index` y 8 pruebas. El documento se arma con la inscripción activa del alumno e incluye sus datos, la actividad y cada bloque de horario.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Http/Controllers/InscripcionController.php` | Nuevo `descargarHorario()` con `Pdf::loadView()`, validación del perfil de alumno y consulta de su inscripción activa. |
+| `routes/web.php` | Ruta `GET inscripciones/horario.pdf` con `permission:inscripciones.ver` y nombre `inscripciones.horario.pdf`. |
+| `resources/views/pdf/horario-alumno.blade.php` | Vista imprimible con datos del alumno, de la actividad y tabla de bloques de horario. |
+| `resources/views/inscripciones/index.blade.php` | Botón «Descargar horario PDF» en la sección «Mi inscripción». |
+| `tests/Feature/DescargarHorarioPdfTest.php` | 8 pruebas: login, descarga, contenido, sin inscripción activa, baja ignorada, roles, grupo sin horarios y botón. |
+| `docs/requisitos.md` | RF-15 pasa a **Parcial** con HU-26; falta HU-27. |
+| `docs/contexto.md`, `docs/sprints/sprint-07-documentos.md`, `docs/README.md`, `README.md`, `CHANGELOG.md` y conteos de pruebas | Sprint 7 en curso con HU-24, HU-25 y HU-26, decisión de PDF y verificación actualizados. |
+
+**Verificación:** `php artisan test` → **302 pruebas, 1243 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-17 · sprint
+
 **Resumen:** HU-25 del Sprint 7: lista de asistencia en PDF. Se agregó `GrupoController@descargarAsistencia`, la ruta `GET grupos/{grupo}/asistencia.pdf` protegida con `calificaciones.ver` y el alcance de `GrupoPolicy`, la vista `pdf/asistencia-grupo`, el botón «Lista de asistencia PDF» en `grupos/show`, la dependencia `barryvdh/laravel-dompdf` y 7 pruebas. El PDF incluye datos del grupo, instructor, horario, fechas y solo alumnos activos con espacio para la firma.
 
 **Cambios:**

@@ -19,7 +19,7 @@ calificaciones. Sprint actual: **7 · Generación de documentos (en curso)**.
 ## Reglas que no se rompen
 
 1. **Nada sin pruebas.** Todo cambio va con su prueba Pest en `tests/Feature/`. Debe quedar:
-   `php artisan test` en verde (hoy son 294) y `vendor\bin\pint --test` sin observaciones.
+   `php artisan test` en verde (hoy son 302) y `vendor\bin\pint --test` sin observaciones.
 2. **No edites migraciones ya aplicadas.** Crea una nueva `YYYY_MM_DD_HHMMSS_*.php`.
 3. **El acceso se controla con permisos y políticas**, no con condicionales en las vistas:
    `permission:...` en rutas, `UserPolicy` para reglas sobre modelos, middleware propio para
@@ -46,7 +46,7 @@ Todo está en [`docs/README.md`](docs/README.md): comandos de Docker y de PHP lo
 en Windows, cuentas de prueba y mapa de carpetas. Resumen mínimo:
 
 ```sh
-php artisan test                   # 294 pruebas
+php artisan test                   # 302 pruebas
 vendor\bin\pint                    # formatear
 ```
 

@@ -33,10 +33,11 @@ En la raíz del repositorio: [`README.md`](../README.md) (entrada pública),
 
 ## Estado actual
 
-**Sprint 7 · Generación de documentos — EN CURSO (HU-24 y HU-25 entregadas, 2026-11-17)**
+**Sprint 7 · Generación de documentos — EN CURSO (HU-24, HU-25 y HU-26 entregadas, 2026-11-17)**
 El instructor descarga en CSV la lista de alumnos de sus grupos y en PDF la lista de asistencia desde
-el detalle del grupo. Quedan pendientes el horario del alumno en PDF y la constancia de acreditación.
-Detalle en [`sprints/sprint-07-documentos.md`](sprints/sprint-07-documentos.md).
+el detalle del grupo; el alumno descarga su horario en PDF desde su pantalla de inscripciones. Queda
+pendiente la constancia de acreditación. Detalle en
+[`sprints/sprint-07-documentos.md`](sprints/sprint-07-documentos.md).
 
 **Sprint 6 · Dashboards por rol y reportes administrativos — ENTREGADO (2026-11-17)**
 El coordinador consulta en `/panel` un resumen de su departamento y el administrador ve el resumen
@@ -91,7 +92,7 @@ php artisan migrate:fresh --seed
 # Servidor local -> http://localhost:8000
 php artisan serve
 
-# Pruebas (deben pasar 294)
+# Pruebas (deben pasar 302)
 php artisan test
 
 # Cierre automático de semestres vencidos (manual) y programador en local

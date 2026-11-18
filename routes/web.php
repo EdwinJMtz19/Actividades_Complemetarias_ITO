@@ -37,6 +37,10 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
     // fuera del grupo `departamento.asignado`.
     Route::get('inscripciones', [InscripcionController::class, 'index'])
         ->middleware('permission:inscripciones.ver')->name('inscripciones.index');
+    // Sprint 7 - horario del alumno en PDF (HU-26). El controlador valida el perfil de alumno
+    // y su inscripción activa.
+    Route::get('inscripciones/horario.pdf', [InscripcionController::class, 'descargarHorario'])
+        ->middleware('permission:inscripciones.ver')->name('inscripciones.horario.pdf');
     Route::post('inscripciones/{grupo}', [InscripcionController::class, 'store'])
         ->middleware('permission:inscripciones.crear')->name('inscripciones.store');
     // Baja lógica (HU-19): conserva la fila y libera el cupo. El alcance por departamento lo aplica
