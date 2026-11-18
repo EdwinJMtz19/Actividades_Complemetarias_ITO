@@ -29,7 +29,7 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | **Entregado** (HU-17, HU-18 y HU-19) |
 | 5 | Calificaciones y créditos | **Entregado** (HU-20 y HU-21) |
 | 6 | Dashboards por rol y reportes administrativos | **Entregado** (HU-22 y HU-23) |
-| 7 | Generación de documentos (CSV y PDF) | En curso (HU-24 entregado; HU-25 a HU-27 pendientes) |
+| 7 | Generación de documentos (CSV y PDF) | En curso (HU-24 y HU-25 entregadas; HU-26 y HU-27 pendientes) |
 
 ## 3. Modelo de datos
 
@@ -244,6 +244,12 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
   todas las inscripciones del grupo con número de control, nombre, correo, carrera, estatus,
   calificación, observaciones y fecha de inscripción; usa BOM UTF-8 para Excel y neutraliza valores
   que empiezan con `=`, `+`, `-` o `@`. No agrega permisos nuevos.
+- **Lista de asistencia en PDF (Sprint 7, HU-25):** desde `grupos/show`, quien tiene
+  `calificaciones.ver` y puede ver el grupo descarga `GET grupos/{grupo}/asistencia.pdf`. El PDF
+  incluye actividad, grupo, periodo, instructor, ubicación, horario, fechas y una tabla con los
+  alumnos activos (`inscrito` o `cursando`), su número de control, carrera y espacio para la firma.
+  Usa `barryvdh/laravel-dompdf` con la vista `pdf/asistencia-grupo`; la caché de fuentes vive en
+  `storage/fonts`. No agrega permisos nuevos.
 - **Rejilla semanal del horario (Sprint 4):** el formulario de grupos captura el horario con una
   rejilla de bloques de una hora (07:00–20:00, lunes a sábado), como el proyecto anterior. El
   JavaScript traduce cada bloque marcado a un `horarios[i]` con `hora_fin = hora_inicio + 1 h`; si

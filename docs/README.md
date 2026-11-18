@@ -33,10 +33,10 @@ En la raíz del repositorio: [`README.md`](../README.md) (entrada pública),
 
 ## Estado actual
 
-**Sprint 7 · Generación de documentos — EN CURSO (HU-24 entregado, 2026-11-17)**
-El instructor descarga en CSV la lista de alumnos de sus grupos desde el detalle del grupo. Quedan
-pendientes la lista de asistencia en PDF, el horario del alumno en PDF y la constancia de
-acreditación. Detalle en [`sprints/sprint-07-documentos.md`](sprints/sprint-07-documentos.md).
+**Sprint 7 · Generación de documentos — EN CURSO (HU-24 y HU-25 entregadas, 2026-11-17)**
+El instructor descarga en CSV la lista de alumnos de sus grupos y en PDF la lista de asistencia desde
+el detalle del grupo. Quedan pendientes el horario del alumno en PDF y la constancia de acreditación.
+Detalle en [`sprints/sprint-07-documentos.md`](sprints/sprint-07-documentos.md).
 
 **Sprint 6 · Dashboards por rol y reportes administrativos — ENTREGADO (2026-11-17)**
 El coordinador consulta en `/panel` un resumen de su departamento y el administrador ve el resumen
@@ -78,6 +78,7 @@ con Spatie, y control de acceso por rol y departamento.
 | PHP | 8.4.1 o superior (local: 8.5.0 vía Herd Lite) |
 | Base de datos | MySQL 8 en local; SQLite en memoria para las pruebas |
 | Autenticación y permisos | `spatie/laravel-permission` 8.3.0 |
+| Documentos PDF | `barryvdh/laravel-dompdf` 3.1.2 |
 | Pruebas | Pest 5 + PHPUnit |
 | Vistas | Blade + Tailwind CSS 4 (Vite) |
 
@@ -90,7 +91,7 @@ php artisan migrate:fresh --seed
 # Servidor local -> http://localhost:8000
 php artisan serve
 
-# Pruebas (deben pasar 287)
+# Pruebas (deben pasar 294)
 php artisan test
 
 # Cierre automático de semestres vencidos (manual) y programador en local
@@ -135,7 +136,7 @@ app/
 database/
   migrations/           Esquema (18 migraciones)
   seeders/              RolesYPermisos, CatalogosBase, DiasSemana, ActividadesBase, UsuariosPrueba
-resources/views/        Blade: auth\, usuarios\, roles\, departamentos\, carreras\, ubicaciones\, semestres\, actividades\, grupos\, inscripciones\, calificaciones\, reportes\, mail\, components\
+resources/views/        Blade: auth\, usuarios\, roles\, departamentos\, carreras\, ubicaciones\, semestres\, actividades\, grupos\, inscripciones\, calificaciones\, reportes\, pdf\, mail\, components\
 resources/js/           app.js, grupo-horarios.js (aviso en vivo)
 routes/web.php          Rutas web
 tests/Feature/          Pruebas Pest

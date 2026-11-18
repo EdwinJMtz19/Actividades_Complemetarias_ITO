@@ -13,6 +13,8 @@ Las versiones corresponden a los sprints entregados; la fecha es la fecha de ent
 - **Exportación de alumnos en CSV:** el instructor descarga la lista de alumnos de sus grupos desde
   el detalle del grupo, con número de control, nombre, correo, carrera, estatus, calificación,
   observaciones y fecha de inscripción. El archivo es compatible con Excel y neutraliza fórmulas.
+- **Lista de asistencia en PDF:** el instructor descarga una hoja de asistencia de sus grupos con los
+  datos del grupo, instructor, horario y una tabla de alumnos activos con espacio para la firma.
 
 ## [0.6.0] - 2026-11-17
 

@@ -108,6 +108,10 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::get('grupos/{grupo}/alumnos.csv', [GrupoController::class, 'exportarAlumnos'])
             ->middleware('permission:calificaciones.ver')->name('grupos.alumnos.csv');
 
+        // Sprint 7 - lista de asistencia imprimible (HU-25).
+        Route::get('grupos/{grupo}/asistencia.pdf', [GrupoController::class, 'descargarAsistencia'])
+            ->middleware('permission:calificaciones.ver')->name('grupos.asistencia.pdf');
+
         Route::resource('grupos', GrupoController::class)
             ->parameters(['grupos' => 'grupo'])
             ->middlewareFor(['index', 'show'], 'permission:grupos.ver')

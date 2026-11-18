@@ -9,6 +9,28 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ## 2026-11-17 · sprint
 
+**Resumen:** HU-25 del Sprint 7: lista de asistencia en PDF. Se agregó `GrupoController@descargarAsistencia`, la ruta `GET grupos/{grupo}/asistencia.pdf` protegida con `calificaciones.ver` y el alcance de `GrupoPolicy`, la vista `pdf/asistencia-grupo`, el botón «Lista de asistencia PDF» en `grupos/show`, la dependencia `barryvdh/laravel-dompdf` y 7 pruebas. El PDF incluye datos del grupo, instructor, horario, fechas y solo alumnos activos con espacio para la firma.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Http/Controllers/GrupoController.php` | Nuevo `descargarAsistencia()` con `Pdf::loadView()`, datos del grupo y consulta de alumnos activos. |
+| `routes/web.php` | Ruta `GET grupos/{grupo}/asistencia.pdf` con `permission:calificaciones.ver` y nombre `grupos.asistencia.pdf`. |
+| `resources/views/pdf/asistencia-grupo.blade.php` | Vista imprimible con encabezado, datos del grupo, tabla de alumnos y firma del instructor. |
+| `resources/views/grupos/show.blade.php` | Botón «Lista de asistencia PDF» junto a «Exportar CSV». |
+| `composer.json`, `composer.lock` | Dependencia `barryvdh/laravel-dompdf` 3.1.2. |
+| `storage/fonts/.gitignore` | Caché de fuentes de DomPDF fuera de Git. |
+| `tests/Feature/DescargarAsistenciaPdfTest.php` | 7 pruebas: login, descarga, contenido, roles, grupo sin alumnos activos y botón. |
+| `docs/requisitos.md` | RF-14 pasa a **Cumplido** con HU-24 y HU-25. |
+| `docs/contexto.md`, `docs/sprints/sprint-07-documentos.md`, `docs/README.md`, `README.md`, `CHANGELOG.md` y conteos de pruebas | Sprint 7 en curso con HU-24 y HU-25, decisión de PDF y verificación actualizados. |
+
+**Verificación:** `php artisan test` → **294 pruebas, 1214 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-17 · sprint
+
 **Resumen:** HU-24 del Sprint 7: exportación de la lista de alumnos de un grupo en CSV. Se agregó `GrupoController@exportarAlumnos`, la ruta `GET grupos/{grupo}/alumnos.csv` protegida con `calificaciones.ver` y el alcance de `GrupoPolicy`, el botón «Exportar CSV» en `grupos/show`, el icono de descarga y 7 pruebas. El CSV incluye estatus, calificación y observaciones, usa BOM UTF-8 y neutraliza fórmulas.
 
 **Cambios:**

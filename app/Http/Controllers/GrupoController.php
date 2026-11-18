@@ -11,9 +11,11 @@ use App\Models\Inscripcion;
 use App\Models\Instructor;
 use App\Models\Semestre;
 use App\Models\Ubicacion;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -159,6 +161,38 @@ class GrupoController extends Controller
 
             fclose($salida);
         }, "alumnos-{$slug}.csv", ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * Descarga la lista de asistencia del grupo en PDF (HU-25). Solo incluye
+     * alumnos activos; el alcance lo aplica GrupoPolicy y el permiso
+     * `calificaciones.ver` lo exige la ruta.
+     */
+    public function descargarAsistencia(Grupo $grupo): Response
+    {
+        Gate::authorize('view', $grupo);
+
+        $grupo->load([
+            'actividad.departamento',
+            'semestre',
+            'instructor.usuario',
+            'ubicacion',
+            'horarios.dia',
+        ]);
+
+        $inscripciones = $grupo->inscripciones()
+            ->with(['alumno.usuario', 'alumno.carrera'])
+            ->whereIn('estatus', Inscripcion::ACTIVOS)
+            ->orderBy('id_inscripcion')
+            ->get();
+
+        $slug = Str::slug($grupo->actividad->nombre.'-'.$grupo->grupo) ?: 'grupo';
+
+        return Pdf::loadView('pdf.asistencia-grupo', [
+            'grupo' => $grupo,
+            'inscripciones' => $inscripciones,
+            'generadoEl' => now(),
+        ])->setPaper('letter')->download("asistencia-{$slug}.pdf");
     }
 
     public function edit(Request $request, Grupo $grupo): View
