@@ -29,7 +29,7 @@ Cada persona entra con un **rol** y opera solo lo que le corresponde:
 | 4 | Inscripción de alumnos + recuperación de contraseña (SMTP) | **Entregado** (HU-17, HU-18 y HU-19) |
 | 5 | Calificaciones y créditos | **Entregado** (HU-20 y HU-21) |
 | 6 | Dashboards por rol y reportes administrativos | **Entregado** (HU-22 y HU-23) |
-| 7 | Generación de documentos (CSV y PDF) | En curso (HU-24, HU-25 y HU-26 entregadas; HU-27 pendiente) |
+| 7 | Generación de documentos (CSV y PDF) | **Entregado** (HU-24 a HU-27) |
 
 ## 3. Modelo de datos
 
@@ -256,6 +256,13 @@ ajustó a mano. **Cada sprint nuevo agrega aquí sus permisos.**
   PDF incluye los datos del alumno, la actividad, el periodo, la modalidad, el instructor, el lugar,
   las fechas y una tabla con cada bloque de horario. Usa `barryvdh/laravel-dompdf` con la vista
   `pdf/horario-alumno`. No agrega permisos nuevos.
+- **Constancia de acreditación (Sprint 7, HU-27):** el alumno descarga
+  `GET inscripciones/{inscripcion}/constancia.pdf` con el permiso `inscripciones.ver`; la política
+  `InscripcionPolicy@constancia` exige que la inscripción sea suya. Solo se genera para
+  inscripciones `aprobado` con calificación registrada; en otro caso redirige a `inscripciones/index`
+  con un aviso. El PDF incluye los datos del alumno, la actividad, los créditos, el desempeño, la
+  fecha de acreditación y las firmas del instructor y de la jefatura del departamento. Usa
+  `barryvdh/laravel-dompdf` con la vista `pdf/constancia-acreditacion`. No agrega permisos nuevos.
 - **Rejilla semanal del horario (Sprint 4):** el formulario de grupos captura el horario con una
   rejilla de bloques de una hora (07:00–20:00, lunes a sábado), como el proyecto anterior. El
   JavaScript traduce cada bloque marcado a un `horarios[i]` con `hora_fin = hora_inicio + 1 h`; si

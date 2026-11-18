@@ -1,14 +1,14 @@
 # Sprint 7 — Generación de documentos (CSV y PDF)
 
-**Fecha de entrega:** en curso
-**Estado:** en curso (HU-24, HU-25 y HU-26 entregadas; HU-27 pendiente)
+**Fecha de entrega:** 2026-11-17
+**Estado:** **Entregado** (HU-24, HU-25, HU-26 y HU-27)
 **Historias:** HU-24 (RF-14) — Exportar lista de alumnos en CSV; HU-25 (RF-14) — Descargar lista de asistencia en PDF; HU-26 (RF-15) — Descargar horario en PDF; HU-27 (RF-15) — Descargar constancia de acreditación.
 
 ## Alcance
 
 El sistema genera documentos descargables a partir de la información que ya existe: la lista de
 alumnos de un grupo en CSV, la lista de asistencia en PDF, el horario del alumno en PDF y su
-constancia de acreditación. HU-24, HU-25 y HU-26 ya están entregadas.
+constancia de acreditación. Las cuatro historias del sprint quedan entregadas.
 
 ## HU-24 — Exportar lista de alumnos en CSV
 
@@ -52,9 +52,25 @@ constancia de acreditación. HU-24, HU-25 y HU-26 ya están entregadas.
 - `inscripciones/index` muestra el botón «Descargar horario PDF» dentro de «Mi inscripción».
 - No agrega permisos, migraciones ni tablas.
 
+## HU-27 · Descargar constancia de acreditación
+
+- `InscripcionController@descargarConstancia` responde a
+  `GET inscripciones/{inscripcion}/constancia.pdf`.
+- La ruta exige el permiso `inscripciones.ver` y `InscripcionPolicy@constancia` exige que la
+  inscripción sea del propio alumno; instructores y coordinadores reciben 403.
+- Solo se genera para inscripciones `aprobado` con calificación registrada; en cualquier otro caso
+  redirige a `inscripciones/index` con un aviso.
+- El PDF incluye los datos del alumno, la actividad, el periodo, el grupo, el instructor, los
+  créditos, el desempeño, la fecha de acreditación y las firmas del instructor y de la jefatura del
+  departamento.
+- Usa `barryvdh/laravel-dompdf` con la vista `pdf/constancia-acreditacion`.
+- `inscripciones/index` muestra el botón «PDF» en la columna «Constancia» del historial, solo en las
+  actividades aprobadas.
+- No agrega permisos, migraciones ni tablas.
+
 ## Pendiente
 
-- HU-27: constancia de acreditación.
+Ninguno: las cuatro historias del sprint quedan entregadas.
 
 ## Pruebas
 
@@ -70,7 +86,10 @@ constancia de acreditación. HU-24, HU-25 y HU-26 ya están entregadas.
   contenido con datos del alumno y bloques de horario, aviso sin inscripción activa, inscripciones
   dadas de baja ignoradas, bloqueo de administrador, coordinador e instructor, grupo sin horarios y
   botón visible solo para el alumno con inscripción activa.
+- `tests/Feature/DescargarConstanciaPdfTest.php` (7 pruebas): login obligatorio, descarga del PDF,
+  contenido con datos del alumno y la actividad, bloqueo de otro alumno, instructores y
+  coordinadores, aviso cuando la actividad no está aprobada y botón visible solo en las aprobadas.
 - `tests/Feature/RolesPermisosTest.php` (`TOTAL_PERMISOS` = 36; no cambia).
 
-**Verificación:** `php artisan test` → **302 pruebas, 1243 aserciones, en verde**;
+**Verificación:** `php artisan test` → **309 pruebas, 1265 aserciones, en verde**;
 `vendor\bin\pint --test` sin observaciones.

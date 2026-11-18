@@ -9,6 +9,27 @@ Tipos: `sprint` · `cambio` · `fix` · `infra` · `documentación`.
 
 ## 2026-11-17 · sprint
 
+**Resumen:** HU-27 del Sprint 7: constancia de acreditación en PDF. Se agregó `InscripcionController@descargarConstancia`, la ruta `GET inscripciones/{inscripcion}/constancia.pdf` protegida con `inscripciones.ver`, la habilidad `constancia` de `InscripcionPolicy`, la vista `pdf/constancia-acreditacion`, el botón «PDF» en la columna «Constancia» del historial y 7 pruebas. Solo se genera para inscripciones aprobadas del propio alumno.
+
+**Cambios:**
+
+| Archivo | Qué cambió |
+|---|---|
+| `app/Http/Controllers/InscripcionController.php` | Nuevo `descargarConstancia()` con `Pdf::loadView()`, validación del estatus aprobado y nombre de archivo con la actividad. |
+| `app/Policies/InscripcionPolicy.php` | Nueva habilidad `constancia`: exige `inscripciones.ver` y que la inscripción sea del propio alumno. |
+| `routes/web.php` | Ruta `GET inscripciones/{inscripcion}/constancia.pdf` con `permission:inscripciones.ver` y nombre `inscripciones.constancia.pdf`. |
+| `resources/views/pdf/constancia-acreditacion.blade.php` | Constancia formal con datos del alumno y la actividad, tabla de acreditación y firmas. |
+| `resources/views/inscripciones/index.blade.php` | Columna «Constancia» en el historial con el botón «PDF» solo en actividades aprobadas. |
+| `tests/Feature/DescargarConstanciaPdfTest.php` | 7 pruebas: login, descarga, contenido, otro alumno, instructores y coordinadores, no aprobada y botón. |
+| `docs/requisitos.md` | RF-15 pasa a **Cumplido** con HU-26 y HU-27. |
+| `docs/contexto.md`, `docs/sprints/sprint-07-documentos.md`, `docs/README.md`, `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md` y conteos de pruebas | Sprint 7 entregado con HU-24 a HU-27 y verificación actualizados. |
+
+**Verificación:** `php artisan test` → **309 pruebas, 1265 aserciones, en verde**; `vendor\bin\pint --test` sin observaciones.
+
+---
+
+## 2026-11-17 · sprint
+
 **Resumen:** HU-26 del Sprint 7: horario del alumno en PDF. Se agregó `InscripcionController@descargarHorario`, la ruta `GET inscripciones/horario.pdf` protegida con `inscripciones.ver`, la vista `pdf/horario-alumno`, el botón «Descargar horario PDF» en `inscripciones/index` y 8 pruebas. El documento se arma con la inscripción activa del alumno e incluye sus datos, la actividad y cada bloque de horario.
 
 **Cambios:**

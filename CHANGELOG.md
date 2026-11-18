@@ -17,6 +17,9 @@ Las versiones corresponden a los sprints entregados; la fecha es la fecha de ent
   datos del grupo, instructor, horario y una tabla de alumnos activos con espacio para la firma.
 - **Horario del alumno en PDF:** el alumno descarga su horario desde la pantalla de inscripciones, con
   sus datos, la actividad, el instructor, el lugar y cada bloque de clase del periodo.
+- **Constancia de acreditación en PDF:** el alumno descarga la constancia de las actividades que
+  aprobó, con sus datos, la actividad, los créditos, el desempeño y la fecha de acreditación, además
+  de las firmas del instructor y de la jefatura del departamento.
 
 ## [0.6.0] - 2026-11-17
 

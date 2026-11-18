@@ -35,6 +35,15 @@ class InscripcionPolicy
     }
 
     /**
+     * Constancia de acreditación (Sprint 7, HU-27): solo el propio alumno. El controlador
+     * comprueba además que la inscripción esté aprobada.
+     */
+    public function constancia(User $auth, Inscripcion $inscripcion): bool
+    {
+        return $auth->can('inscripciones.ver') && $this->esPropia($auth, $inscripcion);
+    }
+
+    /**
      * Consulta de la calificación (Sprint 5, HU-20): instructor del grupo, coordinador del
      * departamento o administrador. El alumno la ve en su propio historial.
      */

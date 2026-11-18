@@ -47,6 +47,10 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
     // InscripcionPolicy.
     Route::patch('inscripciones/{inscripcion}/baja', [InscripcionController::class, 'baja'])
         ->middleware('permission:inscripciones.baja')->name('inscripciones.baja');
+    // Sprint 7 - constancia de acreditación en PDF (HU-27). Solo el propio alumno y una
+    // inscripción aprobada.
+    Route::get('inscripciones/{inscripcion}/constancia.pdf', [InscripcionController::class, 'descargarConstancia'])
+        ->middleware('permission:inscripciones.ver')->name('inscripciones.constancia.pdf');
 
     // Módulos limitados por rol/permiso y, para coordinadores, por departamento asignado.
     Route::middleware('departamento.asignado')->group(function () {
